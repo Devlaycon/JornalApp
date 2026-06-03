@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct RootTabView: View {
+struct RootView: View {
 
     var body: some View {
 
@@ -35,5 +35,5 @@ struct RootTabView: View {
 }
 
 #Preview {
-    RootTabView()
+    RootView()
 }
