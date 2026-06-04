@@ -56,19 +56,21 @@ Test this flow:
 13. Wait for **AI Processing**.
 14. Review **Reflection**.
 15. Tap regenerate and confirm the reflection refreshes or shows a clear error.
-16. Tap **Save Entry**.
-17. Confirm the **Saved** screen.
-18. Open **Journal** and inspect the saved detail.
-19. In the journal detail, add or reactivate the suggested next action.
-20. Complete or skip that next action and confirm Home/Profile progress changes.
-21. Save the reflection into a private circle from the journal detail.
-22. Open **Circles** and confirm the saved reflection appears as a private post.
-23. Open **Profile** and confirm the name, entry count, streak, and progress changed.
-24. Edit the display name from **Profile** and confirm **Home** updates.
-25. Open **Profile > QA tools** and confirm build info, local counts, export, seed, and reset controls are available.
-26. Open **Profile > QA tools > AI Lab** and confirm the saved session appears with transcript, engine, attempts, and status.
-27. Open the saved Journal detail, edit title, emotion, private note, and tags, then confirm edited values remain after closing the sheet.
-28. Share the edited reflection into a private circle and confirm the circle post uses the edited title.
+16. Tap **Save & Start Practice**.
+17. Confirm the app opens **Practice** with the suggested action active.
+18. Complete or skip the practice and confirm Home/Profile progress changes.
+19. Start another reflection and tap **Save Entry**.
+20. Confirm the **Saved** screen still appears.
+21. Open **Journal** and inspect the saved detail.
+22. In the journal detail, add or reactivate the suggested practice.
+23. Save the reflection into a private circle from the journal detail.
+24. Open **Circles** and confirm the saved reflection appears as a private post without private workspace notes.
+25. Open **Profile** and confirm the name, entry count, streak, and progress changed.
+26. Edit the display name from **Profile** and confirm **Home** updates.
+27. Open **Profile > QA tools** and confirm build info, local counts, export, seed, and reset controls are available.
+28. Open **Profile > QA tools > AI Lab** and confirm the saved session appears with transcript, engine, attempts, and status.
+29. Open the saved Journal detail, edit title, emotion, private note, and tags, then confirm edited values remain after closing the sheet.
+30. Share the edited reflection into a private circle and confirm the circle post uses the edited title.
 
 Use Simulator for SwiftUI Previews. Use the connected iPhone for Run testing. Physical-device Preview errors do not necessarily mean the app build is broken.
 
@@ -79,9 +81,9 @@ Use these controls when teammates need the same local state on a phone:
 1. Open **Profile**.
 2. Tap **QA tools**.
 3. Tap **Seed demo data**.
-4. Confirm Profile now shows demo reflections, circles, posts, quests, XP, and mood.
-5. Open **Home**, **Journal**, and **Circles** to confirm the same demo state appears across tabs.
-6. Open the latest journal detail and use the daily practice card to complete, skip, or reactivate the quest.
+4. Confirm Profile now shows demo reflections, circles, posts, practices, XP, and mood.
+5. Open **Home**, **Journal**, **Practice**, and **Circles** to confirm the same demo state appears across tabs.
+6. Open **Practice** and use the active practice card to complete, skip, or restart a practice.
 7. Save the latest reflection into a circle and confirm duplicate saves are disabled.
 8. Return to **Profile > QA tools**.
 9. Tap **Copy QA** or **Share QA** and confirm the export includes build info, profile summary, local counts, and journal text.
@@ -98,13 +100,14 @@ Test these before calling the build demo-ready:
 4. Finish with typed text and confirm AI analysis starts.
 5. Regenerate from the reflection screen and confirm Save uses the latest generated result.
 6. Save once and confirm the confirmation screen appears.
-7. Open Journal and confirm only one new entry exists.
-8. Use **Record Another** and confirm the previous transcript is cleared.
-9. Deny microphone or speech permission on a fresh install if possible and confirm typed fallback still works.
-10. Open **Profile > QA tools > AI Lab** and confirm the session appears.
-11. Copy the AI QA export and confirm it includes transcript, engine, attempts, and status.
-12. Open the saved Journal detail, edit title, emotion, private note, and tags, and confirm the edited values appear after closing the sheet.
-13. Share the edited reflection into a private circle and confirm the circle post uses the edited title.
+7. Repeat with another reflection, use **Save & Start Practice**, and confirm Practice opens with the new practice.
+8. Open Journal and confirm only one new entry exists.
+9. Use **Record Another** and confirm the previous transcript is cleared.
+10. Deny microphone or speech permission on a fresh install if possible and confirm typed fallback still works.
+11. Open **Profile > QA tools > AI Lab** and confirm the session appears.
+12. Copy the AI QA export and confirm it includes transcript, engine, attempts, and status.
+13. Open the saved Journal detail, edit title, emotion, private note, and tags, and confirm the edited values appear after closing the sheet.
+14. Share the edited reflection into a private circle and confirm the circle post uses the edited title.
 
 ## 8. Onboarding And Home Visual Checks
 
@@ -118,17 +121,18 @@ Test these before calling the build demo-ready:
 ## 9. Local Workflow Checks
 
 1. Save a reflection and confirm Home shows a real next action.
-2. Tap **Complete** on the Home quest and confirm Profile XP/progress updates.
-3. Save another reflection and tap **Skip** on the quest to confirm it disappears from active quests.
-4. Open the latest journal detail and reactivate a skipped or completed quest.
-5. Save the reflection into a private circle from the journal detail.
-6. Open **Circles** and confirm cards show spaces, posts, and reflections instead of member counts.
-7. Create a new private circle.
-8. Open the circle and add a support note.
-9. Share the latest reflection into that circle.
-10. Confirm the circle post count and latest activity update.
-11. Open **Profile** and confirm entries, streak, circles, mood, badges, quests, and local data summary all reflect real local state.
-12. Edit the display name and confirm Home/Profile use the new name.
+2. Tap **Open Practice** from Home and confirm the Practice tab opens.
+3. Complete the active practice and confirm Profile XP/progress updates.
+4. Save another reflection and tap **Skip** in Practice to confirm it disappears from active practices.
+5. Restart a skipped or completed practice from the Practice tab.
+6. Save the reflection into a private circle from the journal detail.
+7. Open **Circles** and confirm cards show spaces, posts, and reflections instead of member counts.
+8. Create a new private circle.
+9. Open the circle and add a support note.
+10. Share the latest reflection into that circle.
+11. Confirm the circle post count and latest activity update.
+12. Open **Profile** and confirm entries, streak, circles, mood, badges, practices, and local data summary all reflect real local state.
+13. Edit the display name and confirm Home/Profile use the new name.
 
 ## Backend Decision
 

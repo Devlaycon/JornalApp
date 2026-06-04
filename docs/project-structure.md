@@ -17,11 +17,13 @@ Circleu/
 
 ## Feature Folders
 
-Use `Features/<FeatureName>/` for screens and UI that belong to one workflow, such as Home, Journal, Circle, Recording, Reflection, Profile, or Onboarding.
+Use `Features/<FeatureName>/` for screens and UI that belong to one workflow, such as Home, Journal, Practice, Circle, Recording, Reflection, Profile, or Onboarding.
 
 Keep feature-specific cards, rows, and sheets inside the feature folder until another feature truly needs them.
 
 Profile also owns local QA tools because the controls are user-facing during phone testing but specific to app state and reproducibility.
+
+Practice owns the user-facing action workflow. The underlying model is still named `Quest` for now because earlier app state and persistence already use that language; `QuestStore` owns active, completed, skipped, and reactivated practice state.
 
 ## Components
 
@@ -59,6 +61,7 @@ Use `Profile > QA tools` on a device to seed deterministic local demo data, rese
 The first shareable branch keeps large workflow helpers close to their features:
 
 - `Features/Profile/ProfileQAToolsSheet.swift` owns local QA seed/reset/export UI.
+- `Features/Practice/PracticeView.swift` owns the active/completed/skipped practice workflow.
 - `Features/Circle/CircleSheets.swift` owns circle create/detail/edit/post/share sheets.
 - `Features/Journal/JournalCircleShareSheet.swift` owns journal-to-circle sharing UI.
 
