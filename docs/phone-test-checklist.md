@@ -66,6 +66,9 @@ Test this flow:
 23. Open **Profile** and confirm the name, entry count, streak, and progress changed.
 24. Edit the display name from **Profile** and confirm **Home** updates.
 25. Open **Profile > QA tools** and confirm build info, local counts, export, seed, and reset controls are available.
+26. Open **Profile > QA tools > AI Lab** and confirm the saved session appears with transcript, engine, attempts, and status.
+27. Open the saved Journal detail, edit title, emotion, private note, and tags, then confirm edited values remain after closing the sheet.
+28. Share the edited reflection into a private circle and confirm the circle post uses the edited title.
 
 Use Simulator for SwiftUI Previews. Use the connected iPhone for Run testing. Physical-device Preview errors do not necessarily mean the app build is broken.
 
@@ -98,6 +101,10 @@ Test these before calling the build demo-ready:
 7. Open Journal and confirm only one new entry exists.
 8. Use **Record Another** and confirm the previous transcript is cleared.
 9. Deny microphone or speech permission on a fresh install if possible and confirm typed fallback still works.
+10. Open **Profile > QA tools > AI Lab** and confirm the session appears.
+11. Copy the AI QA export and confirm it includes transcript, engine, attempts, and status.
+12. Open the saved Journal detail, edit title, emotion, private note, and tags, and confirm the edited values appear after closing the sheet.
+13. Share the edited reflection into a private circle and confirm the circle post uses the edited title.
 
 ## 8. Onboarding And Home Visual Checks
 

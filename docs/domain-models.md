@@ -33,6 +33,21 @@ It contains:
 
 The app uses this to show the Reflection screen and to create a follow-up quest after saving.
 
+## AI Reflection Session
+
+`AIReflectionSession` is the local record of how a reflection was generated.
+
+It contains:
+
+- source, such as recording, typed fallback, regeneration, or QA seed,
+- transcript and duration,
+- engine name,
+- linked journal entry when saved,
+- one or more attempts,
+- selected successful attempt.
+
+Journal entries are for the user's saved reflection. AI sessions are for model evaluation and QA.
+
 ## Quest
 
 `Quest` is one small action the user can take after a reflection.

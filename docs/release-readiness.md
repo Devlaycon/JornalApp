@@ -15,8 +15,10 @@ This branch is prepared as the first shareable local-first MVP branch for phone 
 - Home shows local progress, latest reflection, daily prompt, and active quest.
 - Recording supports voice capture, permission readiness, speech recognition, transcript quality checks, typed fallback, AI analysis retry, reflection regeneration, and save confirmation.
 - Journal lists saved reflections, opens detail, exports entries, manages related quests, and saves insights to private circles.
+- Journal detail supports editable reflection workspace fields and AI session history.
 - Circles support local private spaces, notes, edits, deletes, and reflection shares.
 - Profile shows real local progress, editable profile, local data summary, and QA seed/reset/export tools.
+- AI Lab exposes local session history, attempt counts, and exportable QA data.
 
 ## Repo Cleanup
 
