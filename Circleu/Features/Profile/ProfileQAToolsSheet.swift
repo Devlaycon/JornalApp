@@ -149,7 +149,7 @@ struct ProfileQAToolsSheet: View {
             }
             .buttonStyle(PinguSecondaryButtonStyle())
 
-            Text("Seed creates a repeatable local state with demo reflections, AI sessions, quests, circles, and support posts. Reset clears app data, including AI sessions, and returns onboarding to the first-run state.")
+            Text("Seed creates a repeatable local state with demo reflections, AI sessions and transcripts, quests, circles, and support posts. Reset clears app data, including AI sessions and transcripts, and returns onboarding to the first-run state.")
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)

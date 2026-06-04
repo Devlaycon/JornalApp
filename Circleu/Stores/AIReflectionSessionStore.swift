@@ -19,8 +19,11 @@ final class AIReflectionSessionStore: ObservableObject {
 
     func add(_ session: AIReflectionSession) {
         let normalizedSession = normalize(session)
-        guard !sessions.contains(where: { $0.id == normalizedSession.id }) else { return }
-        sessions.insert(normalizedSession, at: 0)
+        if let index = sessions.firstIndex(where: { $0.id == normalizedSession.id }) {
+            sessions[index] = mergePair(sessions[index], normalizedSession)
+        } else {
+            sessions.insert(normalizedSession, at: 0)
+        }
         sortSessions()
         save()
     }
@@ -28,7 +31,7 @@ final class AIReflectionSessionStore: ObservableObject {
     func upsert(_ session: AIReflectionSession) {
         let normalizedSession = normalize(session)
         if let index = sessions.firstIndex(where: { $0.id == normalizedSession.id }) {
-            sessions[index] = normalizedSession
+            sessions[index] = mergePair(sessions[index], normalizedSession)
         } else {
             sessions.insert(normalizedSession, at: 0)
         }
@@ -262,6 +265,11 @@ final class AIReflectionSessionStore: ObservableObject {
         }
 
         return normalize(mergedSession)
+    }
+
+    private func mergePair(_ firstSession: AIReflectionSession, _ secondSession: AIReflectionSession) -> AIReflectionSession {
+        let sortedSessions = orderedSessions([firstSession, secondSession])
+        return merge(sortedSessions[0], with: sortedSessions[1])
     }
 
     private func sortSessions() {
