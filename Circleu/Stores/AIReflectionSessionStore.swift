@@ -18,6 +18,7 @@ final class AIReflectionSessionStore: ObservableObject {
     func add(_ session: AIReflectionSession) {
         guard !sessions.contains(where: { $0.id == session.id }) else { return }
         sessions.insert(session, at: 0)
+        sortSessions()
         save()
     }
 
@@ -27,19 +28,21 @@ final class AIReflectionSessionStore: ObservableObject {
         } else {
             sessions.insert(session, at: 0)
         }
-        sessions.sort { $0.updatedAt > $1.updatedAt }
+        sortSessions()
         save()
     }
 
     func append(_ attempt: AIReflectionAttempt, to sessionID: UUID) {
         guard let index = sessions.firstIndex(where: { $0.id == sessionID }) else { return }
+        guard !sessions[index].attempts.contains(where: { $0.id == attempt.id }) else { return }
+
         sessions[index].attempts.append(attempt)
         sessions[index].updatedAt = Date()
         if attempt.status == .succeeded {
             sessions[index].selectedAttemptID = attempt.id
             sessions[index].engineName = attempt.engineName
         }
-        sessions.sort { $0.updatedAt > $1.updatedAt }
+        sortSessions()
         save()
     }
 
@@ -47,17 +50,20 @@ final class AIReflectionSessionStore: ObservableObject {
         guard let index = sessions.firstIndex(where: { $0.id == sessionID }) else { return }
         sessions[index].entryID = entryID
         sessions[index].updatedAt = Date()
+        sortSessions()
         save()
     }
 
     func selectAttempt(_ attemptID: UUID, in sessionID: UUID) {
         guard let index = sessions.firstIndex(where: { $0.id == sessionID }),
-              sessions[index].attempts.contains(where: { $0.id == attemptID && $0.status == .succeeded }) else {
+              let attempt = sessions[index].attempts.first(where: { $0.id == attemptID && $0.status == .succeeded }) else {
             return
         }
 
         sessions[index].selectedAttemptID = attemptID
+        sessions[index].engineName = attempt.engineName
         sessions[index].updatedAt = Date()
+        sortSessions()
         save()
     }
 
@@ -66,8 +72,16 @@ final class AIReflectionSessionStore: ObservableObject {
         return sessions.first { $0.id == id }
     }
 
+    func session(for entry: JournalReflectionEntry) -> AIReflectionSession? {
+        if let linked = session(with: entry.sessionID) {
+            return linked
+        }
+        return sessions.first { $0.entryID == entry.id }
+    }
+
     func replaceAll(with newSessions: [AIReflectionSession]) {
-        sessions = newSessions.sorted { $0.updatedAt > $1.updatedAt }
+        sessions = newSessions
+        sortSessions()
         save()
     }
 
@@ -118,7 +132,12 @@ final class AIReflectionSessionStore: ObservableObject {
             return
         }
 
-        sessions = savedSessions.sorted { $0.updatedAt > $1.updatedAt }
+        sessions = savedSessions
+        sortSessions()
+    }
+
+    private func sortSessions() {
+        sessions.sort { $0.updatedAt > $1.updatedAt }
     }
 
     private func save() {
