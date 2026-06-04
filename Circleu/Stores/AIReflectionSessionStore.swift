@@ -29,7 +29,7 @@ final class AIReflectionSessionStore: ObservableObject {
     }
 
     func append(_ attempt: AIReflectionAttempt, to sessionID: UUID) {
-        guard let index = sessions.firstIndex(where: { $0.id == sessionID }) else { return }
+        guard let index = canonicalSessionIndex(for: sessionID) else { return }
 
         sessions[index].attempts.append(attempt)
         sessions[index].updatedAt = Date()
@@ -43,7 +43,7 @@ final class AIReflectionSessionStore: ObservableObject {
     }
 
     func link(sessionID: UUID, to entryID: UUID) {
-        guard let index = sessions.firstIndex(where: { $0.id == sessionID }) else { return }
+        guard let index = canonicalSessionIndex(for: sessionID) else { return }
         sessions[index].entryID = entryID
         sessions[index].updatedAt = Date()
         sessions = normalizedUniqueSortedSessions(from: sessions)
@@ -51,7 +51,7 @@ final class AIReflectionSessionStore: ObservableObject {
     }
 
     func selectAttempt(_ attemptID: UUID, in sessionID: UUID) {
-        guard let index = sessions.firstIndex(where: { $0.id == sessionID }),
+        guard let index = canonicalSessionIndex(for: sessionID),
               let attempt = sessions[index].attempts.first(where: { $0.id == attemptID && $0.status == .succeeded }) else {
             return
         }
@@ -59,13 +59,15 @@ final class AIReflectionSessionStore: ObservableObject {
         sessions[index].selectedAttemptID = attemptID
         sessions[index].engineName = attempt.engineName
         sessions[index].updatedAt = Date()
-        sortSessions()
+        sessions[index] = normalize(sessions[index])
+        sessions = normalizedUniqueSortedSessions(from: sessions)
         save()
     }
 
     func session(with id: UUID?) -> AIReflectionSession? {
         guard let id else { return nil }
-        return sessions.first { $0.id == id }
+        guard let index = canonicalSessionIndex(for: id) else { return nil }
+        return sessions[index]
     }
 
     func session(for entry: JournalReflectionEntry) -> AIReflectionSession? {
@@ -142,6 +144,10 @@ final class AIReflectionSessionStore: ObservableObject {
 
     private func normalize(_ session: AIReflectionSession) -> AIReflectionSession {
         var normalizedSession = session
+        normalizedSession.mergedSessionIDs = normalizedAliasIDs(
+            from: normalizedSession.mergedSessionIDs,
+            excluding: normalizedSession.id
+        )
         normalizedSession.attempts = deduplicatedAttempts(from: normalizedSession)
 
         let selectedAttempt: AIReflectionAttempt?
@@ -265,6 +271,10 @@ final class AIReflectionSessionStore: ObservableObject {
     private func merge(_ newestSession: AIReflectionSession, with olderSession: AIReflectionSession) -> AIReflectionSession {
         var mergedSession = newestSession
         mergedSession.attempts.append(contentsOf: olderSession.attempts)
+        mergedSession.mergedSessionIDs = normalizedAliasIDs(
+            from: mergedSession.mergedSessionIDs + olderSession.mergedSessionIDs + [olderSession.id],
+            excluding: mergedSession.id
+        )
 
         if mergedSession.entryID == nil {
             mergedSession.entryID = olderSession.entryID
@@ -272,13 +282,15 @@ final class AIReflectionSessionStore: ObservableObject {
 
         if olderSession.transcript.count > mergedSession.transcript.count {
             mergedSession.transcript = olderSession.transcript
+            mergedSession.durationSeconds = olderSession.durationSeconds
+            mergedSession.source = olderSession.source
         }
 
         return normalize(mergedSession)
     }
 
     private func areSessionsConnected(_ lhs: AIReflectionSession, _ rhs: AIReflectionSession) -> Bool {
-        if lhs.id == rhs.id {
+        if sessionIdentityIDs(for: lhs).isDisjoint(with: sessionIdentityIDs(for: rhs)) == false {
             return true
         }
         guard let leftEntryID = lhs.entryID,
@@ -286,6 +298,22 @@ final class AIReflectionSessionStore: ObservableObject {
             return false
         }
         return leftEntryID == rightEntryID
+    }
+
+    private func canonicalSessionIndex(for id: UUID) -> [AIReflectionSession].Index? {
+        sessions.firstIndex { session in
+            session.id == id || session.mergedSessionIDs.contains(id)
+        }
+    }
+
+    private func sessionIdentityIDs(for session: AIReflectionSession) -> Set<UUID> {
+        Set([session.id] + session.mergedSessionIDs)
+    }
+
+    private func normalizedAliasIDs(from ids: [UUID], excluding excludedID: UUID) -> [UUID] {
+        Set(ids)
+            .filter { $0 != excludedID }
+            .sorted { $0.uuidString < $1.uuidString }
     }
 
     private func sortSessions() {

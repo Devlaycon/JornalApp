@@ -67,6 +67,7 @@ struct AIReflectionAttempt: Identifiable, Codable, Equatable {
 
 struct AIReflectionSession: Identifiable, Codable, Equatable {
     let id: UUID
+    var mergedSessionIDs: [UUID]
     var createdAt: Date
     var updatedAt: Date
     var entryID: UUID?
@@ -87,9 +88,11 @@ struct AIReflectionSession: Identifiable, Codable, Equatable {
         transcript: String,
         durationSeconds: Int,
         attempts: [AIReflectionAttempt] = [],
-        selectedAttemptID: UUID? = nil
+        selectedAttemptID: UUID? = nil,
+        mergedSessionIDs: [UUID] = []
     ) {
         self.id = id
+        self.mergedSessionIDs = mergedSessionIDs
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.entryID = entryID
@@ -99,6 +102,50 @@ struct AIReflectionSession: Identifiable, Codable, Equatable {
         self.durationSeconds = durationSeconds
         self.attempts = attempts
         self.selectedAttemptID = selectedAttemptID
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case mergedSessionIDs
+        case createdAt
+        case updatedAt
+        case entryID
+        case engineName
+        case source
+        case transcript
+        case durationSeconds
+        case attempts
+        case selectedAttemptID
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        mergedSessionIDs = try container.decodeIfPresent([UUID].self, forKey: .mergedSessionIDs) ?? []
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        entryID = try container.decodeIfPresent(UUID.self, forKey: .entryID)
+        engineName = try container.decode(String.self, forKey: .engineName)
+        source = try container.decode(AIReflectionSource.self, forKey: .source)
+        transcript = try container.decode(String.self, forKey: .transcript)
+        durationSeconds = try container.decode(Int.self, forKey: .durationSeconds)
+        attempts = try container.decode([AIReflectionAttempt].self, forKey: .attempts)
+        selectedAttemptID = try container.decodeIfPresent(UUID.self, forKey: .selectedAttemptID)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(mergedSessionIDs, forKey: .mergedSessionIDs)
+        try container.encode(createdAt, forKey: .createdAt)
+        try container.encode(updatedAt, forKey: .updatedAt)
+        try container.encodeIfPresent(entryID, forKey: .entryID)
+        try container.encode(engineName, forKey: .engineName)
+        try container.encode(source, forKey: .source)
+        try container.encode(transcript, forKey: .transcript)
+        try container.encode(durationSeconds, forKey: .durationSeconds)
+        try container.encode(attempts, forKey: .attempts)
+        try container.encodeIfPresent(selectedAttemptID, forKey: .selectedAttemptID)
     }
 
     var selectedAttempt: AIReflectionAttempt? {
@@ -131,6 +178,7 @@ struct AIReflectionSession: Identifiable, Codable, Equatable {
     }
 
     var exportText: String {
+        let mergedIDsLine = mergedSessionIDs.isEmpty ? "" : "\nMerged sessions: \(mergedSessionIDs.map(\.uuidString).joined(separator: ", "))"
         let attemptLines = attempts.map { attempt in
             """
             Attempt: \(attempt.createdAt.formatted(date: .abbreviated, time: .shortened))
@@ -146,7 +194,7 @@ struct AIReflectionSession: Identifiable, Codable, Equatable {
         return """
         AI Reflection Session
 
-        Session: \(id.uuidString)
+        Session: \(id.uuidString)\(mergedIDsLine)
         Source: \(source.label)
         Engine: \(engineName)
         Created: \(createdAt.formatted(date: .complete, time: .shortened))
