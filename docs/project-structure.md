@@ -46,6 +46,7 @@ Use `Design/` for visual tokens and constants only. `PinguDesign` owns app color
 - `Stores/` owns app state and persistence.
 - `Engines/` transforms data or runs analysis.
 - `Services/` wraps system APIs such as audio recording and speech recognition.
+- `Services/BackendPreparation.swift` defines local no-op interfaces for future identity, sync, analytics, and model provider work. These protocols prepare the app for backend work without adding network calls or secrets.
 
 This separation lets frontend, business logic, and system integrations evolve independently while keeping the app easy to test on a real phone.
 
