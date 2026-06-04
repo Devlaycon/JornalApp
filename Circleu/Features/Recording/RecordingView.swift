@@ -253,6 +253,8 @@ struct RecordingView: View {
                 .foregroundStyle(PinguDesign.blue)
             }
 
+            permissionReadinessRow
+
             Label(transcriptQuality.guidance, systemImage: transcriptQuality.isReady ? "checkmark.circle.fill" : "info.circle.fill")
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .foregroundStyle(transcriptQuality.isReady ? PinguDesign.blue : PinguDesign.muted)
@@ -269,6 +271,51 @@ struct RecordingView: View {
         .overlay {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .stroke(PinguDesign.border, lineWidth: 1)
+        }
+    }
+
+    private var permissionReadinessRow: some View {
+        HStack(spacing: 8) {
+            permissionBadge(
+                title: "Mic",
+                state: recorder.microphonePermissionState
+            )
+
+            permissionBadge(
+                title: "Speech",
+                state: recorder.speechPermissionState
+            )
+        }
+        .padding(.top, 2)
+    }
+
+    private func permissionBadge(title: String, state: VoicePermissionState) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: state.icon)
+                .font(.system(size: 12, weight: .bold))
+
+            Text("\(title) \(state.label)")
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .foregroundStyle(permissionColor(for: state))
+        .frame(maxWidth: .infinity, minHeight: 34)
+        .padding(.horizontal, 8)
+        .background(permissionColor(for: state).opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+
+    private func permissionColor(for state: VoicePermissionState) -> Color {
+        switch state {
+        case .granted:
+            return PinguDesign.blue
+        case .checking:
+            return PinguDesign.orange
+        case .denied, .unavailable:
+            return PinguDesign.muted
+        case .waiting:
+            return PinguDesign.muted.opacity(0.82)
         }
     }
 

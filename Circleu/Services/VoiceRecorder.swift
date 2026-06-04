@@ -3,12 +3,52 @@ import Combine
 import Foundation
 import Speech
 
+enum VoicePermissionState: Equatable {
+    case waiting
+    case checking
+    case granted
+    case denied
+    case unavailable
+
+    var icon: String {
+        switch self {
+        case .waiting:
+            return "circle"
+        case .checking:
+            return "clock"
+        case .granted:
+            return "checkmark.circle.fill"
+        case .denied:
+            return "exclamationmark.circle.fill"
+        case .unavailable:
+            return "wifi.exclamationmark"
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .waiting:
+            return "Waiting"
+        case .checking:
+            return "Checking"
+        case .granted:
+            return "Ready"
+        case .denied:
+            return "Needs access"
+        case .unavailable:
+            return "Unavailable"
+        }
+    }
+}
+
 final class VoiceRecorder: NSObject, ObservableObject {
     @Published var transcript = ""
     @Published var elapsedSeconds = 0
     @Published var isRecording = false
     @Published var isPaused = false
     @Published var isTypedFallbackAvailable = false
+    @Published var microphonePermissionState: VoicePermissionState = .waiting
+    @Published var speechPermissionState: VoicePermissionState = .waiting
     @Published var statusMessage = "Preparing microphone..."
     @Published var errorMessage: String?
 
@@ -26,6 +66,12 @@ final class VoiceRecorder: NSObject, ObservableObject {
         guard !isRecording else { return }
 
         Task {
+            await MainActor.run {
+                self.microphonePermissionState = .checking
+                self.speechPermissionState = .checking
+                self.statusMessage = "Checking permissions..."
+            }
+
             let allowed = await requestPermissions()
             guard allowed else { return }
 
@@ -74,6 +120,8 @@ final class VoiceRecorder: NSObject, ObservableObject {
         elapsedSeconds = 0
         errorMessage = nil
         isTypedFallbackAvailable = false
+        microphonePermissionState = .waiting
+        speechPermissionState = .waiting
         statusMessage = "Preparing microphone..."
     }
 
@@ -101,9 +149,15 @@ final class VoiceRecorder: NSObject, ObservableObject {
 
         guard speechAllowed else {
             await MainActor.run {
+                self.speechPermissionState = .denied
+                self.microphonePermissionState = .waiting
                 self.enterTypedFallback(message: "Speech recognition is unavailable. You can still type your reflection below.")
             }
             return false
+        }
+
+        await MainActor.run {
+            self.speechPermissionState = .granted
         }
 
         let microphoneAllowed = await withCheckedContinuation { continuation in
@@ -120,9 +174,14 @@ final class VoiceRecorder: NSObject, ObservableObject {
 
         guard microphoneAllowed else {
             await MainActor.run {
+                self.microphonePermissionState = .denied
                 self.enterTypedFallback(message: "Microphone permission is unavailable. You can still type your reflection below.")
             }
             return false
+        }
+
+        await MainActor.run {
+            self.microphonePermissionState = .granted
         }
 
         return true
@@ -136,6 +195,7 @@ final class VoiceRecorder: NSObject, ObservableObject {
         isTypedFallbackAvailable = false
 
         guard let speechRecognizer, speechRecognizer.isAvailable else {
+            speechPermissionState = .unavailable
             enterTypedFallback(message: "Speech recognition is not available right now. You can still type your reflection below.")
             return
         }
@@ -174,9 +234,12 @@ final class VoiceRecorder: NSObject, ObservableObject {
 
             isRecording = true
             isPaused = false
+            microphonePermissionState = .granted
+            speechPermissionState = .granted
             statusMessage = "Listening..."
             startTimer()
         } catch {
+            microphonePermissionState = .unavailable
             enterTypedFallback(message: "Could not start recording. You can still type your reflection below.")
         }
     }
