@@ -9,6 +9,7 @@ struct ProfileQAToolsSheet: View {
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var questStore: QuestStore
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
+    @State private var showAILab = false
     @State private var showResetConfirmation = false
     @State private var statusMessage = "Ready for local phone testing."
 
@@ -37,6 +38,12 @@ struct ProfileQAToolsSheet: View {
                     Button("Done") {
                         dismiss()
                     }
+                }
+            }
+            .sheet(isPresented: $showAILab) {
+                NavigationStack {
+                    AIReflectionLabView()
+                        .environmentObject(aiSessionStore)
                 }
             }
             .confirmationDialog(
@@ -141,6 +148,13 @@ struct ProfileQAToolsSheet: View {
                 Label("Seed demo data", systemImage: "sparkles")
             }
             .buttonStyle(PinguPrimaryButtonStyle())
+
+            Button {
+                showAILab = true
+            } label: {
+                Label("Open AI Lab", systemImage: "cpu")
+            }
+            .buttonStyle(PinguSecondaryButtonStyle())
 
             Button(role: .destructive) {
                 showResetConfirmation = true
