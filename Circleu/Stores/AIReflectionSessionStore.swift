@@ -16,17 +16,19 @@ final class AIReflectionSessionStore: ObservableObject {
     }
 
     func add(_ session: AIReflectionSession) {
-        guard !sessions.contains(where: { $0.id == session.id }) else { return }
-        sessions.insert(session, at: 0)
+        let normalizedSession = normalize(session)
+        guard !sessions.contains(where: { $0.id == normalizedSession.id }) else { return }
+        sessions.insert(normalizedSession, at: 0)
         sortSessions()
         save()
     }
 
     func upsert(_ session: AIReflectionSession) {
-        if let index = sessions.firstIndex(where: { $0.id == session.id }) {
-            sessions[index] = session
+        let normalizedSession = normalize(session)
+        if let index = sessions.firstIndex(where: { $0.id == normalizedSession.id }) {
+            sessions[index] = normalizedSession
         } else {
-            sessions.insert(session, at: 0)
+            sessions.insert(normalizedSession, at: 0)
         }
         sortSessions()
         save()
@@ -80,8 +82,7 @@ final class AIReflectionSessionStore: ObservableObject {
     }
 
     func replaceAll(with newSessions: [AIReflectionSession]) {
-        sessions = newSessions
-        sortSessions()
+        sessions = normalizedUniqueSortedSessions(from: newSessions)
         save()
     }
 
@@ -132,8 +133,51 @@ final class AIReflectionSessionStore: ObservableObject {
             return
         }
 
-        sessions = savedSessions
-        sortSessions()
+        sessions = normalizedUniqueSortedSessions(from: savedSessions)
+    }
+
+    private func normalize(_ session: AIReflectionSession) -> AIReflectionSession {
+        var normalizedSession = session
+        var seenAttemptIDs = Set<UUID>()
+        normalizedSession.attempts = normalizedSession.attempts.filter { attempt in
+            seenAttemptIDs.insert(attempt.id).inserted
+        }
+
+        let selectedAttempt: AIReflectionAttempt?
+        if let selectedAttemptID = normalizedSession.selectedAttemptID,
+           let currentSelection = normalizedSession.attempts.first(where: { $0.id == selectedAttemptID && $0.status == .succeeded }) {
+            selectedAttempt = currentSelection
+        } else {
+            selectedAttempt = normalizedSession.attempts.last(where: { $0.status == .succeeded })
+            normalizedSession.selectedAttemptID = selectedAttempt?.id
+        }
+
+        if let selectedAttempt {
+            normalizedSession.engineName = selectedAttempt.engineName
+        } else {
+            normalizedSession.selectedAttemptID = nil
+        }
+
+        return normalizedSession
+    }
+
+    private func normalizedUniqueSortedSessions(from source: [AIReflectionSession]) -> [AIReflectionSession] {
+        let sortedSessions = source.enumerated()
+            .map { offset, session in
+                (offset: offset, session: normalize(session))
+            }
+            .sorted {
+                if $0.session.updatedAt == $1.session.updatedAt {
+                    return $0.offset < $1.offset
+                }
+                return $0.session.updatedAt > $1.session.updatedAt
+            }
+
+        var seenSessionIDs = Set<UUID>()
+        return sortedSessions.compactMap { item in
+            guard seenSessionIDs.insert(item.session.id).inserted else { return nil }
+            return item.session
+        }
     }
 
     private func sortSessions() {

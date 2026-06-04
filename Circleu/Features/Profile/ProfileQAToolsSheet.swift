@@ -8,6 +8,7 @@ struct ProfileQAToolsSheet: View {
     @EnvironmentObject private var profileStore: UserProfileStore
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var questStore: QuestStore
+    @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @State private var showResetConfirmation = false
     @State private var statusMessage = "Ready for local phone testing."
 
@@ -92,6 +93,7 @@ struct ProfileQAToolsSheet: View {
             ProfileDataRow(title: "Onboarding", value: hasCompletedOnboarding ? "Complete" : "Open")
             ProfileDataRow(title: "Profile", value: profileStore.displayName.isEmpty ? "No name" : profileStore.displayName)
             ProfileDataRow(title: "Reflections", value: "\(currentProgress.entryCount)")
+            ProfileDataRow(title: "AI sessions", value: "\(aiSessionStore.sessions.count)")
             ProfileDataRow(title: "Quests", value: "\(questStore.quests.count)")
             ProfileDataRow(title: "Circles", value: "\(circleStore.circles.count)")
             ProfileDataRow(title: "Posts", value: "\(circleStore.posts.count)")
@@ -165,12 +167,15 @@ struct ProfileQAToolsSheet: View {
 
         Local State
         Onboarding complete: \(hasCompletedOnboarding)
+        Total AI sessions: \(aiSessionStore.sessions.count)
         Total quests: \(questStore.quests.count)
         Active quests: \(questStore.activeQuests.count)
         Total circles: \(circleStore.circles.count)
         Total posts: \(circleStore.posts.count)
 
         \(journalExport)
+
+        \(aiSessionStore.exportText())
         """
     }
 
@@ -195,6 +200,7 @@ struct ProfileQAToolsSheet: View {
         let entries = ReflectionJournalStore.demoEntries(referenceDate: referenceDate)
         profileStore.seedDemoProfile()
         journalStore.replaceAll(with: entries)
+        aiSessionStore.seedDemoData(entries: entries, referenceDate: referenceDate)
         questStore.seedDemoData(entries: entries, referenceDate: referenceDate)
         circleStore.seedDemoData(entries: entries, referenceDate: referenceDate)
         hasCompletedOnboarding = true
@@ -204,6 +210,7 @@ struct ProfileQAToolsSheet: View {
     private func resetLocalData() {
         profileStore.reset()
         journalStore.reset()
+        aiSessionStore.reset()
         questStore.reset()
         circleStore.reset(seedStarterSpaces: false)
         hasCompletedOnboarding = false
