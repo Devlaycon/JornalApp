@@ -97,4 +97,5 @@ private extension PinguTab {
         .environmentObject(QuestStore())
         .environmentObject(CircleStore())
         .environmentObject(UserProfileStore())
+        .environmentObject(AIReflectionSessionStore())
 }
