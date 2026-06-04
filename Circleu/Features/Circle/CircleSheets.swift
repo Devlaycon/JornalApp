@@ -330,7 +330,7 @@ private struct ReflectionPickerSheet: View {
                             .font(.system(size: 30, weight: .bold, design: .rounded))
                             .foregroundStyle(PinguDesign.ink)
 
-                        Text("Choose a saved reflection. Circleu keeps this as a private post in the selected circle.")
+                        Text("Choose a saved reflection. Circleu keeps a privacy-safe local copy in this circle.")
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundStyle(PinguDesign.muted)
                             .lineSpacing(4)
@@ -349,12 +349,12 @@ private struct ReflectionPickerSheet: View {
                                         .clipShape(Circle())
 
                                     VStack(alignment: .leading, spacing: 5) {
-                                        Text(entry.result.title)
+                                        Text(entry.displayTitle)
                                             .font(.system(size: 17, weight: .bold, design: .rounded))
                                             .foregroundStyle(PinguDesign.ink)
                                             .lineLimit(1)
 
-                                        Text("\(entry.result.emotion) - \(entry.createdAt.formatted(date: .abbreviated, time: .shortened))")
+                                        Text("\(entry.displayEmotion) - \(entry.createdAt.formatted(date: .abbreviated, time: .shortened))")
                                             .font(.system(size: 13, weight: .bold, design: .rounded))
                                             .foregroundStyle(PinguDesign.muted)
                                     }

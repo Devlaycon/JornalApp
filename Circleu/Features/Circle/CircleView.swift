@@ -16,14 +16,18 @@ struct CircleView: View {
                         header
                         localSummary
 
-                        VStack(spacing: 12) {
-                            ForEach(circleStore.circles) { circle in
-                                CircleSpaceCard(
-                                    circle: circle,
-                                    postCount: circleStore.posts(for: circle).count,
-                                    lastActivity: circleStore.lastActivity(for: circle)
-                                ) {
-                                    selectedCircle = circle
+                        if circleStore.circles.isEmpty {
+                            emptyCircleState
+                        } else {
+                            VStack(spacing: 12) {
+                                ForEach(circleStore.circles) { circle in
+                                    CircleSpaceCard(
+                                        circle: circle,
+                                        postCount: circleStore.posts(for: circle).count,
+                                        lastActivity: circleStore.lastActivity(for: circle)
+                                    ) {
+                                        selectedCircle = circle
+                                    }
                                 }
                             }
                         }
@@ -76,7 +80,7 @@ struct CircleView: View {
                 .font(.system(size: 35, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
 
-            Text("Organize support notes and reflection shares locally on this iPhone.")
+            Text("Private support spaces saved on this iPhone.")
                 .font(.system(size: 17, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
@@ -105,7 +109,7 @@ struct CircleView: View {
                     .font(.system(size: 17, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.ink)
 
-                Text("These circles are private containers for your reflection shares and support notes on this iPhone.")
+                Text("Circle posts are local copies. Normal shares use reflection summaries and suggested practices, never private workspace notes.")
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(4)
@@ -114,6 +118,38 @@ struct CircleView: View {
         .padding(16)
         .background(PinguDesign.lightBlue.opacity(0.45))
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private var emptyCircleState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "person.2.badge.plus")
+                .font(.system(size: 50, weight: .semibold))
+                .foregroundStyle(PinguDesign.blue)
+
+            VStack(spacing: 7) {
+                Text("Create your first private circle")
+                    .font(.system(size: 23, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.ink)
+
+                Text("Use circles to organize support notes and privacy-safe reflection cards on this iPhone.")
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .foregroundStyle(PinguDesign.muted)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+            }
+
+            Button {
+                showCreateCircle = true
+            } label: {
+                Label("Create circle", systemImage: "plus")
+            }
+            .buttonStyle(PinguPrimaryButtonStyle())
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 14, y: 7)
     }
 }
 
