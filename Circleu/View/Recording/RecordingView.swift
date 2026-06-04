@@ -3,7 +3,8 @@ import SwiftUI
 struct RecordingView: View {
 
     @Environment(\.dismiss) private var dismiss
-    @State private var navigateToReflection = false
+
+    @State private var showReflection = false
     @State private var recordingTime = 103
 
     var body: some View {
@@ -90,7 +91,7 @@ struct RecordingView: View {
                     }
 
                     Button {
-                        navigateToReflection = true
+                        showReflection = true
                     } label: {
 
                         Circle()
@@ -118,8 +119,9 @@ struct RecordingView: View {
                 Spacer()
             }
         }
-        .navigationBarBackButtonHidden(true)
-        .navigationDestination(isPresented: $navigateToReflection) {
+        .fullScreenCover(
+            isPresented: $showReflection
+        ) {
             ReflectionView()
         }
     }
