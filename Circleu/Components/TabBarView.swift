@@ -24,6 +24,10 @@ struct CustomTabBar: View {
 
             Spacer()
 
+            recordButton
+
+            Spacer()
+
             tabButton(
                 image: "person.3",
                 title: "Circle",
@@ -38,12 +42,50 @@ struct CustomTabBar: View {
                 tab: .noot
             )
         }
-        .padding(.horizontal, 30)
-        .padding(.vertical, 14)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 28))
-        .shadow(color: .black.opacity(0.08), radius: 12)
+        .padding(.horizontal, 28)
+        .padding(.vertical, 12)
+        .background(.ultraThinMaterial)
+        .clipShape(
+            RoundedRectangle(
+                cornerRadius: 26
+            )
+        )
+        .shadow(
+            color: .black.opacity(0.08),
+            radius: 12,
+            y: 4
+        )
         .padding(.horizontal)
+        .padding(.bottom, 10)
+    }
+
+    var recordButton: some View {
+
+        Button {
+
+            selectedTab = .record
+
+        } label: {
+
+            ZStack {
+
+                Capsule()
+                    .fill(
+                        Color(
+                            red: 37/255,
+                            green: 99/255,
+                            blue: 235/255
+                        )
+                    )
+                    .frame(
+                        width: 74,
+                        height: 40
+                    )
+
+                Image(systemName: "mic.fill")
+                    .foregroundStyle(.white)
+            }
+        }
     }
 
     func tabButton(
@@ -58,7 +100,7 @@ struct CustomTabBar: View {
 
         } label: {
 
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
 
                 Image(systemName: image)
                     .font(.system(size: 18))
@@ -68,7 +110,11 @@ struct CustomTabBar: View {
             }
             .foregroundStyle(
                 selectedTab == tab
-                ? Color.blue
+                ? Color(
+                    red: 37/255,
+                    green: 99/255,
+                    blue: 235/255
+                )
                 : Color.gray
             )
         }
