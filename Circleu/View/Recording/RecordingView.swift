@@ -1,92 +1,128 @@
 import SwiftUI
+internal import Combine
 
 struct RecordingView: View {
-    @Environment(\.dismiss) var dismiss
-    @State private var showReflection = false
+
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var duration = 0
+    @State private var navigateToReflection = false
+
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack {
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.title2)
-                        .foregroundColor(.black)
+
+        ZStack {
+
+            LinearGradient(
+                colors: [
+                    Color(red: 0.84, green: 0.89, blue: 0.98),
+                    Color(red: 0.94, green: 0.96, blue: 1.0)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            VStack {
+
+                HStack {
+
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                    }
+
+                    Spacer()
+
+                    Button {
+
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                    }
                 }
+                .padding()
+
+                Spacer()
+
+                Text("Listening...")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+
+                Text("You can talk freely.")
+                    .foregroundStyle(.white.opacity(0.8))
+
+                WaveformView()
+                    .padding(.vertical, 40)
+
+                Image("penguin")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120)
+
+                Text(timeString)
+                    .font(.system(size: 56, weight: .light, design: .rounded))
+                    .padding(.top)
+
+                Spacer()
+
+                HStack(spacing: 24) {
+
+                    Button {
+
+                    } label: {
+
+                        Circle()
+                            .fill(.white.opacity(0.8))
+                            .frame(width: 70, height: 70)
+                            .overlay {
+                                Image(systemName: "pause.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(.gray)
+                            }
+                    }
+
+                    Button {
+                        navigateToReflection = true
+                    } label: {
+
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 80, height: 80)
+                            .overlay {
+                                Image(systemName: "checkmark")
+                                    .font(.title)
+                                    .foregroundStyle(.white)
+                            }
+                    }
+                }
+
+                Text("Finish")
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 8)
 
                 Spacer()
             }
-            .padding()
-
-            Spacer()
-
-            Text("Listening...")
-                .font(.largeTitle)
-                .bold()
-
-            Text("Talk freely, there's no right answer.")
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-
-            Spacer()
-
-            Circle()
-                .fill(.gray.opacity(0.2))
-                .frame(width: 120, height: 120)
-                .overlay {
-                    Text("🐧")
-                        .font(.system(size: 50))
-                }
-
-            Spacer()
-
-            WaveformView()
-
-            Spacer()
-
-            Text("00:18")
-                .font(.system(size: 42, weight: .bold))
-                .monospacedDigit()
-
-            Spacer()
-
-            HStack(spacing: 16) {
-                Button {
-
-                } label: {
-                    HStack {
-                        Image(systemName: "pause.fill")
-                        Text("Pause")
-                    }
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.gray.opacity(0.15))
-                    .cornerRadius(20)
-                }
-
-                Button {
-                    showReflection = true
-                } label: {
-                    HStack {
-                        Image(systemName: "checkmark")
-                        Text("Finish")
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.blue)
-                    .cornerRadius(20)
-                }
-            }
-            .padding(.horizontal)
-
-            Spacer()
         }
-        .fullScreenCover(isPresented: $showReflection) {
+        .onReceive(timer) { _ in
+            duration += 1
+        }
+        .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $navigateToReflection) {
             ReflectionView()
         }
+    }
+
+    var timeString: String {
+        let minutes = duration / 60
+        let seconds = duration % 60
+        return String(format: "%02d:%02d", minutes, seconds)
     }
 }
 

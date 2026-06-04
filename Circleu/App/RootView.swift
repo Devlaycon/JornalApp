@@ -12,9 +12,9 @@ struct RootView: View {
                     Text("Home")
                 }
 
-            JournalView()
+            TipView()
                 .tabItem {
-                    Image(systemName: "mic.fill")
+                    Image(systemName: "spark.fill")
                     Text("Journal")
                 }
 
