@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ReflectionView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @EnvironmentObject private var questStore: QuestStore
     var onSave: ((JournalReflectionEntry) -> Void)?
     @State private var hasSaved = false
@@ -308,6 +309,7 @@ struct ReflectionView: View {
         regenerateTask?.cancel()
         isRegenerating = true
         regenerateMessage = nil
+        let analysisStartedAt = Date()
 
         regenerateTask = Task {
             do {
@@ -316,8 +318,19 @@ struct ReflectionView: View {
                     durationSeconds: draftEntry.durationSeconds
                 )
                 guard !Task.isCancelled else { return }
+                let analysisElapsedMilliseconds = Int(Date().timeIntervalSince(analysisStartedAt) * 1000)
+                let attempt = AIReflectionAttempt(
+                    createdAt: analysisStartedAt,
+                    engineName: engine.displayName,
+                    status: .succeeded,
+                    result: result,
+                    elapsedMilliseconds: analysisElapsedMilliseconds
+                )
 
                 await MainActor.run {
+                    if let sessionID = self.draftEntry?.sessionID {
+                        aiSessionStore.append(attempt, to: sessionID)
+                    }
                     self.draftEntry?.result = result
                     self.draftEntry?.engineName = engine.displayName
                     self.isRegenerating = false
@@ -326,8 +339,19 @@ struct ReflectionView: View {
                 }
             } catch {
                 guard !Task.isCancelled else { return }
+                let analysisElapsedMilliseconds = Int(Date().timeIntervalSince(analysisStartedAt) * 1000)
+                let attempt = AIReflectionAttempt(
+                    createdAt: analysisStartedAt,
+                    engineName: engine.displayName,
+                    status: .failed,
+                    errorMessage: error.localizedDescription,
+                    elapsedMilliseconds: analysisElapsedMilliseconds
+                )
 
                 await MainActor.run {
+                    if let sessionID = self.draftEntry?.sessionID {
+                        aiSessionStore.append(attempt, to: sessionID)
+                    }
                     self.isRegenerating = false
                     self.regenerateMessage = error.localizedDescription
                     self.regenerateTask = nil
@@ -412,5 +436,6 @@ struct ReflectionView: View {
 
 #Preview {
     ReflectionView()
+        .environmentObject(AIReflectionSessionStore())
         .environmentObject(QuestStore())
 }
