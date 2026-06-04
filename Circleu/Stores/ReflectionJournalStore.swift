@@ -99,8 +99,20 @@ final class ReflectionJournalStore: ObservableObject {
         replaceAll(with: Self.demoEntries(referenceDate: referenceDate))
     }
 
-    func shareText(for entry: JournalReflectionEntry) -> String {
-        """
+    func shareText(for entry: JournalReflectionEntry, includePrivateNote: Bool = false) -> String {
+        let workspaceMetadata = includePrivateNote ? """
+
+        Private Note
+        \(entry.privateNote.isEmpty ? "None" : entry.privateNote)
+
+        Tags
+        \(entry.tags.isEmpty ? "None" : entry.tags.joined(separator: ", "))
+
+        Last Edited
+        \(entry.lastEditedAt?.formatted(date: .complete, time: .shortened) ?? "Never")
+        """ : ""
+
+        return """
         Circleu Reflection
 
         \(entry.displayTitle)
@@ -119,9 +131,7 @@ final class ReflectionJournalStore: ObservableObject {
 
         Suggested Quest
         \(entry.result.suggestedQuest)
-
-        Private Note
-        \(entry.privateNote.isEmpty ? "None" : entry.privateNote)
+        \(workspaceMetadata)
 
         Transcript
         \(entry.transcript)
@@ -133,7 +143,7 @@ final class ReflectionJournalStore: ObservableObject {
             return "Circleu Journal\n\nNo saved reflections yet."
         }
 
-        let exportedEntries = entries.map { shareText(for: $0) }
+        let exportedEntries = entries.map { shareText(for: $0, includePrivateNote: true) }
         return "Circleu Journal Export\n\n" + exportedEntries.joined(separator: "\n\n---\n\n")
     }
 
