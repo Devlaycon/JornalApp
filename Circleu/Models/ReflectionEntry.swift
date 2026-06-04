@@ -18,6 +18,12 @@ struct JournalReflectionEntry: Identifiable, Codable, Equatable {
     var transcript: String
     var engineName: String
     var result: AIReflectionResult
+    var sessionID: UUID?
+    var editableTitle: String?
+    var editableEmotion: String?
+    var privateNote: String
+    var tags: [String]
+    var lastEditedAt: Date?
 
     init(
         id: UUID = UUID(),
@@ -25,7 +31,13 @@ struct JournalReflectionEntry: Identifiable, Codable, Equatable {
         durationSeconds: Int,
         transcript: String,
         engineName: String,
-        result: AIReflectionResult
+        result: AIReflectionResult,
+        sessionID: UUID? = nil,
+        editableTitle: String? = nil,
+        editableEmotion: String? = nil,
+        privateNote: String = "",
+        tags: [String] = [],
+        lastEditedAt: Date? = nil
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -33,6 +45,37 @@ struct JournalReflectionEntry: Identifiable, Codable, Equatable {
         self.transcript = transcript
         self.engineName = engineName
         self.result = result
+        self.sessionID = sessionID
+        self.editableTitle = editableTitle
+        self.editableEmotion = editableEmotion
+        self.privateNote = privateNote
+        self.tags = tags
+        self.lastEditedAt = lastEditedAt
+    }
+
+    var displayTitle: String {
+        sanitized(editableTitle, fallback: result.title)
+    }
+
+    var displayEmotion: String {
+        sanitized(editableEmotion, fallback: result.emotion)
+    }
+
+    var displayQuest: String {
+        result.suggestedQuest
+    }
+
+    var displaySummary: String {
+        result.summary
+    }
+
+    private func sanitized(_ value: String?, fallback: String) -> String {
+        guard let value else { return fallback }
+        let clean = value
+            .split(whereSeparator: { $0.isWhitespace })
+            .joined(separator: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return clean.isEmpty ? fallback : clean
     }
 }
 
