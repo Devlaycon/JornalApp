@@ -46,7 +46,7 @@ struct PinguOnboardingView: View {
                             }
                         }
                         .tabViewStyle(.page(indexDisplayMode: .never))
-                        .frame(height: 390)
+                        .frame(height: min(390, max(340, proxy.size.height * 0.46)))
 
                         pagerDots
 
@@ -223,19 +223,24 @@ private struct PinguOnboardingPage: Equatable {
 
     static let allPages = [
         PinguOnboardingPage(
-            icon: "heart.fill",
-            title: "A digital embrace for your growth",
-            subtitle: "A calmer place to understand your day, one honest check-in at a time."
+            icon: "lock.fill",
+            title: "Private daily reflection",
+            subtitle: "A calm local space to understand your day without turning every thought into an account or feed."
         ),
         PinguOnboardingPage(
             icon: "waveform",
-            title: "Speak freely, then see it clearly",
-            subtitle: "Speak naturally or type instead. Circleu keeps the reflection flow moving either way."
+            title: "Speak or type honestly",
+            subtitle: "Record when voice feels natural, or type when microphone and speech recognition are not ready."
         ),
         PinguOnboardingPage(
             icon: "sparkles",
-            title: "Turn moments into insight",
-            subtitle: "Apple Intelligence or the local engine turns your words into a private journal insight."
+            title: "Turn insight into practice",
+            subtitle: "Circleu turns each reflection into a journal insight and one small action you can complete today."
+        ),
+        PinguOnboardingPage(
+            icon: "person.crop.circle.fill",
+            title: "Make it yours",
+            subtitle: "Add your name so Circleu can guide your daily reflection flow in a warmer, more personal way."
         )
     ]
 }
