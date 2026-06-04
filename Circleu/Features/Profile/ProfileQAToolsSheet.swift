@@ -206,7 +206,7 @@ struct ProfileQAToolsSheet: View {
     }
 
     private var journalExport: String {
-        journalStore.exportText()
+        journalStore.exportText(includePrivateMetadata: true)
     }
 
     private func seedDemoData() {

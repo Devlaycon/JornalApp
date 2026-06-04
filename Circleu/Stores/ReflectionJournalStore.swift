@@ -138,12 +138,12 @@ final class ReflectionJournalStore: ObservableObject {
         """
     }
 
-    func exportText() -> String {
+    func exportText(includePrivateMetadata: Bool = false) -> String {
         guard !entries.isEmpty else {
             return "Circleu Journal\n\nNo saved reflections yet."
         }
 
-        let exportedEntries = entries.map { shareText(for: $0, includePrivateNote: true) }
+        let exportedEntries = entries.map { shareText(for: $0, includePrivateNote: includePrivateMetadata) }
         return "Circleu Journal Export\n\n" + exportedEntries.joined(separator: "\n\n---\n\n")
     }
 
