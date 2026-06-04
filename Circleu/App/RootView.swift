@@ -12,7 +12,7 @@ struct RootView: View {
                     Text("Home")
                 }
 
-            TipView()
+            TipsView()
                 .tabItem {
                     Image(systemName: "spark.fill")
                     Text("Journal")
