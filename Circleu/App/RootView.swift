@@ -3,6 +3,7 @@ import SwiftUI
 struct RootView: View {
 
     @State private var selectedTab: Tab = .home
+    @State private var showRecording = false
 
     var body: some View {
 
@@ -16,6 +17,9 @@ struct RootView: View {
             case .tips:
                 TipsView()
 
+            case .record:
+                RecordEntryView()
+
             case .circle:
                 CircleView()
 
@@ -28,8 +32,4 @@ struct RootView: View {
             )
         }
     }
-}
-
-#Preview {
-    RootView()
 }
