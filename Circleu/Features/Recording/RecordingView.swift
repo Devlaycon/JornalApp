@@ -253,8 +253,12 @@ struct RecordingView: View {
                 .foregroundStyle(PinguDesign.blue)
             }
 
+            Label(transcriptQuality.guidance, systemImage: transcriptQuality.isReady ? "checkmark.circle.fill" : "info.circle.fill")
+                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .foregroundStyle(transcriptQuality.isReady ? PinguDesign.blue : PinguDesign.muted)
+
             if !canFinish && !isAnalyzing {
-                Label("Add a few words before finishing.", systemImage: "info.circle.fill")
+                Label("\(transcriptQuality.wordCount) words captured", systemImage: "text.word.spacing")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
             }
@@ -296,7 +300,7 @@ struct RecordingView: View {
 
     private func finishRecording() {
         guard canFinish else {
-            analysisMessage = "Add a few words before finishing."
+            analysisMessage = transcriptQuality.guidance
             return
         }
 
@@ -350,7 +354,11 @@ struct RecordingView: View {
     }
 
     private var canFinish: Bool {
-        !isAnalyzing && !effectiveTranscript.isEmpty
+        !isAnalyzing && transcriptQuality.isReady
+    }
+
+    private var transcriptQuality: TranscriptQuality {
+        TranscriptQuality.evaluate(effectiveTranscript)
     }
 
     private var finishActionTitle: String {
