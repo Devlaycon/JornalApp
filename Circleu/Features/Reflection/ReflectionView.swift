@@ -2,9 +2,9 @@ import SwiftUI
 
 struct ReflectionView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @EnvironmentObject private var questStore: QuestStore
     var onSave: ((JournalReflectionEntry) -> Void)?
+    var onRegenerateAttempt: ((JournalReflectionEntry, AIReflectionAttempt) -> Void)?
     @State private var hasSaved = false
     @State private var draftEntry: JournalReflectionEntry?
     @State private var engine = ReflectionEngineFactory.makeDefault()
@@ -12,7 +12,12 @@ struct ReflectionView: View {
     @State private var regenerateMessage: String?
     @State private var regenerateTask: Task<Void, Never>?
 
-    init(entry: JournalReflectionEntry? = nil, onSave: ((JournalReflectionEntry) -> Void)? = nil) {
+    init(
+        entry: JournalReflectionEntry? = nil,
+        onRegenerateAttempt: ((JournalReflectionEntry, AIReflectionAttempt) -> Void)? = nil,
+        onSave: ((JournalReflectionEntry) -> Void)? = nil
+    ) {
+        self.onRegenerateAttempt = onRegenerateAttempt
         self.onSave = onSave
         _draftEntry = State(initialValue: entry)
     }
@@ -328,11 +333,11 @@ struct ReflectionView: View {
                 )
 
                 await MainActor.run {
-                    if let sessionID = self.draftEntry?.sessionID {
-                        aiSessionStore.append(attempt, to: sessionID)
-                    }
                     self.draftEntry?.result = result
                     self.draftEntry?.engineName = engine.displayName
+                    if let updatedEntry = self.draftEntry {
+                        onRegenerateAttempt?(updatedEntry, attempt)
+                    }
                     self.isRegenerating = false
                     self.regenerateMessage = "Generated a fresh reflection with \(engine.displayName)."
                     self.regenerateTask = nil
@@ -349,8 +354,8 @@ struct ReflectionView: View {
                 )
 
                 await MainActor.run {
-                    if let sessionID = self.draftEntry?.sessionID {
-                        aiSessionStore.append(attempt, to: sessionID)
+                    if let draftEntry = self.draftEntry {
+                        onRegenerateAttempt?(draftEntry, attempt)
                     }
                     self.isRegenerating = false
                     self.regenerateMessage = error.localizedDescription
@@ -436,6 +441,5 @@ struct ReflectionView: View {
 
 #Preview {
     ReflectionView()
-        .environmentObject(AIReflectionSessionStore())
         .environmentObject(QuestStore())
 }

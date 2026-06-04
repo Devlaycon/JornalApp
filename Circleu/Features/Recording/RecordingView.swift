@@ -11,6 +11,7 @@ struct RecordingView: View {
     @State private var showReflection = false
     @State private var showSaveConfirmation = false
     @State private var pendingEntry: JournalReflectionEntry?
+    @State private var pendingSession: AIReflectionSession?
     @State private var savedEntry: JournalReflectionEntry?
     @State private var isAnalyzing = false
     @State private var analysisMessage: String?
@@ -114,12 +115,15 @@ struct RecordingView: View {
             recorder.stop()
         }
         .fullScreenCover(isPresented: $showReflection) {
-            ReflectionView(entry: pendingEntry) { entry in
-                if let sessionID = entry.sessionID {
-                    aiSessionStore.link(sessionID: sessionID, to: entry.id)
-                }
+            ReflectionView(
+                entry: pendingEntry,
+                onRegenerateAttempt: recordRegeneratedAttempt
+            ) { entry in
+                persistPendingSession(for: entry)
                 journalStore.add(entry)
                 savedEntry = entry
+                pendingEntry = nil
+                pendingSession = nil
                 showReflection = false
                 showSaveConfirmation = true
             }
@@ -176,6 +180,7 @@ struct RecordingView: View {
             Button {
                 analysisTask?.cancel()
                 pendingEntry = nil
+                pendingSession = nil
                 savedEntry = nil
                 analysisMessage = nil
                 manualTranscript = ""
@@ -405,7 +410,7 @@ struct RecordingView: View {
                 )
 
                 await MainActor.run {
-                    aiSessionStore.upsert(session)
+                    pendingSession = session
                     pendingEntry = entry
                     isAnalyzing = false
                     analysisTask = nil
@@ -451,6 +456,7 @@ struct RecordingView: View {
         analysisTask?.cancel()
         analysisTask = nil
         pendingEntry = nil
+        pendingSession = nil
         savedEntry = nil
         showReflection = false
         showSaveConfirmation = false
@@ -491,6 +497,39 @@ struct RecordingView: View {
         let minutes = seconds / 60
         let seconds = seconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    private func recordRegeneratedAttempt(entry: JournalReflectionEntry, attempt: AIReflectionAttempt) {
+        guard let sessionID = entry.sessionID,
+              var session = pendingSession,
+              session.id == sessionID else {
+            return
+        }
+
+        session.attempts.append(attempt)
+        session.updatedAt = Date()
+
+        if attempt.status == .succeeded {
+            session.selectedAttemptID = attempt.id
+            session.engineName = attempt.engineName
+        }
+
+        pendingEntry = entry
+        pendingSession = session
+    }
+
+    private func persistPendingSession(for entry: JournalReflectionEntry) {
+        guard let sessionID = entry.sessionID else { return }
+
+        if var session = pendingSession, session.id == sessionID {
+            session.entryID = entry.id
+            session.engineName = entry.engineName
+            session.updatedAt = Date()
+            aiSessionStore.upsert(session)
+            return
+        }
+
+        aiSessionStore.link(sessionID: sessionID, to: entry.id)
     }
 }
 
