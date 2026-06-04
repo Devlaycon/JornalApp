@@ -50,7 +50,7 @@ struct ProfileQAToolsSheet: View {
 
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This clears profile, onboarding, reflections, quests, circles, and support posts stored on this iPhone.")
+                Text("This clears profile, onboarding, reflections, AI sessions, transcripts, quests, circles, and support posts stored on this iPhone.")
             }
         }
     }
@@ -200,7 +200,7 @@ struct ProfileQAToolsSheet: View {
         let entries = ReflectionJournalStore.demoEntries(referenceDate: referenceDate)
         profileStore.seedDemoProfile()
         journalStore.replaceAll(with: entries)
-        aiSessionStore.seedDemoData(entries: entries, referenceDate: referenceDate)
+        aiSessionStore.seedDemoData(entries: entries)
         questStore.seedDemoData(entries: entries, referenceDate: referenceDate)
         circleStore.seedDemoData(entries: entries, referenceDate: referenceDate)
         hasCompletedOnboarding = true

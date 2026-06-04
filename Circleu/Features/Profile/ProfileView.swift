@@ -7,6 +7,7 @@ struct ProfileView: View {
     @EnvironmentObject private var profileStore: UserProfileStore
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var questStore: QuestStore
+    @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @State private var showProfileEditor = false
     @State private var showQATools = false
     @State private var didCopySummary = false
@@ -71,6 +72,7 @@ struct ProfileView: View {
             .environmentObject(profileStore)
             .environmentObject(circleStore)
             .environmentObject(questStore)
+            .environmentObject(aiSessionStore)
             .presentationDetents([.large])
         }
     }
@@ -627,4 +629,5 @@ struct ProfileActionButtonStyle: ButtonStyle {
         .environmentObject(UserProfileStore())
         .environmentObject(CircleStore())
         .environmentObject(QuestStore())
+        .environmentObject(AIReflectionSessionStore())
 }

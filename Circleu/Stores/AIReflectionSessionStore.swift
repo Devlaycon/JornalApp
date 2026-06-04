@@ -3,6 +3,8 @@ import Foundation
 
 @MainActor
 final class AIReflectionSessionStore: ObservableObject {
+    private typealias EnumeratedAttempt = (offset: Int, element: AIReflectionAttempt)
+
     @Published private(set) var sessions: [AIReflectionSession] = []
 
     private let storageKey = "circleu.aiReflectionSessions.v1"
@@ -99,7 +101,7 @@ final class AIReflectionSessionStore: ObservableObject {
         return "Circleu AI Sessions\n\n" + sessions.map(\.exportText).joined(separator: "\n\n---\n\n")
     }
 
-    func seedDemoData(entries: [JournalReflectionEntry], referenceDate: Date = Date()) {
+    func seedDemoData(entries: [JournalReflectionEntry]) {
         let demoSessions = entries.map { entry in
             let attempt = AIReflectionAttempt(
                 createdAt: entry.createdAt,
@@ -133,15 +135,17 @@ final class AIReflectionSessionStore: ObservableObject {
             return
         }
 
-        sessions = normalizedUniqueSortedSessions(from: savedSessions)
+        let normalizedSessions = normalizedUniqueSortedSessions(from: savedSessions)
+        sessions = normalizedSessions
+
+        if normalizedSessions != savedSessions {
+            save()
+        }
     }
 
     private func normalize(_ session: AIReflectionSession) -> AIReflectionSession {
         var normalizedSession = session
-        var seenAttemptIDs = Set<UUID>()
-        normalizedSession.attempts = normalizedSession.attempts.filter { attempt in
-            seenAttemptIDs.insert(attempt.id).inserted
-        }
+        normalizedSession.attempts = deduplicatedAttempts(from: normalizedSession)
 
         let selectedAttempt: AIReflectionAttempt?
         if let selectedAttemptID = normalizedSession.selectedAttemptID,
@@ -161,27 +165,102 @@ final class AIReflectionSessionStore: ObservableObject {
         return normalizedSession
     }
 
+    private func deduplicatedAttempts(from session: AIReflectionSession) -> [AIReflectionAttempt] {
+        let enumeratedAttempts = session.attempts.enumerated().map { item in
+            (offset: item.offset, element: item.element)
+        }
+        let groupedAttempts = Dictionary(grouping: enumeratedAttempts) { item in
+            item.element.id
+        }
+
+        return groupedAttempts.values
+            .compactMap { attempts in
+                preferredAttempt(from: attempts, selectedAttemptID: session.selectedAttemptID)
+            }
+            .sorted(by: areAttemptsInChronologicalOrder)
+    }
+
+    private func preferredAttempt(
+        from attempts: [EnumeratedAttempt],
+        selectedAttemptID: UUID?
+    ) -> AIReflectionAttempt? {
+        if let selectedAttemptID,
+           attempts.contains(where: { $0.element.id == selectedAttemptID }),
+           let selectedSucceeded = latestAttempt(from: attempts.filter {
+               $0.element.id == selectedAttemptID && $0.element.status == .succeeded
+           }) {
+            return selectedSucceeded
+        }
+
+        if let latestSucceeded = latestAttempt(from: attempts.filter {
+            $0.element.status == .succeeded
+        }) {
+            return latestSucceeded
+        }
+
+        if let latestWithResult = latestAttempt(from: attempts.filter {
+            $0.element.result != nil
+        }) {
+            return latestWithResult
+        }
+
+        return latestAttempt(from: attempts)
+    }
+
+    private func latestAttempt(from attempts: [EnumeratedAttempt]) -> AIReflectionAttempt? {
+        attempts.sorted {
+            if $0.element.createdAt == $1.element.createdAt {
+                return $0.offset < $1.offset
+            }
+            return $0.element.createdAt > $1.element.createdAt
+        }
+        .first?
+        .element
+    }
+
+    private func areAttemptsInChronologicalOrder(_ lhs: AIReflectionAttempt, _ rhs: AIReflectionAttempt) -> Bool {
+        if lhs.createdAt != rhs.createdAt {
+            return lhs.createdAt < rhs.createdAt
+        }
+        return lhs.id.uuidString < rhs.id.uuidString
+    }
+
     private func normalizedUniqueSortedSessions(from source: [AIReflectionSession]) -> [AIReflectionSession] {
-        let sortedSessions = source.enumerated()
-            .map { offset, session in
-                (offset: offset, session: normalize(session))
-            }
-            .sorted {
-                if $0.session.updatedAt == $1.session.updatedAt {
-                    return $0.offset < $1.offset
-                }
-                return $0.session.updatedAt > $1.session.updatedAt
-            }
+        let sortedSessions = orderedSessions(source.map(normalize))
 
         var seenSessionIDs = Set<UUID>()
-        return sortedSessions.compactMap { item in
-            guard seenSessionIDs.insert(item.session.id).inserted else { return nil }
-            return item.session
+        return sortedSessions.compactMap { session in
+            guard seenSessionIDs.insert(session.id).inserted else { return nil }
+            return session
         }
     }
 
     private func sortSessions() {
-        sessions.sort { $0.updatedAt > $1.updatedAt }
+        sessions = orderedSessions(sessions)
+    }
+
+    private func orderedSessions(_ source: [AIReflectionSession]) -> [AIReflectionSession] {
+        source.enumerated()
+            .sorted {
+                if areSessionsInStoreOrder($0.element, $1.element) {
+                    return true
+                }
+                if areSessionsInStoreOrder($1.element, $0.element) {
+                    return false
+                }
+                return $0.offset < $1.offset
+            }
+            .map(\.element)
+    }
+
+    private func areSessionsInStoreOrder(_ lhs: AIReflectionSession, _ rhs: AIReflectionSession) -> Bool {
+        if lhs.updatedAt != rhs.updatedAt {
+            return lhs.updatedAt > rhs.updatedAt
+        }
+        if lhs.createdAt != rhs.createdAt {
+            return lhs.createdAt > rhs.createdAt
+        }
+        return lhs.id.uuidString < rhs.id.uuidString
     }
 
     private func save() {
