@@ -47,7 +47,7 @@ struct JournalWorkspaceEditSheet: View {
                             text: $privateNote,
                             axis: .vertical
                         )
-                        PinguTextInput(title: "Tags", placeholder: "class, confidence, practice", text: $tagsText)
+                        PinguTextInput(title: "Tags", placeholder: "class, confidence, tips", text: $tagsText)
                     }
                     .padding(.horizontal, PinguDesign.screenSidePadding)
                     .padding(.top, 20)

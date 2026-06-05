@@ -22,12 +22,12 @@ struct RootView: View {
                         HomeView(
                             onStartRecording: { showRecording = true },
                             onOpenJournal: { selectedTab = .journal },
-                            onOpenPractice: { selectedTab = .practice }
+                            onOpenTips: { selectedTab = .tips }
                         )
                     case .journal:
                         JournalView(onStartRecording: { showRecording = true })
-                    case .practice:
-                        PracticeView(
+                    case .tips:
+                        TipsView(
                             onStartRecording: { showRecording = true },
                             onOpenJournalEntry: { selectedJournalEntry = $0 }
                         )
@@ -49,8 +49,8 @@ struct RootView: View {
                     selectedTab = .journal
                     showRecording = false
                 },
-                onViewPractice: {
-                    selectedTab = .practice
+                onViewTips: {
+                    selectedTab = .tips
                     showRecording = false
                 }
             )
@@ -73,7 +73,7 @@ struct RootView: View {
         switch selectedTab {
         case .home:
             .level(progress.level)
-        case .journal, .practice, .profile:
+        case .journal, .tips, .profile:
             .streak(progress.streak)
         case .circle:
             .none
@@ -92,7 +92,7 @@ private extension PinguTab {
             "Circleu"
         case .journal:
             "Journal"
-        case .practice:
+        case .tips:
             "Tips"
         case .circle:
             "Communities"
@@ -107,7 +107,7 @@ private extension PinguTab {
             "sparkles"
         case .journal:
             "book.closed.fill"
-        case .practice:
+        case .tips:
             "mic.fill"
         case .circle:
             "person.2.fill"

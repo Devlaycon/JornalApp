@@ -1,14 +1,14 @@
 # Circleu
 
-Circleu is a local-first iOS reflection app for voice journaling, AI-assisted insight, and small daily practice actions.
+Circleu is a local-first iOS reflection app for voice journaling, AI-assisted insight, and small daily tip actions.
 
 The current beta focuses on one complete real-user loop:
 
 ```text
-Onboarding -> Home -> Record or Type -> AI Reflection -> Journal -> Practice -> Progress -> Circle/Profile
+Onboarding -> Home -> Record or Type -> AI Reflection -> Journal -> Tips -> Progress -> Circle/Profile
 ```
 
-Users can record or type a reflection, review an AI-generated summary, save it to a private journal, start a suggested practice action, and optionally share a privacy-safe version into a private circle on the same device.
+Users can record or type a reflection, review an AI-generated summary, save it to a private journal, start a suggested tip action, and optionally share a privacy-safe version into a private circle on the same device.
 
 ## Design Reference
 
@@ -22,9 +22,9 @@ Users can record or type a reflection, review an AI-generated summary, save it t
 - Apple Intelligence support through Foundation Models when available.
 - Local test reflection engine fallback for simulator and unsupported devices.
 - Saved reflection journal with editable title, emotion, notes, and tags.
-- Practice workflow for active, completed, skipped, and restarted actions.
+- Tips workflow for active, completed, skipped, and restarted actions.
 - Private local circles for support notes and selected reflection shares.
-- Profile progress based on local reflection and practice state.
+- Profile progress based on local reflection and tip state.
 - QA tools for deterministic demo data, local reset, and exportable test summaries.
 
 ## Tech Stack

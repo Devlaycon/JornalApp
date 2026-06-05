@@ -7,7 +7,7 @@ Use small, reviewable commits by default. Each commit should represent one clear
 Prefer commits like:
 
 - `feat: add journal-to-circle sharing`
-- `feat: add daily practice quest flow`
+- `feat: add daily tips quest flow`
 - `refactor: split profile qa tools`
 - `refactor: move shared form controls`
 - `docs: add phone test checklist`

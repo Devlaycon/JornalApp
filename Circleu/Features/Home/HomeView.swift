@@ -7,7 +7,7 @@ struct HomeView: View {
     @State private var selectedEntry: JournalReflectionEntry?
     let onStartRecording: () -> Void
     let onOpenJournal: () -> Void
-    let onOpenPractice: () -> Void
+    let onOpenTips: () -> Void
 
     private let dailyPrompts = [
         "What feeling has been sitting with you today?",
@@ -271,9 +271,9 @@ struct HomeView: View {
 
                 HStack(spacing: 10) {
                     Button {
-                        onOpenPractice()
+                        onOpenTips()
                     } label: {
-                        Label("Open Practice", systemImage: "checklist.checked")
+                        Label("Open Tips", systemImage: "checklist.checked")
                     }
                     .buttonStyle(HomeQuestButtonStyle(isPrimary: true))
                 }
@@ -438,7 +438,7 @@ struct HomeView: View {
             return "Save a reflection and Circleu will turn the insight into one small action."
         }
 
-        return "Created \(relativeDateText(for: activeQuest.createdAt)). Complete it when the practice is done, or skip it if it no longer fits today."
+        return "Created \(relativeDateText(for: activeQuest.createdAt)). Complete it when the tips is done, or skip it if it no longer fits today."
     }
 
     private var betaState: DailyReflectionBetaState {
@@ -507,7 +507,7 @@ private struct HomeStatTile: View {
 }
 
 #Preview {
-    HomeView(onStartRecording: {}, onOpenJournal: {}, onOpenPractice: {})
+    HomeView(onStartRecording: {}, onOpenJournal: {}, onOpenTips: {})
         .environmentObject(ReflectionJournalStore())
         .environmentObject(UserProfileStore())
         .environmentObject(QuestStore())

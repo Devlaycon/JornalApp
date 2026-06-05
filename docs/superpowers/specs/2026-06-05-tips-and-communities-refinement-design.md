@@ -2,7 +2,7 @@
 
 ## Goal
 
-Refine the Tips and Circle tabs so they feel aligned with the Figma-inspired direction: Tips is a practice coaching surface, and Circle is a community/support surface. The bottom tab name remains `Tips`.
+Refine the Tips and Circle tabs so they feel aligned with the Figma-inspired direction: Tips is a tips coaching surface, and Circle is a community/support surface. The bottom tab name remains `Tips`.
 
 ## Scope
 
@@ -13,7 +13,7 @@ Refine the Tips and Circle tabs so they feel aligned with the Figma-inspired dir
 
 ## Tips Tab
 
-The Tips tab should read as a coaching workspace, not a generic quest list. The top area introduces a "Tips Coach" concept and uses Figma-inspired blue cards, rounded controls, tone/context chips, and clear guidance. The screen keeps the active quest workflow because it is already connected to AI reflections. Completed and skipped sections remain, but their copy should refer to practice tips.
+The Tips tab should read as a coaching workspace, not a generic quest list. The top area introduces a "Tips Coach" concept and uses Figma-inspired blue cards, rounded controls, tone/context chips, and clear guidance. The screen keeps the active quest workflow because it is already connected to AI reflections. Completed and skipped sections remain, but their copy should refer to tips.
 
 ## Circle Tab
 

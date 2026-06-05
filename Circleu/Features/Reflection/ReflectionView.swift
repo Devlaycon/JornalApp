@@ -2,7 +2,7 @@ import SwiftUI
 
 enum ReflectionSaveDestination {
     case confirmation
-    case practice
+    case tips
 }
 
 struct ReflectionView: View {
@@ -226,7 +226,7 @@ struct ReflectionView: View {
                     .clipShape(Circle())
 
                 VStack(alignment: .leading, spacing: 7) {
-                    Text("NEXT PRACTICE")
+                    Text("NEXT TIP")
                         .font(.system(size: 14, weight: .bold))
                         .tracking(1.2)
                         .foregroundStyle(PinguDesign.muted)
@@ -242,9 +242,9 @@ struct ReflectionView: View {
             }
 
             Button {
-                saveAndStartPractice()
+                saveAndStartTips()
             } label: {
-                Label("Save & Start Practice", systemImage: "checklist.checked")
+                Label("Save & Open Tips", systemImage: "checklist.checked")
             }
             .buttonStyle(PinguPrimaryButtonStyle())
             .disabled(hasSaved || draftEntry == nil || isRegenerating)
@@ -322,8 +322,8 @@ struct ReflectionView: View {
         saveEntry(to: .confirmation)
     }
 
-    private func saveAndStartPractice() {
-        saveEntry(to: .practice)
+    private func saveAndStartTips() {
+        saveEntry(to: .tips)
     }
 
     private func saveEntry(to destination: ReflectionSaveDestination) {

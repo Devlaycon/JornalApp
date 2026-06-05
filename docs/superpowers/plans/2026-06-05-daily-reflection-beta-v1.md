@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the first real-life AI beta loop: onboarding -> Home daily hub -> record/type reflection -> AI result -> Journal save/edit -> Practice action -> local sharing and phone-test verification.
+**Goal:** Build the first real-life AI beta loop: onboarding -> Home daily hub -> record/type reflection -> AI result -> Journal save/edit -> Tips action -> local sharing and phone-test verification.
 
 **Architecture:** Keep Circleu local-first. Add small model/store/engine improvements for testable workflow state, then wire SwiftUI screens through existing feature folders. Reuse the current `Models`, `Stores`, `Engines`, `Services`, `Features`, `Components`, and `Design` structure without a large repo restructure.
 
@@ -14,26 +14,26 @@
 
 Modify:
 
-- `Circleu/Components/PinguComponents.swift`: add `practice` tab, reusable status/action components if needed.
-- `Circleu/App/RootView.swift`: route the new Practice tab and support cross-tab navigation from reflection results.
-- `Circleu/Features/Home/HomeView.swift`: refine daily hub and route active practice to Practice.
+- `Circleu/Components/PinguComponents.swift`: add `tips` tab, reusable status/action components if needed.
+- `Circleu/App/RootView.swift`: route the new Tips tab and support cross-tab navigation from reflection results.
+- `Circleu/Features/Home/HomeView.swift`: refine daily hub and route active tips to Tips.
 - `Circleu/Features/Onboarding/Onboarding.swift`: make onboarding cover privacy, preferences, and permission education more clearly.
-- `Circleu/Features/Recording/RecordingView.swift`: tighten capture states and pass practice navigation intent after saving.
-- `Circleu/Features/Reflection/ReflectionView.swift`: make Save, Regenerate, and Start Practice clear next actions.
+- `Circleu/Features/Recording/RecordingView.swift`: tighten capture states and pass tips navigation intent after saving.
+- `Circleu/Features/Reflection/ReflectionView.swift`: make Save, Regenerate, and Start Tips clear next actions.
 - `Circleu/Features/Journal/JournalView.swift`: use edited display fields in rows and search.
-- `Circleu/Features/Journal/JournalEntryDetailView.swift`: resolve sessions more robustly and make Practice actions link to the new Practice workflow.
+- `Circleu/Features/Journal/JournalEntryDetailView.swift`: resolve sessions more robustly and make Tips actions link to the new Tips workflow.
 - `Circleu/Features/Circle/CircleView.swift`: make local-only sharing status explicit and useful.
-- `Circleu/Features/Profile/ProfileView.swift`: align active quest/practice language with the new Practice tab.
-- `Circleu/Stores/QuestStore.swift`: add computed practice collections and safer activation/completion helpers.
-- `Circleu/Engines/ProgressEngine.swift`: verify progress handles practice completion cleanly.
+- `Circleu/Features/Profile/ProfileView.swift`: align active quest/tips language with the new Tips tab.
+- `Circleu/Stores/QuestStore.swift`: add computed tips collections and safer activation/completion helpers.
+- `Circleu/Engines/ProgressEngine.swift`: verify progress handles tips completion cleanly.
 - `docs/phone-test-checklist.md`: update with the beta v1 end-to-end flow.
 - `docs/app-flow.md`: document the connected beta workflow.
-- `docs/project-structure.md`: note the Practice feature folder and workflow ownership.
+- `docs/project-structure.md`: note the Tips feature folder and workflow ownership.
 
 Create:
 
-- `Circleu/Features/Practice/PracticeView.swift`: dedicated Practice tab for active, completed, and skipped AI-suggested practices.
-- `Circleu/Engines/DailyReflectionBetaState.swift`: small pure Swift helpers for daily status, practice progress, and next-action text.
+- `Circleu/Features/Tips/TipsView.swift`: dedicated Tips tab for active, completed, and skipped AI-suggested tips.
+- `Circleu/Engines/DailyReflectionBetaState.swift`: small pure Swift helpers for daily status, tips progress, and next-action text.
 - `CircleuTests/DailyReflectionBetaStateTests.swift`: behavior tests for the new pure logic, if test target setup is practical in the current Xcode project.
 
 Optional if project test target setup is too large for this slice:
@@ -59,7 +59,7 @@ struct DailyReflectionBetaState: Equatable {
     let hasCompletedToday: Bool
     let nextActionTitle: String
     let nextActionSubtitle: String
-    let practiceProgressText: String
+    let tipsProgressText: String
 
     static func make(
         entries: [JournalReflectionEntry],
@@ -68,15 +68,15 @@ struct DailyReflectionBetaState: Equatable {
         calendar: Calendar = .current
     ) -> DailyReflectionBetaState {
         let hasCompletedToday = entries.contains { calendar.isDate($0.createdAt, inSameDayAs: now) }
-        let activePractice = quests.first { $0.status == .active }
+        let activeTips = quests.first { $0.status == .active }
         let completedCount = quests.filter { $0.status == .completed }.count
 
-        if let activePractice {
+        if let activeTips {
             return DailyReflectionBetaState(
                 hasCompletedToday: hasCompletedToday,
-                nextActionTitle: "Continue today's practice",
-                nextActionSubtitle: activePractice.detail,
-                practiceProgressText: "\(completedCount) completed"
+                nextActionTitle: "Continue today's tip",
+                nextActionSubtitle: activeTips.detail,
+                tipsProgressText: "\(completedCount) completed"
             )
         }
 
@@ -85,15 +85,15 @@ struct DailyReflectionBetaState: Equatable {
                 hasCompletedToday: true,
                 nextActionTitle: "Reflect again if something changed",
                 nextActionSubtitle: "You already saved a reflection today. Add another if a new moment needs attention.",
-                practiceProgressText: "\(completedCount) completed"
+                tipsProgressText: "\(completedCount) completed"
             )
         }
 
         return DailyReflectionBetaState(
             hasCompletedToday: false,
             nextActionTitle: "Start today's reflection",
-            nextActionSubtitle: "Record or type one honest check-in to create your next AI-guided practice.",
-            practiceProgressText: "\(completedCount) completed"
+            nextActionSubtitle: "Record or type one honest check-in to create your next AI-guided tip.",
+            tipsProgressText: "\(completedCount) completed"
         )
     }
 }
@@ -113,21 +113,21 @@ final class DailyReflectionBetaStateTests: XCTestCase {
 
         XCTAssertFalse(state.hasCompletedToday)
         XCTAssertEqual(state.nextActionTitle, "Start today's reflection")
-        XCTAssertEqual(state.practiceProgressText, "0 completed")
+        XCTAssertEqual(state.tipsProgressText, "0 completed")
     }
 
-    func testMakePrioritizesActivePractice() {
+    func testMakePrioritizesActiveTips() {
         let quest = Quest(title: "Try this next", detail: "Take one slow breath before class.")
 
         let state = DailyReflectionBetaState.make(entries: [], quests: [quest], now: Date(timeIntervalSince1970: 1000))
 
-        XCTAssertEqual(state.nextActionTitle, "Continue today's practice")
+        XCTAssertEqual(state.nextActionTitle, "Continue today's tip")
         XCTAssertEqual(state.nextActionSubtitle, "Take one slow breath before class.")
     }
 
-    func testMakeCountsCompletedPractice() {
+    func testMakeCountsCompletedTips() {
         let completed = Quest(
-            title: "Completed practice",
+            title: "Completed tips",
             detail: "Write one sentence.",
             completedAt: Date(timeIntervalSince1970: 900),
             status: .completed
@@ -135,7 +135,7 @@ final class DailyReflectionBetaStateTests: XCTestCase {
 
         let state = DailyReflectionBetaState.make(entries: [], quests: [completed], now: Date(timeIntervalSince1970: 1000))
 
-        XCTAssertEqual(state.practiceProgressText, "1 completed")
+        XCTAssertEqual(state.tipsProgressText, "1 completed")
     }
 }
 ```
@@ -169,15 +169,15 @@ If no test target was added, stage only the helper file.
 
 ---
 
-### Task 2: Add Dedicated Practice Tab
+### Task 2: Add Dedicated Tips Tab
 
 **Files:**
 - Modify: `Circleu/Components/PinguComponents.swift`
 - Modify: `Circleu/App/RootView.swift`
-- Create: `Circleu/Features/Practice/PracticeView.swift`
+- Create: `Circleu/Features/Tips/TipsView.swift`
 - Modify: `Circleu/Stores/QuestStore.swift`
 
-- [ ] **Step 1: Add `practice` to `PinguTab`**
+- [ ] **Step 1: Add `tips` to `PinguTab`**
 
 Change the enum to:
 
@@ -185,7 +185,7 @@ Change the enum to:
 enum PinguTab: String, CaseIterable {
     case home = "Home"
     case journal = "Journal"
-    case practice = "Practice"
+    case tips = "Tips"
     case circle = "Circle"
     case profile = "Profile"
 
@@ -193,7 +193,7 @@ enum PinguTab: String, CaseIterable {
         switch self {
         case .home: "house.fill"
         case .journal: "book.closed.fill"
-        case .practice: "checklist.checked"
+        case .tips: "checklist.checked"
         case .circle: "person.2.fill"
         case .profile: "person.crop.circle.fill"
         }
@@ -219,35 +219,35 @@ var latestActiveQuest: Quest? {
 }
 ```
 
-- [ ] **Step 3: Create `PracticeView`**
+- [ ] **Step 3: Create `TipsView`**
 
 Add a SwiftUI screen that:
 
-- shows the active practice first,
+- shows the active tips first,
 - lets the user complete or skip it,
-- shows completed practice history,
-- shows skipped practices with a reactivate button,
+- shows completed tips history,
+- shows skipped tips with a reactivate button,
 - opens the source journal entry when available,
 - has a real empty state that sends the user to recording.
 
 Required public initializer:
 
 ```swift
-struct PracticeView: View {
+struct TipsView: View {
     let onStartRecording: () -> Void
     let onOpenJournalEntry: (JournalReflectionEntry) -> Void
 }
 ```
 
-- [ ] **Step 4: Wire Practice in `RootView`**
+- [ ] **Step 4: Wire Tips in `RootView`**
 
 Add `@State private var selectedJournalEntry: JournalReflectionEntry?`.
 
 In the tab switch:
 
 ```swift
-case .practice:
-    PracticeView(
+case .tips:
+    TipsView(
         onStartRecording: { showRecording = true },
         onOpenJournalEntry: { selectedJournalEntry = $0 }
     )
@@ -255,7 +255,7 @@ case .practice:
 
 Add a sheet for `selectedJournalEntry` using `JournalEntryDetailView(entry:)`.
 
-Update `navigationTitle`, `navigationIcon`, and `navigationTrailing` for `.practice`.
+Update `navigationTitle`, `navigationIcon`, and `navigationTrailing` for `.tips`.
 
 - [ ] **Step 5: Verify build**
 
@@ -268,8 +268,8 @@ Expected: build succeeds and tab bar shows five tabs without text overlap.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add Circleu/Components/PinguComponents.swift Circleu/App/RootView.swift Circleu/Features/Practice/PracticeView.swift Circleu/Stores/QuestStore.swift
-git commit -m "feat: add practice tab workflow"
+git add Circleu/Components/PinguComponents.swift Circleu/App/RootView.swift Circleu/Features/Tips/TipsView.swift Circleu/Stores/QuestStore.swift
+git commit -m "feat: add tips tab workflow"
 ```
 
 ---
@@ -280,12 +280,12 @@ git commit -m "feat: add practice tab workflow"
 - Modify: `Circleu/Features/Home/HomeView.swift`
 - Modify: `Circleu/App/RootView.swift`
 
-- [ ] **Step 1: Add Home route for Practice**
+- [ ] **Step 1: Add Home route for Tips**
 
 Change `HomeView` initializer to include:
 
 ```swift
-let onOpenPractice: () -> Void
+let onOpenTips: () -> Void
 ```
 
 Update `RootView` call:
@@ -294,7 +294,7 @@ Update `RootView` call:
 HomeView(
     onStartRecording: { showRecording = true },
     onOpenJournal: { selectedTab = .journal },
-    onOpenPractice: { selectedTab = .practice }
+    onOpenTips: { selectedTab = .tips }
 )
 ```
 
@@ -308,22 +308,22 @@ private var betaState: DailyReflectionBetaState {
 }
 ```
 
-Use `betaState.nextActionTitle`, `betaState.nextActionSubtitle`, and `betaState.practiceProgressText` in the next-action card.
+Use `betaState.nextActionTitle`, `betaState.nextActionSubtitle`, and `betaState.tipsProgressText` in the next-action card.
 
-- [ ] **Step 3: Add an explicit Practice action**
+- [ ] **Step 3: Add an explicit Tips action**
 
 When an active quest exists, add a primary button:
 
 ```swift
 Button {
-    onOpenPractice()
+    onOpenTips()
 } label: {
-    Label("Open Practice", systemImage: "checklist.checked")
+    Label("Open Tips", systemImage: "checklist.checked")
 }
 .buttonStyle(HomeQuestButtonStyle(isPrimary: true))
 ```
 
-Keep Complete and Skip available, but make Open Practice the main path.
+Keep Complete and Skip available, but make Open Tips the main path.
 
 - [ ] **Step 4: Verify build**
 
@@ -408,7 +408,7 @@ git commit -m "fix: align journal workspace display state"
 
 ---
 
-### Task 5: Make Reflection Result Actions Lead Into Practice
+### Task 5: Make Reflection Result Actions Lead Into Tips
 
 **Files:**
 - Modify: `Circleu/Features/Reflection/ReflectionView.swift`
@@ -422,34 +422,34 @@ Add a simple enum if needed:
 ```swift
 enum ReflectionSaveDestination {
     case journal
-    case practice
+    case tips
 }
 ```
 
-- [ ] **Step 2: Add Start Practice action to Reflection result**
+- [ ] **Step 2: Add Start Tips action to Reflection result**
 
 On the reflection result screen, make the suggested quest card include:
 
 ```swift
 Button {
-    saveAndStartPractice()
+    saveAndStartTips()
 } label: {
-    Label("Save & Start Practice", systemImage: "checklist.checked")
+    Label("Save & Open Tips", systemImage: "checklist.checked")
 }
 .buttonStyle(PinguPrimaryButtonStyle())
 ```
 
-`saveAndStartPractice()` should save the entry, activate the quest, and request navigation to Practice.
+`saveAndStartTips()` should save the entry, activate the quest, and request navigation to Tips.
 
 - [ ] **Step 3: Pass destination through Recording -> Root**
 
 Extend `RecordingView` callbacks so Root can set:
 
 ```swift
-selectedTab = .practice
+selectedTab = .tips
 ```
 
-when the user chooses Save & Start Practice.
+when the user chooses Save & Open Tips.
 
 - [ ] **Step 4: Keep Save Entry behavior unchanged**
 
@@ -463,7 +463,7 @@ Run build command from Task 2.
 
 ```bash
 git add Circleu/Features/Reflection/ReflectionView.swift Circleu/Features/Recording/RecordingView.swift Circleu/App/RootView.swift
-git commit -m "feat: connect reflection results to practice"
+git commit -m "feat: connect reflection results to tips"
 ```
 
 ---
@@ -480,7 +480,7 @@ Use four pages:
 
 1. Private daily reflection.
 2. Voice or typed capture.
-3. AI insight and practice.
+3. AI insight and tips.
 4. Name and preference setup.
 
 - [ ] **Step 2: Keep completion local**
@@ -558,15 +558,15 @@ git commit -m "feat: clarify local circle sharing"
 - Modify: `docs/project-structure.md`
 - Modify: `docs/release-readiness.md`
 
-- [ ] **Step 1: Update phone checklist with Practice tab**
+- [ ] **Step 1: Update phone checklist with Tips tab**
 
 Add checks for:
 
 - onboarding,
 - recording or typing,
 - AI result,
-- Save & Start Practice,
-- Practice tab completion,
+- Save & Open Tips,
+- Tips tab completion,
 - Journal edited display fields,
 - Circle local share privacy,
 - Profile QA export.
@@ -576,12 +576,12 @@ Add checks for:
 Document:
 
 ```text
-Home -> Record/Type -> AI Reflection -> Journal -> Practice -> Progress -> Circle/Profile
+Home -> Record/Type -> AI Reflection -> Journal -> Tips -> Progress -> Circle/Profile
 ```
 
 - [ ] **Step 3: Update project structure**
 
-Add `Features/Practice` ownership and explain why practice is a feature, while `QuestStore` owns practice state.
+Add `Features/Tips` ownership and explain why Tips is a feature, while `QuestStore` owns tip state.
 
 - [ ] **Step 4: Commit docs**
 
@@ -621,8 +621,8 @@ From Xcode:
 2. Run Circleu.
 3. Complete onboarding or seed demo data.
 4. Record/type reflection.
-5. Save & Start Practice.
-6. Complete practice.
+5. Save & Open Tips.
+6. Complete tips.
 7. Confirm Journal/Profile/Circle state updates.
 
 - [ ] **Step 4: Commit any verification docs if changed**
@@ -641,8 +641,8 @@ Only commit if a doc changed.
 Spec coverage:
 
 - Daily reflection loop: Tasks 2, 3, 5, 6.
-- AI result to Journal and Practice: Tasks 4 and 5.
-- Practice and progress: Tasks 1, 2, 3, 5.
+- AI result to Journal and Tips: Tasks 4 and 5.
+- Tips and progress: Tasks 1, 2, 3, 5.
 - Circle local sharing: Task 7.
 - Product polish and no placeholder-only tabs: Tasks 2, 3, 6, 7.
 - Backend readiness: preserved by not adding backend and keeping provider/storage boundaries intact.

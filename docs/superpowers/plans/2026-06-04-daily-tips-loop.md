@@ -1,8 +1,8 @@
-# Daily Practice Loop Implementation Plan
+# Daily Tips Loop Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a local-first daily practice loop where reflections create actionable quests and useful insights can be saved into private circles.
+**Goal:** Build a local-first daily tips loop where reflections create actionable quests and useful insights can be saved into private circles.
 
 **Architecture:** Stores remain the source of truth. `QuestStore` adds lookup and activation helpers, `CircleStore` adds duplicate-share helpers, Home surfaces quest context, and Journal detail becomes the place to act on one reflection.
 
@@ -25,7 +25,7 @@
 **Files:**
 - Modify: `Circleu/Features/Home/HomeView.swift`
 
-- [ ] Replace the simple active quest card with a richer daily practice card.
+- [ ] Replace the simple active quest card with a richer daily tips card.
 - [ ] Show source reflection title, quest age, and complete/skip actions when a quest exists.
 - [ ] Add an action to open the source reflection from Home when the quest is tied to an entry.
 - [ ] Keep the no-quest state focused on recording the next reflection.

@@ -234,7 +234,7 @@ private struct PinguOnboardingPage: Equatable {
         ),
         PinguOnboardingPage(
             icon: "sparkles",
-            title: "Turn insight into practice",
+            title: "Turn insight into tips",
             subtitle: "Circleu turns each reflection into a journal insight and one small action you can complete today."
         ),
         PinguOnboardingPage(

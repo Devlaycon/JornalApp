@@ -112,7 +112,7 @@ final class QuestStore: ObservableObject {
         if let previousEntry {
             demoQuests.append(
                 Quest(
-                    title: "Completed practice",
+                    title: "Completed tips",
                     detail: previousEntry.result.suggestedQuest,
                     sourceEntryID: previousEntry.id,
                     createdAt: Calendar.current.date(byAdding: .day, value: -1, to: referenceDate) ?? referenceDate,

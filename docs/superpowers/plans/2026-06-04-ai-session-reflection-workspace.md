@@ -1164,7 +1164,7 @@ struct JournalWorkspaceEditSheet: View {
                         PinguTextInput(title: "Title", placeholder: "Reflection title", text: $title)
                         PinguTextInput(title: "Emotion", placeholder: "Emotion tag", text: $emotion)
                         PinguTextInput(title: "Private note", placeholder: "What do you want to remember?", text: $privateNote, axis: .vertical)
-                        PinguTextInput(title: "Tags", placeholder: "confidence, class, practice", text: $tagsText)
+                        PinguTextInput(title: "Tags", placeholder: "confidence, class, tips", text: $tagsText)
                     }
                     .padding(.horizontal, PinguDesign.screenSidePadding)
                     .padding(.top, 20)
@@ -1246,7 +1246,7 @@ Add sheet:
 }
 ```
 
-Add workspace cards after `practiceActionsCard`:
+Add workspace cards after `tipsActionsCard`:
 
 ```swift
 workspaceCard

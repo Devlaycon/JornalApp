@@ -112,23 +112,23 @@ final class CircleStore: ObservableObject {
             createdAt: Calendar.current.date(byAdding: .day, value: -4, to: referenceDate) ?? referenceDate
         )
 
-        let practiceCircle = CircleSpace(
-            name: "Daily Voice Practice",
+        let tipsCircle = CircleSpace(
+            name: "Daily Voice Tips",
             intention: "Collect small actions and notes that make expression feel easier.",
             createdAt: Calendar.current.date(byAdding: .day, value: -3, to: referenceDate) ?? referenceDate
         )
 
-        circles = [confidenceCircle, practiceCircle]
+        circles = [confidenceCircle, tipsCircle]
 
         posts = [
             CirclePost(
                 circleID: confidenceCircle.id,
                 createdAt: Calendar.current.date(byAdding: .day, value: -2, to: referenceDate) ?? referenceDate,
                 title: "Before class reminder",
-                body: "Pause, breathe, and ask one clear question. Small public practice counts."
+                body: "Pause, breathe, and ask one clear question. Small public tips counts."
             ),
             CirclePost(
-                circleID: practiceCircle.id,
+                circleID: tipsCircle.id,
                 createdAt: Calendar.current.date(byAdding: .hour, value: -6, to: referenceDate) ?? referenceDate,
                 title: "Two-minute voice warmup",
                 body: "Read one note out loud and listen for the clearest sentence."
@@ -138,7 +138,7 @@ final class CircleStore: ObservableObject {
         if let latestEntry = entries.sorted(by: { $0.createdAt > $1.createdAt }).first {
             posts.insert(
                 CirclePost(
-                    circleID: practiceCircle.id,
+                    circleID: tipsCircle.id,
                     createdAt: referenceDate,
                     title: latestEntry.displayTitle,
                     body: "\(latestEntry.displaySummary)\n\nQuest: \(latestEntry.displayQuest)",
@@ -169,7 +169,7 @@ final class CircleStore: ObservableObject {
 
         circles = [
             CircleSpace(
-                name: "Reflection Practice Community",
+                name: "Reflection Tips Community",
                 intention: "Save reflection takeaways you want to revisit before speaking or studying."
             ),
             CircleSpace(

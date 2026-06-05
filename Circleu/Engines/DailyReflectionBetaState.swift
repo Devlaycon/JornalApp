@@ -4,7 +4,7 @@ struct DailyReflectionBetaState: Equatable {
     let hasCompletedToday: Bool
     let nextActionTitle: String
     let nextActionSubtitle: String
-    let practiceProgressText: String
+    let tipsProgressText: String
 
     static func make(
         entries: [JournalReflectionEntry],
@@ -13,15 +13,15 @@ struct DailyReflectionBetaState: Equatable {
         calendar: Calendar = .current
     ) -> DailyReflectionBetaState {
         let hasCompletedToday = entries.contains { calendar.isDate($0.createdAt, inSameDayAs: now) }
-        let activePractice = quests.first { $0.status == .active }
+        let activeTips = quests.first { $0.status == .active }
         let completedCount = quests.filter { $0.status == .completed }.count
 
-        if let activePractice {
+        if let activeTips {
             return DailyReflectionBetaState(
                 hasCompletedToday: hasCompletedToday,
-                nextActionTitle: "Continue today's practice",
-                nextActionSubtitle: activePractice.detail,
-                practiceProgressText: "\(completedCount) completed"
+                nextActionTitle: "Continue today's tip",
+                nextActionSubtitle: activeTips.detail,
+                tipsProgressText: "\(completedCount) completed"
             )
         }
 
@@ -30,15 +30,15 @@ struct DailyReflectionBetaState: Equatable {
                 hasCompletedToday: true,
                 nextActionTitle: "Reflect again if something changed",
                 nextActionSubtitle: "You already saved a reflection today. Add another if a new moment needs attention.",
-                practiceProgressText: "\(completedCount) completed"
+                tipsProgressText: "\(completedCount) completed"
             )
         }
 
         return DailyReflectionBetaState(
             hasCompletedToday: false,
             nextActionTitle: "Start today's reflection",
-            nextActionSubtitle: "Record or type one honest check-in to create your next AI-guided practice.",
-            practiceProgressText: "\(completedCount) completed"
+            nextActionSubtitle: "Record or type one honest check-in to create your next AI-guided tip.",
+            tipsProgressText: "\(completedCount) completed"
         )
     }
 }

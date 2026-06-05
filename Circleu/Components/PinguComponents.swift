@@ -27,17 +27,17 @@ struct PinguCard<Content: View>: View {
 enum PinguTab: String {
     case home = "Home"
     case journal = "Journal"
-    case practice = "Tips"
+    case tips = "Tips"
     case circle = "Circle"
     case profile = "Profile"
 
-    static let bottomTabs: [PinguTab] = [.home, .practice, .circle, .profile]
+    static let bottomTabs: [PinguTab] = [.home, .tips, .circle, .profile]
 
     var icon: String {
         switch self {
         case .home: "house.fill"
         case .journal: "book.closed.fill"
-        case .practice: "mic.fill"
+        case .tips: "mic.fill"
         case .circle: "person.2.fill"
         case .profile: "person.crop.circle.fill"
         }

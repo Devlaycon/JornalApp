@@ -10,12 +10,12 @@ Circleu should feel like a working iPhone MVP: every tab should let the user do 
 
 In scope:
 
-- Create clearer app model types for profile, progress, quests, practice plans, circles, and support posts.
+- Create clearer app model types for profile, progress, quests, tips plans, circles, and support posts.
 - Add local stores or engines that derive real state from saved reflections.
 - Remove old sample/static data structures that are not connected to the user.
 - Replace fake Circle tab groups/member counts with private local circle workflows.
 - Replace fake Profile level, XP, circles, support quest, and coming-next content with real local progress.
-- Connect saved reflections to quests, practice, circles, and profile progress.
+- Connect saved reflections to quests, tips, circles, and profile progress.
 - Keep the current recording and AI reflection flow working.
 
 Out of scope:
@@ -36,7 +36,7 @@ Circleu uses a local-first domain model:
 - `UserProfile`: display name and lightweight local preferences.
 - `AppProgressSnapshot`: derived entries, streak, level, XP, badges, and emotion mix.
 - `Quest`: a suggested action that can be active, completed, or skipped.
-- `PracticePlan`: a repeatable local practice item derived from the user's reflection patterns.
+- `TipsPlan`: a repeatable local tips item derived from the user's reflection patterns.
 - `CircleSpace`: a private support space the user can create locally.
 - `CirclePost`: a note or reflection share saved inside a local circle.
 

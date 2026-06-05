@@ -4,7 +4,7 @@
 
 **Goal:** Refine the existing Tips and Circle tabs into a native Tips Coach and Communities experience while preserving local-first workflows.
 
-**Architecture:** This is a SwiftUI view refinement over existing stores. `PracticeView` remains the implementation behind the `Tips` tab, `CircleView` and `CircleSheets` remain backed by `CircleStore`, and no new backend or persistence layer is introduced.
+**Architecture:** This is a SwiftUI view refinement over existing stores. `TipsView` remains the implementation behind the `Tips` tab, `CircleView` and `CircleSheets` remain backed by `CircleStore`, and no new backend or persistence layer is introduced.
 
 **Tech Stack:** SwiftUI, Combine, UserDefaults-backed local stores, Xcode iOS build.
 
@@ -13,15 +13,15 @@
 ### Task 1: Refine Tips Screen
 
 **Files:**
-- Modify: `Circleu/Features/Practice/PracticeView.swift`
+- Modify: `Circleu/Features/Tips/TipsView.swift`
 
 - [ ] **Step 1: Update screen copy and hierarchy**
 
-Change the header from generic practice language to Tips Coach language while keeping the tab name controlled by `RootView`.
+Change the header from generic tips language to Tips Coach language while keeping the tab name controlled by `RootView`.
 
 - [ ] **Step 2: Add a coach preview card**
 
-Add a real local action card that explains how to use the tab and routes users to recording or the current active practice.
+Add a real local action card that explains how to use the tab and routes users to recording or the current active tips.
 
 - [ ] **Step 3: Retain functional quest actions**
 

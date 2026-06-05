@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PracticeView: View {
+struct TipsView: View {
     @EnvironmentObject private var journalStore: ReflectionJournalStore
     @EnvironmentObject private var questStore: QuestStore
     let onStartRecording: () -> Void
@@ -21,12 +21,12 @@ struct PracticeView: View {
                     coachPathCard
 
                     if let activeQuest = questStore.latestActiveQuest {
-                        activePracticeCard(activeQuest)
+                        activeTipsCard(activeQuest)
                     } else {
-                        emptyActivePractice
+                        emptyActiveTips
                     }
 
-                    practiceHistorySection(
+                    tipsHistorySection(
                         title: "Completed tips",
                         emptyText: "Completed tips will appear here after you mark one done.",
                         quests: questStore.completedQuests,
@@ -34,7 +34,7 @@ struct PracticeView: View {
                         statusColor: PinguDesign.blue
                     )
 
-                    practiceHistorySection(
+                    tipsHistorySection(
                         title: "Saved for later",
                         emptyText: "Skipped tips stay here so you can restart one when it fits again.",
                         quests: questStore.skippedQuests,
@@ -55,7 +55,7 @@ struct PracticeView: View {
                 .font(.system(size: 35, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
 
-            Text("Practice one real conversation move from your reflections, then save what worked.")
+            Text("Try one real conversation move from your reflections, then save what worked.")
                 .font(.system(size: 17, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
@@ -64,9 +64,9 @@ struct PracticeView: View {
 
     private var progressRow: some View {
         HStack(spacing: 10) {
-            PracticeMetricTile(value: "\(questStore.activeQuests.count)", label: "Active", icon: "flag.fill")
-            PracticeMetricTile(value: "\(questStore.completedQuests.count)", label: "Practiced", icon: "checkmark.seal.fill")
-            PracticeMetricTile(value: "LV\(progress.level)", label: "Level", icon: "sparkles")
+            TipsMetricTile(value: "\(questStore.activeQuests.count)", label: "Active", icon: "flag.fill")
+            TipsMetricTile(value: "\(questStore.completedQuests.count)", label: "Completed", icon: "checkmark.seal.fill")
+            TipsMetricTile(value: "LV\(progress.level)", label: "Level", icon: "sparkles")
         }
     }
 
@@ -86,7 +86,7 @@ struct PracticeView: View {
                             .font(.system(size: 20, weight: .bold, design: .rounded))
                             .foregroundStyle(PinguDesign.ink)
 
-                        Text("Record a reflection, get one clear practice tip, then come back here to complete or restart it.")
+                        Text("Record a reflection, get one clear tip, then come back here to complete or restart it.")
                             .font(.system(size: 14, weight: .medium, design: .rounded))
                             .foregroundStyle(PinguDesign.muted)
                             .lineSpacing(4)
@@ -95,7 +95,7 @@ struct PracticeView: View {
 
                 HStack(spacing: 8) {
                     TipsContextChip(text: "Describe", icon: "text.quote")
-                    TipsContextChip(text: "Practice", icon: "mic.fill")
+                    TipsContextChip(text: "Coach", icon: "mic.fill")
                     TipsContextChip(text: "Reflect", icon: "sparkles")
                 }
 
@@ -103,7 +103,7 @@ struct PracticeView: View {
                     TipsCoachActionRow(
                         icon: "mic.circle.fill",
                         title: "Create a new tip",
-                        detail: "Speak naturally and let Circleu turn the reflection into one practice action.",
+                        detail: "Speak naturally and let Circleu turn the reflection into one next action.",
                         tint: PinguDesign.blue,
                         actionTitle: "Record",
                         action: onStartRecording
@@ -141,7 +141,7 @@ struct PracticeView: View {
         }
     }
 
-    private func activePracticeCard(_ quest: Quest) -> some View {
+    private func activeTipsCard(_ quest: Quest) -> some View {
         PinguCard {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top, spacing: 12) {
@@ -206,7 +206,7 @@ struct PracticeView: View {
                     } label: {
                         Label("Complete", systemImage: "checkmark")
                     }
-                    .buttonStyle(PracticeActionButtonStyle(isPrimary: true))
+                    .buttonStyle(TipsActionButtonStyle(isPrimary: true))
 
                     Button {
                         withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
@@ -215,13 +215,13 @@ struct PracticeView: View {
                     } label: {
                         Label("Skip", systemImage: "forward.fill")
                     }
-                    .buttonStyle(PracticeActionButtonStyle(isPrimary: false))
+                    .buttonStyle(TipsActionButtonStyle(isPrimary: false))
                 }
             }
         }
     }
 
-    private var emptyActivePractice: some View {
+    private var emptyActiveTips: some View {
         PinguCard {
             VStack(spacing: 16) {
                 Image(systemName: "sparkles.rectangle.stack.fill")
@@ -233,7 +233,7 @@ struct PracticeView: View {
                         .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundStyle(PinguDesign.ink)
 
-                    Text("Save a reflection and Circleu will turn the AI suggestion into a short practice tip here.")
+                    Text("Save a reflection and Circleu will turn the AI suggestion into a short tip here.")
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundStyle(PinguDesign.muted)
                         .multilineTextAlignment(.center)
@@ -251,7 +251,7 @@ struct PracticeView: View {
         }
     }
 
-    private func practiceHistorySection(
+    private func tipsHistorySection(
         title: String,
         emptyText: String,
         quests: [Quest],
@@ -275,7 +275,7 @@ struct PracticeView: View {
             } else {
                 VStack(spacing: 10) {
                     ForEach(quests) { quest in
-                        PracticeHistoryRow(
+                        TipsHistoryRow(
                             quest: quest,
                             sourceEntry: sourceEntry(for: quest),
                             statusIcon: statusIcon,
@@ -301,7 +301,7 @@ struct PracticeView: View {
     }
 }
 
-private struct PracticeMetricTile: View {
+private struct TipsMetricTile: View {
     let value: String
     let label: String
     let icon: String
@@ -330,7 +330,7 @@ private struct PracticeMetricTile: View {
     }
 }
 
-private struct PracticeHistoryRow: View {
+private struct TipsHistoryRow: View {
     let quest: Quest
     let sourceEntry: JournalReflectionEntry?
     let statusIcon: String
@@ -368,7 +368,7 @@ private struct PracticeHistoryRow: View {
                     } label: {
                         Label("Reflection", systemImage: "book.closed.fill")
                     }
-                    .buttonStyle(PracticeSmallButtonStyle())
+                    .buttonStyle(TipsSmallButtonStyle())
                 }
 
                 Button {
@@ -376,7 +376,7 @@ private struct PracticeHistoryRow: View {
                 } label: {
                     Label("Restart", systemImage: "arrow.clockwise")
                 }
-                .buttonStyle(PracticeSmallButtonStyle())
+                .buttonStyle(TipsSmallButtonStyle())
             }
         }
         .padding(15)
@@ -464,7 +464,7 @@ private struct TipsCoachActionRow: View {
     }
 }
 
-private struct PracticeActionButtonStyle: ButtonStyle {
+private struct TipsActionButtonStyle: ButtonStyle {
     let isPrimary: Bool
 
     func makeBody(configuration: Configuration) -> some View {
@@ -479,7 +479,7 @@ private struct PracticeActionButtonStyle: ButtonStyle {
     }
 }
 
-private struct PracticeSmallButtonStyle: ButtonStyle {
+private struct TipsSmallButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 13, weight: .bold, design: .rounded))
@@ -492,7 +492,7 @@ private struct PracticeSmallButtonStyle: ButtonStyle {
 }
 
 #Preview {
-    PracticeView(onStartRecording: {}, onOpenJournalEntry: { _ in })
+    TipsView(onStartRecording: {}, onOpenJournalEntry: { _ in })
         .environmentObject(ReflectionJournalStore())
         .environmentObject(QuestStore())
 }

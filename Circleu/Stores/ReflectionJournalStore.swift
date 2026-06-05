@@ -218,7 +218,7 @@ extension ReflectionJournalStore {
                 transcript: "I felt nervous before speaking in class, but I slowed down and asked my question clearly.",
                 engineName: "Local Reflection Engine",
                 result: AIReflectionResult(
-                    title: "You practiced brave clarity",
+                    title: "You completed brave clarity",
                     emotion: "Brave",
                     summary: "You noticed nerves and still chose a small public action.",
                     insight: "Slowing down helped you turn pressure into a clear question instead of silence.",
@@ -236,7 +236,7 @@ extension ReflectionJournalStore {
                 result: AIReflectionResult(
                     title: "You found progress in a tired day",
                     emotion: "Encouraged",
-                    summary: "Even with low energy, you saw evidence that your practice is working.",
+                    summary: "Even with low energy, you saw evidence that your tips is working.",
                     insight: "Your confidence grew because you measured effort honestly instead of waiting for a perfect mood.",
                     expressionMoment: "You gave yourself credit for continuing when the day felt heavy.",
                     quote: "Progress counts most when it is quiet.",
@@ -250,11 +250,11 @@ extension ReflectionJournalStore {
                 transcript: "I want to become more comfortable expressing myself. I think recording helps me hear my thoughts more clearly.",
                 engineName: "Local Reflection Engine",
                 result: AIReflectionResult(
-                    title: "You are building expression practice",
+                    title: "You are building expression tips",
                     emotion: "Hopeful",
                     summary: "You connected voice recording with clearer self-understanding.",
                     insight: "Hearing your thoughts gives you another way to notice patterns and choose the next small step.",
-                    expressionMoment: "You described the app as a practice space for becoming more comfortable.",
+                    expressionMoment: "You described the app as a tips space for becoming more comfortable.",
                     quote: "Expression becomes easier through repetition.",
                     confidenceScore: 0.86,
                     suggestedQuest: "Record a thirty-second check-in tomorrow about one moment you handled well."

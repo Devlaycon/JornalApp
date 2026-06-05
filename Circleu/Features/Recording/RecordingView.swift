@@ -6,7 +6,7 @@ struct RecordingView: View {
     @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @StateObject private var recorder = VoiceRecorder()
     let onViewJournal: () -> Void
-    let onViewPractice: () -> Void
+    let onViewTips: () -> Void
 
     @State private var engine = ReflectionEngineFactory.makeDefault()
     @State private var showReflection = false
@@ -22,10 +22,10 @@ struct RecordingView: View {
 
     init(
         onViewJournal: @escaping () -> Void = {},
-        onViewPractice: @escaping () -> Void = {}
+        onViewTips: @escaping () -> Void = {}
     ) {
         self.onViewJournal = onViewJournal
-        self.onViewPractice = onViewPractice
+        self.onViewTips = onViewTips
     }
 
     var body: some View {
@@ -153,8 +153,8 @@ struct RecordingView: View {
                 switch destination {
                 case .confirmation:
                     showSaveConfirmation = true
-                case .practice:
-                    onViewPractice()
+                case .tips:
+                    onViewTips()
                     dismiss()
                 }
             }

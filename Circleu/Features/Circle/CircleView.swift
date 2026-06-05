@@ -80,7 +80,7 @@ struct CircleView: View {
                 .font(.system(size: 35, weight: .bold, design: .rounded))
                 .foregroundStyle(PinguDesign.ink)
 
-            Text("Organize reflection shares, support notes, and practice wins by community.")
+            Text("Organize reflection shares, support notes, and tips wins by community.")
                 .font(.system(size: 17, weight: .medium, design: .rounded))
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
@@ -109,7 +109,7 @@ struct CircleView: View {
                     .font(.system(size: 17, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.ink)
 
-                Text("Communities are private on this iPhone for now. Shared reflection cards use summaries and practice tips, never raw recording audio.")
+                Text("Communities are private on this iPhone for now. Shared reflection cards use summaries and tips, never raw recording audio.")
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(4)
@@ -131,7 +131,7 @@ struct CircleView: View {
                     .font(.system(size: 23, weight: .bold, design: .rounded))
                     .foregroundStyle(PinguDesign.ink)
 
-                Text("Group your practice notes, reflection shares, and encouragement cards by class, friends, or goals.")
+                Text("Group your tips notes, reflection shares, and encouragement cards by class, friends, or goals.")
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(PinguDesign.muted)
                     .multilineTextAlignment(.center)

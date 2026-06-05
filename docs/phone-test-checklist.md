@@ -56,13 +56,13 @@ Test this flow:
 13. Wait for **AI Processing**.
 14. Review **Reflection**.
 15. Tap regenerate and confirm the reflection refreshes or shows a clear error.
-16. Tap **Save & Start Practice**.
-17. Confirm the app opens **Practice** with the suggested action active.
-18. Complete or skip the practice and confirm Home/Profile progress changes.
+16. Tap **Save & Open Tips**.
+17. Confirm the app opens **Tips** with the suggested action active.
+18. Complete or skip the tips and confirm Home/Profile progress changes.
 19. Start another reflection and tap **Save Entry**.
 20. Confirm the **Saved** screen still appears.
 21. Open **Journal** and inspect the saved detail.
-22. In the journal detail, add or reactivate the suggested practice.
+22. In the journal detail, add or reactivate the suggested tip.
 23. Save the reflection into a private circle from the journal detail.
 24. Open **Circles** and confirm the saved reflection appears as a private post without private workspace notes.
 25. Open **Profile** and confirm the name, entry count, streak, and progress changed.
@@ -81,9 +81,9 @@ Use these controls when teammates need the same local state on a phone:
 1. Open **Profile**.
 2. Tap **QA tools**.
 3. Tap **Seed demo data**.
-4. Confirm Profile now shows demo reflections, circles, posts, practices, XP, and mood.
-5. Open **Home**, **Journal**, **Practice**, and **Circles** to confirm the same demo state appears across tabs.
-6. Open **Practice** and use the active practice card to complete, skip, or restart a practice.
+4. Confirm Profile now shows demo reflections, circles, posts, tips, XP, and mood.
+5. Open **Home**, **Journal**, **Tips**, and **Circles** to confirm the same demo state appears across tabs.
+6. Open **Tips** and use the active tips card to complete, skip, or restart a tips.
 7. Save the latest reflection into a circle and confirm duplicate saves are disabled.
 8. Return to **Profile > QA tools**.
 9. Tap **Copy QA** or **Share QA** and confirm the export includes build info, profile summary, local counts, and journal text.
@@ -100,7 +100,7 @@ Test these before calling the build demo-ready:
 4. Finish with typed text and confirm AI analysis starts.
 5. Regenerate from the reflection screen and confirm Save uses the latest generated result.
 6. Save once and confirm the confirmation screen appears.
-7. Repeat with another reflection, use **Save & Start Practice**, and confirm Practice opens with the new practice.
+7. Repeat with another reflection, use **Save & Open Tips**, and confirm Tips opens with the new tip.
 8. Open Journal and confirm only one new entry exists.
 9. Use **Record Another** and confirm the previous transcript is cleared.
 10. Deny microphone or speech permission on a fresh install if possible and confirm typed fallback still works.
@@ -121,17 +121,17 @@ Test these before calling the build demo-ready:
 ## 9. Local Workflow Checks
 
 1. Save a reflection and confirm Home shows a real next action.
-2. Tap **Open Practice** from Home and confirm the Practice tab opens.
-3. Complete the active practice and confirm Profile XP/progress updates.
-4. Save another reflection and tap **Skip** in Practice to confirm it disappears from active practices.
-5. Restart a skipped or completed practice from the Practice tab.
+2. Tap **Open Tips** from Home and confirm the Tips tab opens.
+3. Complete the active tips and confirm Profile XP/progress updates.
+4. Save another reflection and tap **Skip** in Tips to confirm it disappears from active tips.
+5. Restart a skipped or completed tips from the Tips tab.
 6. Save the reflection into a private circle from the journal detail.
 7. Open **Circles** and confirm cards show spaces, posts, and reflections instead of member counts.
 8. Create a new private circle.
 9. Open the circle and add a support note.
 10. Share the latest reflection into that circle.
 11. Confirm the circle post count and latest activity update.
-12. Open **Profile** and confirm entries, streak, circles, mood, badges, practices, and local data summary all reflect real local state.
+12. Open **Profile** and confirm entries, streak, circles, mood, badges, tips, and local data summary all reflect real local state.
 13. Edit the display name and confirm Home/Profile use the new name.
 
 ## Backend Decision

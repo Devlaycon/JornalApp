@@ -175,7 +175,7 @@ Create `@MainActor final class CircleStore: ObservableObject` with:
 
 Behavior:
 
-- Seed two private starter spaces only when storage is empty: `Reflection Practice` and `Encouragement Notes`.
+- Seed two private starter spaces only when storage is empty: `Reflection Tips` and `Encouragement Notes`.
 - Do not use member counts.
 - Persist to `circleu.circles.v1` and `circleu.circlePosts.v1`.
 

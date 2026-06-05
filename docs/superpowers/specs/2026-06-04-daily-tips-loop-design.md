@@ -1,8 +1,8 @@
-# Daily Practice Loop Design
+# Daily Tips Loop Design
 
 ## Goal
 
-Make Circleu feel like a working daily practice product after demo seeding or a real recording: reflection leads to a quest, the quest can be completed or skipped, and the user can save useful insights into private circles.
+Make Circleu feel like a working daily tips product after demo seeding or a real recording: reflection leads to a quest, the quest can be completed or skipped, and the user can save useful insights into private circles.
 
 ## Scope
 

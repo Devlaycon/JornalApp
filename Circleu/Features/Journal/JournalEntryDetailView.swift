@@ -50,7 +50,7 @@ struct JournalEntryDetailView: View {
                     detailCard(title: "Insight", body: currentEntry.result.insight, icon: "heart.fill")
                     detailCard(title: "Expression moment", body: currentEntry.result.expressionMoment, icon: "waveform")
                     detailCard(title: "Suggested quest", body: currentEntry.result.suggestedQuest, icon: "flag.fill")
-                    practiceActionsCard
+                    tipsActionsCard
                     workspaceCard
                     sessionHistoryCard
 
@@ -290,7 +290,7 @@ struct JournalEntryDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
-    private var practiceActionsCard: some View {
+    private var tipsActionsCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 10) {
                 Image(systemName: "checklist.checked")
@@ -298,7 +298,7 @@ struct JournalEntryDetailView: View {
                     .foregroundStyle(PinguDesign.blue)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Daily practice")
+                    Text("Daily tip")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundStyle(PinguDesign.ink)
 
@@ -379,7 +379,7 @@ struct JournalEntryDetailView: View {
                         _ = questStore.activateSuggestedQuest(from: currentEntry)
                     }
                 } label: {
-                    Label("Practice again", systemImage: "arrow.clockwise")
+                    Label("Restart tip", systemImage: "arrow.clockwise")
                 }
                 .buttonStyle(PinguSecondaryButtonStyle())
 

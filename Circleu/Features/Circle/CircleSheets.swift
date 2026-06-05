@@ -20,7 +20,7 @@ struct CircleCreateSheet: View {
 
             VStack(spacing: 12) {
                 PinguTextInput(title: "Name", placeholder: "Study confidence", text: $name)
-                PinguTextInput(title: "Purpose", placeholder: "What will this community help you practice?", text: $intention)
+                PinguTextInput(title: "Purpose", placeholder: "What will this community help you tips?", text: $intention)
             }
 
             Text("This creates a private local community space. Live group sync can be added later when the backend is ready.")
