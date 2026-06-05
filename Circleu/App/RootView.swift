@@ -93,7 +93,7 @@ private extension PinguTab {
         case .journal:
             "Journal"
         case .practice:
-            "Practice"
+            "Tips"
         case .circle:
             "Circles"
         case .profile:
@@ -108,7 +108,7 @@ private extension PinguTab {
         case .journal:
             "book.closed.fill"
         case .practice:
-            "checklist.checked"
+            "mic.fill"
         case .circle:
             "person.2.fill"
         case .profile:

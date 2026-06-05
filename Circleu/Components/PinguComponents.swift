@@ -24,18 +24,20 @@ struct PinguCard<Content: View>: View {
     }
 }
 
-enum PinguTab: String, CaseIterable {
+enum PinguTab: String {
     case home = "Home"
     case journal = "Journal"
-    case practice = "Practice"
+    case practice = "Tips"
     case circle = "Circle"
     case profile = "Profile"
+
+    static let bottomTabs: [PinguTab] = [.home, .practice, .circle, .profile]
 
     var icon: String {
         switch self {
         case .home: "house.fill"
         case .journal: "book.closed.fill"
-        case .practice: "checklist.checked"
+        case .practice: "mic.fill"
         case .circle: "person.2.fill"
         case .profile: "person.crop.circle.fill"
         }
@@ -138,28 +140,28 @@ struct PinguBottomTabBar: View {
     @Binding var selection: PinguTab
 
     var body: some View {
-        HStack(spacing: 6) {
-            ForEach(PinguTab.allCases, id: \.self) { tab in
+        HStack(spacing: 12) {
+            ForEach(PinguTab.bottomTabs, id: \.self) { tab in
                 Button {
                     selection = tab
                 } label: {
-                    VStack(spacing: 4) {
+                    VStack(spacing: 3) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 21, weight: .semibold))
+                            .font(.system(size: 23, weight: .semibold))
                         Text(tab.rawValue)
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
                             .lineLimit(1)
-                            .minimumScaleFactor(0.78)
+                            .minimumScaleFactor(0.82)
                     }
-                    .foregroundStyle(selection == tab ? PinguDesign.blue : PinguDesign.muted)
+                    .foregroundStyle(selection == tab ? PinguDesign.ink : PinguDesign.muted)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 60)
+                    .frame(height: 58)
                     .background {
                         if selection == tab {
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .fill(PinguDesign.lightBlue.opacity(0.86))
+                            Capsule()
+                                .fill(PinguDesign.lightBlue.opacity(0.92))
                                 .overlay {
-                                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    Capsule()
                                         .stroke(.white.opacity(0.78), lineWidth: 1)
                                 }
                         }
@@ -168,7 +170,7 @@ struct PinguBottomTabBar: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 26)
         .padding(.top, 10)
         .frame(height: PinguDesign.bottomBarHeight)
         .background(PinguDesign.ice.opacity(0.98))
