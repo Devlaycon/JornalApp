@@ -28,7 +28,6 @@ struct RootView: View {
                         JournalView(onStartRecording: { showRecording = true })
                     case .tips:
                         TipsView(
-                            onStartRecording: { showRecording = true },
                             onOpenJournalEntry: { selectedJournalEntry = $0 }
                         )
                     case .circle:
@@ -121,6 +120,7 @@ private extension PinguTab {
     RootView()
         .environmentObject(ReflectionJournalStore())
         .environmentObject(QuestStore())
+        .environmentObject(TipsPracticeStore())
         .environmentObject(CircleStore())
         .environmentObject(UserProfileStore())
         .environmentObject(AIReflectionSessionStore())

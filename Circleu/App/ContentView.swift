@@ -6,6 +6,7 @@ struct ContentView: View {
     @StateObject private var profileStore = UserProfileStore()
     @StateObject private var circleStore = CircleStore()
     @StateObject private var questStore = QuestStore()
+    @StateObject private var tipsPracticeStore = TipsPracticeStore()
     @StateObject private var aiSessionStore = AIReflectionSessionStore()
 
     var body: some View {
@@ -24,6 +25,7 @@ struct ContentView: View {
         .environmentObject(profileStore)
         .environmentObject(circleStore)
         .environmentObject(questStore)
+        .environmentObject(tipsPracticeStore)
         .environmentObject(aiSessionStore)
     }
 }
