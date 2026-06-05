@@ -35,7 +35,7 @@ struct RecordingView: View {
             GeometryReader { proxy in
                 VStack(spacing: 0) {
                     recordingHeader
-                        .padding(.top, 18)
+                        .padding(.top, max(14, proxy.safeAreaInsets.top + 8))
 
                     Spacer(minLength: max(54, proxy.size.height * 0.07))
 
@@ -104,7 +104,7 @@ struct RecordingView: View {
                         .disabled(!canFinish)
                         .opacity(canFinish ? 1 : 0.72)
                     }
-                    .padding(.bottom, 34)
+                    .padding(.bottom, max(34, proxy.safeAreaInsets.bottom + 22))
                 }
                 .frame(width: proxy.size.width, height: proxy.size.height)
             }
@@ -196,7 +196,11 @@ struct RecordingView: View {
                     .font(.system(size: 28, weight: .medium))
                     .foregroundStyle(PinguDesign.tabText)
                     .frame(width: 48, height: 48)
+                    .background(.white.opacity(0.82))
+                    .clipShape(Circle())
+                    .shadow(color: PinguDesign.deepBlue.opacity(0.08), radius: 10, y: 5)
             }
+            .accessibilityLabel("Close recording")
 
             Spacer()
 
@@ -214,8 +218,12 @@ struct RecordingView: View {
                     .font(.system(size: 25, weight: .semibold))
                     .foregroundStyle(PinguDesign.tabText)
                     .frame(width: 48, height: 48)
+                    .background(.white.opacity(0.82))
+                    .clipShape(Circle())
+                    .shadow(color: PinguDesign.deepBlue.opacity(0.08), radius: 10, y: 5)
             }
             .disabled(isAnalyzing || showReflection || showSaveConfirmation)
+            .accessibilityLabel("Restart recording")
         }
         .padding(.horizontal, 24)
     }
