@@ -210,7 +210,13 @@ final class VoiceRecorder: NSObject, ObservableObject {
             recognitionRequest = request
 
             let inputNode = audioEngine.inputNode
-            let recordingFormat = inputNode.outputFormat(forBus: 0)
+            let recordingFormat = inputNode.inputFormat(forBus: 0)
+            guard isValidRecordingFormat(recordingFormat) else {
+                microphonePermissionState = .unavailable
+                enterTypedFallback(message: "The microphone input is not ready. You can still type your reflection below.")
+                return
+            }
+
             inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
                 request.append(buffer)
             }
@@ -255,5 +261,9 @@ final class VoiceRecorder: NSObject, ObservableObject {
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
+    }
+
+    private func isValidRecordingFormat(_ format: AVAudioFormat) -> Bool {
+        format.sampleRate > 0 && format.channelCount > 0
     }
 }
