@@ -17,6 +17,7 @@ struct TipsView: View {
             case .setup:
                 TipsSetupView(
                     viewModel: viewModel,
+                    recentSessions: practiceStore.recentSessions,
                     reflectionHistory: AnyView(reflectionHistory)
                 )
             case .liveCoach:

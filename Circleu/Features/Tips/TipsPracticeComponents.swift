@@ -161,6 +161,115 @@ struct TipsReplyOptionCard: View {
     }
 }
 
+struct TipsPracticeHistorySection: View {
+    let sessions: [TipsPracticeSession]
+    let onResume: (TipsPracticeSession) -> Void
+    let onDelete: (TipsPracticeSession) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Recent practice", systemImage: "bubble.left.and.text.bubble.right.fill")
+                    .font(PinguFont.cardTitle)
+                    .foregroundStyle(PinguDesign.ink)
+                Spacer()
+                Text("\(sessions.count)")
+                    .font(PinguFont.caption)
+                    .foregroundStyle(PinguDesign.blue)
+                    .padding(.horizontal, 10)
+                    .frame(height: 26)
+                    .background(PinguDesign.lightBlue)
+                    .clipShape(Capsule())
+            }
+
+            VStack(spacing: 10) {
+                ForEach(sessions.prefix(4)) { session in
+                    TipsPracticeSessionRow(
+                        session: session,
+                        onResume: { onResume(session) },
+                        onDelete: { onDelete(session) }
+                    )
+                }
+            }
+        }
+        .padding(16)
+        .background(.white.opacity(0.84))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(PinguDesign.border.opacity(0.9), lineWidth: 1)
+        }
+    }
+}
+
+private struct TipsPracticeSessionRow: View {
+    let session: TipsPracticeSession
+    let onResume: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            VStack(alignment: .leading, spacing: 7) {
+                Text(session.originalMessage)
+                    .font(PinguFont.body)
+                    .foregroundStyle(PinguDesign.ink)
+                    .lineLimit(2)
+
+                HStack(spacing: 6) {
+                    miniChip(session.sceneTitle, icon: session.scene.icon)
+                    miniChip(session.tone.title, icon: "slider.horizontal.3")
+                }
+
+                Text(session.updatedAt.formatted(date: .abbreviated, time: .shortened))
+                    .font(PinguFont.tiny)
+                    .foregroundStyle(PinguDesign.muted)
+            }
+
+            Spacer(minLength: 8)
+
+            VStack(spacing: 8) {
+                Button(action: onResume) {
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 34, height: 34)
+                        .background(PinguDesign.blue)
+                        .clipShape(Circle())
+                }
+                .accessibilityLabel("Resume practice")
+
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(PinguDesign.muted)
+                        .frame(width: 34, height: 34)
+                        .background(.white)
+                        .clipShape(Circle())
+                        .overlay {
+                            Circle()
+                                .stroke(PinguDesign.border, lineWidth: 1)
+                        }
+                }
+                .accessibilityLabel("Delete practice")
+            }
+        }
+        .padding(12)
+        .background(PinguDesign.lightBlue.opacity(0.34))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func miniChip(_ title: String, icon: String) -> some View {
+        Label(title, systemImage: icon)
+            .font(PinguFont.tiny)
+            .lineLimit(1)
+            .foregroundStyle(PinguDesign.blue)
+            .padding(.horizontal, 8)
+            .frame(height: 23)
+            .background(.white.opacity(0.86))
+            .clipShape(Capsule())
+    }
+}
+
 struct ReflectionTipsHistorySection: View {
     let activeQuests: [Quest]
     let completedQuests: [Quest]

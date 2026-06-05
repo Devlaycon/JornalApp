@@ -3,6 +3,7 @@ import SwiftUI
 
 struct TipsSetupView: View {
     @ObservedObject var viewModel: TipsPracticeViewModel
+    let recentSessions: [TipsPracticeSession]
     let reflectionHistory: AnyView
     @State private var selectedMessageItem: PhotosPickerItem?
 
@@ -11,6 +12,21 @@ struct TipsSetupView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
                     header
+                    if !recentSessions.isEmpty {
+                        TipsPracticeHistorySection(
+                            sessions: recentSessions,
+                            onResume: { session in
+                                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                                    viewModel.resume(session)
+                                }
+                            },
+                            onDelete: { session in
+                                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                                    viewModel.delete(session)
+                                }
+                            }
+                        )
+                    }
                     messageCard
                     sceneSection
                     toneSection

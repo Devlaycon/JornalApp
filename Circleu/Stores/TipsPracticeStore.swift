@@ -12,10 +12,12 @@ final class TipsPracticeStore: ObservableObject {
     @Published private(set) var recentSessions: [TipsPracticeSession] = []
 
     private let storageKey = "circleu.tipsPractice.sessions.v1"
+    private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    init() {
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
         load()
@@ -45,6 +47,21 @@ final class TipsPracticeStore: ObservableObject {
         upsertRecent(session)
     }
 
+    func resume(_ session: TipsPracticeSession) {
+        var resumedSession = session
+        resumedSession.updatedAt = Date()
+        currentSession = resumedSession
+        upsertRecent(resumedSession)
+    }
+
+    func delete(_ session: TipsPracticeSession) {
+        recentSessions.removeAll { $0.id == session.id }
+        if currentSession?.id == session.id {
+            currentSession = nil
+        }
+        save()
+    }
+
     func clearCurrentSession() {
         currentSession = nil
     }
@@ -61,7 +78,7 @@ final class TipsPracticeStore: ObservableObject {
     func resetAll() {
         resetDraft()
         recentSessions = []
-        UserDefaults.standard.removeObject(forKey: storageKey)
+        userDefaults.removeObject(forKey: storageKey)
     }
 
     private func upsertRecent(_ session: TipsPracticeSession) {
@@ -72,7 +89,7 @@ final class TipsPracticeStore: ObservableObject {
     }
 
     private func load() {
-        guard let data = UserDefaults.standard.data(forKey: storageKey),
+        guard let data = userDefaults.data(forKey: storageKey),
               let sessions = try? decoder.decode([TipsPracticeSession].self, from: data) else {
             recentSessions = []
             return
@@ -83,6 +100,6 @@ final class TipsPracticeStore: ObservableObject {
 
     private func save() {
         guard let data = try? encoder.encode(recentSessions) else { return }
-        UserDefaults.standard.set(data, forKey: storageKey)
+        userDefaults.set(data, forKey: storageKey)
     }
 }

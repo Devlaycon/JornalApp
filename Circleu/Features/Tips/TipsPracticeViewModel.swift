@@ -187,6 +187,30 @@ final class TipsPracticeViewModel: ObservableObject {
         mode = .setup
     }
 
+    func resume(_ session: TipsPracticeSession) {
+        speechRecognizer.stop()
+        activeSpeechTarget = nil
+        activeSession = session
+        scene = session.scene
+        customScene = session.customScene ?? ""
+        toneValue = session.tone.sliderValue
+        situation = session.situation
+        replyInput = ""
+        extraContextInput = ""
+        replyImageData = nil
+        inputHint = nil
+        store?.resume(session)
+        mode = .liveCoach
+    }
+
+    func delete(_ session: TipsPracticeSession) {
+        store?.delete(session)
+        if activeSession?.id == session.id {
+            activeSession = nil
+            mode = .setup
+        }
+    }
+
     func startNewTip() {
         speechRecognizer.stop()
         activeSpeechTarget = nil
