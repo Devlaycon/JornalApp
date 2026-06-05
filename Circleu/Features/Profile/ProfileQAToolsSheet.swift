@@ -65,11 +65,11 @@ struct ProfileQAToolsSheet: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Reproducible testing")
-                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .font(PinguFont.screenTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Text(statusMessage)
-                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
         }
@@ -78,7 +78,7 @@ struct ProfileQAToolsSheet: View {
     private var buildCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("Build info", systemImage: "iphone")
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             ProfileDataRow(title: "App", value: appName)
@@ -94,7 +94,7 @@ struct ProfileQAToolsSheet: View {
     private var dataCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("Current local state", systemImage: "externaldrive.fill")
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             ProfileDataRow(title: "Onboarding", value: hasCompletedOnboarding ? "Complete" : "Open")
@@ -113,7 +113,7 @@ struct ProfileQAToolsSheet: View {
     private var exportCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("Export", systemImage: "square.and.arrow.up")
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             HStack(spacing: 10) {
@@ -139,7 +139,7 @@ struct ProfileQAToolsSheet: View {
     private var actionsCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("Local actions", systemImage: "slider.horizontal.3")
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Button {
@@ -164,7 +164,7 @@ struct ProfileQAToolsSheet: View {
             .buttonStyle(PinguSecondaryButtonStyle())
 
             Text("Seed creates a repeatable local state with demo reflections, AI sessions and transcripts, quests, circles, and support posts. Reset clears app data, including AI sessions and transcripts, and returns onboarding to the first-run state.")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(PinguFont.caption)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
         }

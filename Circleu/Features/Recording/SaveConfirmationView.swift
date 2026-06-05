@@ -40,30 +40,30 @@ struct SaveConfirmationView: View {
 
                 VStack(spacing: 12) {
                     Text("Reflection saved")
-                        .font(.system(size: 35, weight: .bold, design: .rounded))
+                        .font(PinguFont.screenTitle)
                         .foregroundStyle(PinguDesign.ink)
 
-                    Text(entry == nil ? "Your reflection flow is complete." : "Your AI-powered reflection is now available in Journal History.")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                    Text(entry == nil ? "Your reflection is complete." : "Saved in Journal.")
+                        .font(PinguFont.body)
                         .foregroundStyle(PinguDesign.muted)
                         .multilineTextAlignment(.center)
-                        .lineSpacing(5)
+                        .lineSpacing(3)
                         .frame(maxWidth: 330)
                 }
 
                 if let entry {
                     VStack(alignment: .leading, spacing: 10) {
                         Text(entry.result.title)
-                            .font(.system(size: 21, weight: .bold, design: .rounded))
+                            .font(PinguFont.cardTitle)
                             .foregroundStyle(PinguDesign.ink)
 
                         Text(entry.result.summary)
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .font(PinguFont.body)
                             .foregroundStyle(PinguDesign.body)
                             .lineSpacing(4)
 
                         Text(entry.engineName)
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .font(PinguFont.caption)
                             .foregroundStyle(PinguDesign.blue)
                     }
                     .padding(18)
@@ -96,7 +96,7 @@ struct SaveConfirmationView: View {
                     Button("Done") {
                         onDone()
                     }
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.blue)
                     .frame(maxWidth: .infinity)
                 }

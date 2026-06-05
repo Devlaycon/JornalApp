@@ -28,7 +28,7 @@ struct JournalEntryDetailView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 10) {
                         Text(currentEntry.displayTitle)
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(PinguFont.screenTitle)
                             .foregroundStyle(PinguDesign.ink)
 
                         HStack(spacing: 10) {
@@ -56,7 +56,7 @@ struct JournalEntryDetailView: View {
 
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Transcript")
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .font(PinguFont.cardTitle)
                             .foregroundStyle(PinguDesign.ink)
 
                         Text(currentEntry.transcript)
@@ -136,12 +136,12 @@ struct JournalEntryDetailView: View {
                 Image(systemName: icon)
                     .foregroundStyle(PinguDesign.blue)
                 Text(title)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.ink)
             }
 
             Text(body)
-                .font(.system(size: 16, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.body)
                 .lineSpacing(4)
         }
@@ -161,7 +161,7 @@ struct JournalEntryDetailView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Workspace")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
 
                     Text(currentEntry.lastEditedAt.map { "Edited \($0.formatted(date: .abbreviated, time: .shortened))" } ?? "Private workspace")
@@ -191,7 +191,7 @@ struct JournalEntryDetailView: View {
                     .foregroundStyle(PinguDesign.ink)
 
                 Text(currentEntry.privateNote.isEmpty ? "No private note yet." : currentEntry.privateNote)
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(currentEntry.privateNote.isEmpty ? PinguDesign.muted : PinguDesign.body)
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)
@@ -236,7 +236,7 @@ struct JournalEntryDetailView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Session history")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
 
                     Text(session?.source.label ?? "No linked AI session")
@@ -259,7 +259,7 @@ struct JournalEntryDetailView: View {
                 }
             } else {
                 Text("This reflection does not have a linked AI session history.")
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(4)
             }
@@ -274,7 +274,7 @@ struct JournalEntryDetailView: View {
     private func sessionMetric(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .font(PinguFont.caption)
                 .foregroundStyle(PinguDesign.muted)
 
             Text(value)
@@ -299,7 +299,7 @@ struct JournalEntryDetailView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Daily tip")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
 
                     Text(questStatusText)
@@ -311,7 +311,7 @@ struct JournalEntryDetailView: View {
             }
 
             Text(currentEntry.result.suggestedQuest)
-                .font(.system(size: 16, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.body)
                 .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
@@ -332,7 +332,7 @@ struct JournalEntryDetailView: View {
 
             if circleStore.circles.isEmpty {
                 Text("Create a private community from the Circle tab before saving this reflection into a support space.")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(PinguFont.caption)
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(3)
             } else if circleStore.circles.allSatisfy({ circleStore.hasShared(entry: currentEntry, to: $0) }) {

@@ -52,13 +52,13 @@ struct TipsView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Tips Coach")
-                .font(.system(size: 35, weight: .bold, design: .rounded))
+                .font(PinguFont.screenTitle)
                 .foregroundStyle(PinguDesign.ink)
 
-            Text("Try one real conversation move from your reflections, then save what worked.")
-                .font(.system(size: 17, weight: .medium, design: .rounded))
+            Text("One small action from your reflection.")
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
-                .lineSpacing(4)
+                .lineSpacing(3)
         }
     }
 
@@ -83,13 +83,13 @@ struct TipsView: View {
 
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Communication Tips")
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .font(PinguFont.cardTitle)
                             .foregroundStyle(PinguDesign.ink)
 
-                        Text("Record a reflection, get one clear tip, then come back here to complete or restart it.")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                        Text("Record, get one clear tip, then finish it here.")
+                            .font(PinguFont.body)
                             .foregroundStyle(PinguDesign.muted)
-                            .lineSpacing(4)
+                            .lineSpacing(3)
                     }
                 }
 
@@ -103,7 +103,7 @@ struct TipsView: View {
                     TipsCoachActionRow(
                         icon: "mic.circle.fill",
                         title: "Create a new tip",
-                        detail: "Speak naturally and let Circleu turn the reflection into one next action.",
+                        detail: "Turn a reflection into one next action.",
                         tint: PinguDesign.blue,
                         actionTitle: "Record",
                         action: onStartRecording
@@ -158,7 +158,7 @@ struct TipsView: View {
                             .foregroundStyle(PinguDesign.muted)
 
                         Text(quest.detail)
-                            .font(.system(size: 21, weight: .bold, design: .rounded))
+                            .font(PinguFont.cardTitle)
                             .foregroundStyle(PinguDesign.ink)
                             .lineSpacing(4)
                             .fixedSize(horizontal: false, vertical: true)
@@ -176,7 +176,7 @@ struct TipsView: View {
 
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("From reflection")
-                                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    .font(PinguFont.caption)
                                     .foregroundStyle(PinguDesign.muted)
 
                                 Text(entry.displayTitle)
@@ -230,11 +230,11 @@ struct TipsView: View {
 
                 VStack(spacing: 8) {
                     Text("No active tip")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(PinguFont.sectionTitle)
                         .foregroundStyle(PinguDesign.ink)
 
                     Text("Save a reflection and Circleu will turn the AI suggestion into a short tip here.")
-                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .font(PinguFont.body)
                         .foregroundStyle(PinguDesign.muted)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
@@ -260,12 +260,12 @@ struct TipsView: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
-                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             if quests.isEmpty {
                 Text(emptyText)
-                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(4)
                     .padding(16)
@@ -313,13 +313,13 @@ private struct TipsMetricTile: View {
                 .foregroundStyle(PinguDesign.blue)
 
             Text(value)
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .font(PinguFont.sectionTitle)
                 .foregroundStyle(PinguDesign.ink)
                 .minimumScaleFactor(0.76)
                 .lineLimit(1)
 
             Text(label)
-                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .font(PinguFont.caption)
                 .foregroundStyle(PinguDesign.muted)
         }
         .frame(maxWidth: .infinity)
@@ -356,7 +356,7 @@ private struct TipsHistoryRow: View {
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(statusText)
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .font(PinguFont.caption)
                         .foregroundStyle(PinguDesign.muted)
                 }
             }
@@ -404,7 +404,7 @@ private struct TipsContextChip: View {
 
     var body: some View {
         Label(text, systemImage: icon)
-            .font(.system(size: 12, weight: .bold, design: .rounded))
+            .font(PinguFont.caption)
             .foregroundStyle(PinguDesign.blue)
             .padding(.horizontal, 10)
             .frame(height: 34)
@@ -439,7 +439,7 @@ private struct TipsCoachActionRow: View {
                     .foregroundStyle(PinguDesign.ink)
 
                 Text(detail)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(PinguFont.caption)
                     .foregroundStyle(PinguDesign.muted)
                     .lineLimit(2)
                     .lineSpacing(3)

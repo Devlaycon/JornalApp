@@ -16,11 +16,11 @@ struct PinguCard<Content: View>: View {
 
     var body: some View {
         content
-            .padding(18)
+            .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(PinguDesign.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-            .shadow(color: PinguDesign.deepBlue.opacity(0.08), radius: 20, x: 0, y: 10)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 16, x: 0, y: 8)
     }
 }
 
@@ -59,12 +59,12 @@ struct PinguTopBar: View {
     var body: some View {
         HStack(spacing: 14) {
             Image(systemName: leadingIcon)
-                .font(.system(size: 25, weight: .bold))
+                .font(.system(size: 21, weight: .bold))
                 .foregroundStyle(PinguDesign.blue)
                 .frame(width: 30)
 
             Text(title)
-                .font(.system(size: 31, weight: .bold, design: .rounded))
+                .font(PinguFont.screenTitle)
                 .foregroundStyle(PinguDesign.blue)
 
             Spacer()
@@ -80,7 +80,7 @@ struct PinguTopBar: View {
                 case .edit(let action):
                     Button(action: action) {
                         Image(systemName: "pencil")
-                            .font(.system(size: 18, weight: .bold))
+                            .font(.system(size: 16, weight: .bold))
                             .foregroundStyle(PinguDesign.blue)
                             .frame(width: 42, height: 42)
                             .background(PinguDesign.lightBlue)
@@ -104,10 +104,10 @@ struct PinguTopBar: View {
     private func navPill(icon: String, text: String, tint: Color) -> some View {
         HStack(spacing: 5) {
             Image(systemName: icon)
-                .font(.system(size: 13, weight: .bold))
+                .font(.system(size: 12, weight: .bold))
                 .foregroundStyle(tint)
             Text(text)
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .font(PinguFont.caption)
                 .foregroundStyle(PinguDesign.ink)
                 .monospacedDigit()
         }
@@ -147,9 +147,9 @@ struct PinguBottomTabBar: View {
                 } label: {
                     VStack(spacing: 3) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 23, weight: .semibold))
+                            .font(.system(size: 21, weight: .semibold))
                         Text(tab.rawValue)
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
                             .lineLimit(1)
                             .minimumScaleFactor(0.82)
                     }
@@ -199,7 +199,7 @@ struct PinguNavBar: View {
             Spacer()
 
             Text(title)
-                .font(.system(size: 25, weight: .bold, design: .rounded))
+                .font(PinguFont.sectionTitle)
                 .foregroundStyle(PinguDesign.blue)
 
             Spacer()
@@ -227,12 +227,12 @@ struct PinguNavBar: View {
 struct PinguPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.headline)
+            .font(PinguFont.button)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
+            .frame(height: 52)
             .background(PinguDesign.blue.opacity(configuration.isPressed ? 0.82 : 1))
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
     }
 }
@@ -240,14 +240,14 @@ struct PinguPrimaryButtonStyle: ButtonStyle {
 struct PinguSecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.headline)
+            .font(PinguFont.button)
             .foregroundStyle(PinguDesign.ink)
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
+            .frame(height: 52)
             .background(Color.white.opacity(configuration.isPressed ? 0.74 : 0.92))
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .stroke(PinguDesign.lightBlue.opacity(0.5), lineWidth: 1)
             }
     }

@@ -14,7 +14,7 @@ struct PinguTextInput: View {
 
             if axis == .vertical {
                 TextField(placeholder, text: $text, axis: .vertical)
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.ink)
                     .lineLimit(3...5)
                     .padding(.horizontal, 14)
@@ -28,7 +28,7 @@ struct PinguTextInput: View {
                     }
             } else {
                 TextField(placeholder, text: $text)
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.ink)
                     .lineLimit(1)
                     .padding(.horizontal, 14)

@@ -15,7 +15,7 @@ struct CircleCreateSheet: View {
                 .padding(.top, 8)
 
             Text("Create community")
-                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .font(PinguFont.screenTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             VStack(spacing: 12) {
@@ -24,7 +24,7 @@ struct CircleCreateSheet: View {
             }
 
             Text("This creates a private local community space. Live group sync can be added later when the backend is ready.")
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
 
             Spacer()
@@ -70,11 +70,11 @@ struct CircleDetailSheet: View {
                         VStack(alignment: .leading, spacing: 18) {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(circle.name)
-                                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                                    .font(PinguFont.screenTitle)
                                     .foregroundStyle(PinguDesign.ink)
 
                                 Text(circle.intention)
-                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                    .font(PinguFont.body)
                                     .foregroundStyle(PinguDesign.muted)
                                     .lineSpacing(4)
                             }
@@ -89,7 +89,7 @@ struct CircleDetailSheet: View {
                     }
                 } else {
                     Text("This community is no longer available.")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.muted)
                 }
             }
@@ -148,7 +148,7 @@ struct CircleDetailSheet: View {
     private func quickActions(circle: CircleSpace) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Quick actions")
-                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Button {
@@ -168,7 +168,7 @@ struct CircleDetailSheet: View {
     private func addNoteForm(circle: CircleSpace) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Add community note")
-                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             PinguTextInput(title: "Title", placeholder: "Before presentation", text: $noteTitle)
@@ -198,13 +198,13 @@ struct CircleDetailSheet: View {
     private func postsList(circle: CircleSpace) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Saved posts")
-                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             let posts = circleStore.posts(for: circle)
             if posts.isEmpty {
                 Text("Community notes and reflection cards you save here will appear in this space.")
-                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(4)
                     .padding(16)
@@ -240,22 +240,22 @@ private struct CirclePostCard: View {
         VStack(alignment: .leading, spacing: 9) {
             HStack {
                 Label(post.sourceEntryID == nil ? "Note" : "Reflection", systemImage: post.sourceEntryID == nil ? "text.bubble.fill" : "sparkles")
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(PinguFont.caption)
                     .foregroundStyle(PinguDesign.blue)
 
                 Spacer()
 
                 Text(post.createdAt.formatted(date: .abbreviated, time: .shortened))
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(PinguFont.tiny)
                     .foregroundStyle(PinguDesign.muted)
             }
 
             Text(post.title)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Text(post.body)
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.body)
                 .lineSpacing(4)
         }
@@ -281,7 +281,7 @@ private struct CircleEditSheet: View {
                 .padding(.top, 8)
 
             Text("Edit community")
-                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .font(PinguFont.screenTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             VStack(spacing: 12) {
@@ -327,11 +327,11 @@ private struct ReflectionPickerSheet: View {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 14) {
                         Text("Share to \(circle.name)")
-                            .font(.system(size: 30, weight: .bold, design: .rounded))
+                            .font(PinguFont.screenTitle)
                             .foregroundStyle(PinguDesign.ink)
 
                         Text("Choose a saved reflection. Circleu keeps a privacy-safe local copy in this community.")
-                            .font(.system(size: 15, weight: .medium, design: .rounded))
+                            .font(PinguFont.body)
                             .foregroundStyle(PinguDesign.muted)
                             .lineSpacing(4)
 
@@ -350,7 +350,7 @@ private struct ReflectionPickerSheet: View {
 
                                     VStack(alignment: .leading, spacing: 5) {
                                         Text(entry.displayTitle)
-                                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                                            .font(PinguFont.cardTitle)
                                             .foregroundStyle(PinguDesign.ink)
                                             .lineLimit(1)
 
@@ -406,7 +406,7 @@ private struct CirclePostEditSheet: View {
                 .padding(.top, 8)
 
             Text(post.sourceEntryID == nil ? "Edit note" : "Edit saved reflection")
-                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .font(PinguFont.screenTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             VStack(spacing: 12) {

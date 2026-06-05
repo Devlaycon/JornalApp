@@ -38,14 +38,14 @@ struct RecordingView: View {
 
                     VStack(spacing: 14) {
                         Text(isAnalyzing ? "Thinking..." : recorder.statusMessage)
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .font(PinguFont.hero)
                             .foregroundStyle(PinguDesign.blue)
                             .lineLimit(1)
                             .minimumScaleFactor(0.72)
                             .padding(.horizontal, PinguDesign.screenSidePadding)
 
                         Text(subtitle)
-                            .font(.system(size: 22, weight: .medium, design: .rounded))
+                            .font(PinguFont.body)
                             .foregroundStyle(PinguDesign.muted)
                             .multilineTextAlignment(.center)
                             .lineLimit(2)
@@ -66,20 +66,20 @@ struct RecordingView: View {
 
                     VStack(spacing: 8) {
                         Text("LIVE REFLECTION")
-                            .font(.system(size: 15, weight: .medium))
-                            .tracking(2.0)
+                            .font(PinguFont.caption)
+                            .tracking(1.2)
                             .foregroundStyle(PinguDesign.muted)
 
                         Text(Date.now.formatted(date: .abbreviated, time: .omitted))
-                            .font(.system(size: 18, weight: .medium, design: .rounded))
+                            .font(PinguFont.body)
                             .foregroundStyle(PinguDesign.muted.opacity(0.82))
                     }
 
                     Text(formattedTime(recorder.elapsedSeconds))
-                        .font(.system(size: 58, weight: .regular, design: .rounded))
+                        .font(.system(size: 50, weight: .regular, design: .rounded))
                         .monospacedDigit()
                         .foregroundStyle(PinguDesign.ink)
-                        .padding(.top, 28)
+                        .padding(.top, 22)
 
                     Spacer()
 
@@ -247,13 +247,13 @@ struct RecordingView: View {
                     .foregroundStyle(PinguDesign.blue)
 
                 Text("Transcript")
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.ink)
 
                 Spacer()
 
                 Text(engine.displayName)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(PinguFont.caption)
                     .foregroundStyle(PinguDesign.blue)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
@@ -347,7 +347,7 @@ struct RecordingView: View {
                 .font(.system(size: 12, weight: .bold))
 
             Text("\(title) \(state.label)")
-                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .font(PinguFont.caption)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
@@ -381,11 +381,11 @@ struct RecordingView: View {
                     .tint(PinguDesign.blue)
 
                 Text("Analyzing your reflection")
-                    .font(.system(size: 23, weight: .bold, design: .rounded))
+                    .font(PinguFont.sectionTitle)
                     .foregroundStyle(PinguDesign.ink)
 
                 Text("Circleu is turning your transcript into a useful insight.")
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 270)

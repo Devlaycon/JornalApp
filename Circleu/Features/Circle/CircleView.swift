@@ -77,13 +77,13 @@ struct CircleView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Communities")
-                .font(.system(size: 35, weight: .bold, design: .rounded))
+                .font(PinguFont.screenTitle)
                 .foregroundStyle(PinguDesign.ink)
 
-            Text("Organize reflection shares, support notes, and tips wins by community.")
-                .font(.system(size: 17, weight: .medium, design: .rounded))
+            Text("Private support spaces on this iPhone.")
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
-                .lineSpacing(4)
+                .lineSpacing(3)
         }
     }
 
@@ -106,13 +106,13 @@ struct CircleView: View {
 
             VStack(alignment: .leading, spacing: 5) {
                 Text("Local community mode")
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.ink)
 
-                Text("Communities are private on this iPhone for now. Shared reflection cards use summaries and tips, never raw recording audio.")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                Text("Private for now. Shares use summaries and tips, not raw audio.")
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
-                    .lineSpacing(4)
+                    .lineSpacing(3)
             }
         }
         .padding(16)
@@ -128,14 +128,14 @@ struct CircleView: View {
 
             VStack(spacing: 7) {
                 Text("Create your first community")
-                    .font(.system(size: 23, weight: .bold, design: .rounded))
+                    .font(PinguFont.sectionTitle)
                     .foregroundStyle(PinguDesign.ink)
 
-                Text("Group your tips notes, reflection shares, and encouragement cards by class, friends, or goals.")
-                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                Text("Group notes, shares, and encouragement by goal.")
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(4)
+                    .lineSpacing(3)
             }
 
             Button {
@@ -171,12 +171,12 @@ private struct CommunitySpaceCard: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(circle.name)
-                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
                         .lineLimit(1)
 
                     Text(circle.intention)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(PinguFont.body)
                         .foregroundStyle(PinguDesign.muted)
                         .lineLimit(2)
                         .lineSpacing(3)
@@ -185,7 +185,7 @@ private struct CommunitySpaceCard: View {
                         Label(activityText, systemImage: "clock.fill")
                         Label("Private", systemImage: "lock.fill")
                     }
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(PinguFont.tiny)
                     .foregroundStyle(PinguDesign.blue)
                     .lineLimit(1)
                     .minimumScaleFactor(0.76)
@@ -195,12 +195,12 @@ private struct CommunitySpaceCard: View {
 
                 VStack(spacing: 5) {
                     Text("\(postCount)")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(PinguFont.sectionTitle)
                         .foregroundStyle(PinguDesign.ink)
                         .monospacedDigit()
 
                     Text("posts")
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .font(PinguFont.tiny)
                         .foregroundStyle(PinguDesign.muted)
 
                     Image(systemName: "chevron.right")
@@ -234,11 +234,11 @@ private struct CircleSummaryTile: View {
                 .foregroundStyle(PinguDesign.blue)
 
             Text(value)
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .font(PinguFont.sectionTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Text(label)
-                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .font(PinguFont.caption)
                 .foregroundStyle(PinguDesign.muted)
         }
         .frame(maxWidth: .infinity)

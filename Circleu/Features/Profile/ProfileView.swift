@@ -93,15 +93,15 @@ struct ProfileView: View {
 
             VStack(alignment: .leading, spacing: 5) {
                 Text(profileStore.firstName.capitalized)
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .font(PinguFont.screenTitle)
                     .foregroundStyle(PinguDesign.ink)
 
                 Text(profileTitle)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.blue)
 
                 Text("Level \(progress.level) local journey")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
             }
 
@@ -114,7 +114,7 @@ struct ProfileView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Progress to Level \(min(progress.level + 1, 12))")
-                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
 
                     Text("\(progress.xp) XP earned")
@@ -125,7 +125,7 @@ struct ProfileView: View {
                 Spacer()
 
                 Text("\(Int(levelProgress * 100))%")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(PinguFont.sectionTitle)
                     .foregroundStyle(PinguDesign.blue)
                     .monospacedDigit()
             }
@@ -142,8 +142,8 @@ struct ProfileView: View {
             }
             .frame(height: 13)
 
-            Text("XP comes from saved reflections, active streaks, and completed quests.")
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+            Text("XP comes from reflections, streaks, and completed tips.")
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(3)
         }
@@ -165,7 +165,7 @@ struct ProfileView: View {
     private var badgeSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Badges")
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .font(PinguFont.sectionTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             VStack(spacing: 10) {
@@ -179,7 +179,7 @@ struct ProfileView: View {
     private var activeQuestSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Active Quests")
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .font(PinguFont.sectionTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             if questStore.activeQuests.isEmpty {
@@ -210,11 +210,11 @@ struct ProfileView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Local data")
-                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
 
                     Text("Stored on this iPhone")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(PinguFont.body)
                         .foregroundStyle(PinguDesign.muted)
                 }
             }
@@ -242,7 +242,7 @@ struct ProfileView: View {
             }
 
             Text("Your journal, AI sessions and transcripts, communities, quests, and profile name stay in local app storage until you delete the app or clear app data from iOS.")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(PinguFont.caption)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
         }
@@ -265,11 +265,11 @@ struct ProfileView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("QA tools")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
 
                     Text("Reset, seed, and export local test data")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(PinguFont.body)
                         .foregroundStyle(PinguDesign.muted)
                 }
 
@@ -340,11 +340,11 @@ private struct ProfileEditSheet: View {
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(profileStore.firstName.capitalized)
-                        .font(.system(size: 30, weight: .bold, design: .rounded))
+                        .font(PinguFont.screenTitle)
                         .foregroundStyle(PinguDesign.ink)
 
                     Text("Local profile")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.blue)
                 }
             }
@@ -414,7 +414,7 @@ private struct ProfileEditorRow: View {
                     .foregroundStyle(PinguDesign.ink)
 
                 Text(value)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
             }
 
@@ -439,7 +439,7 @@ private struct ProfileStat: View {
                 .minimumScaleFactor(0.7)
 
             Text(title)
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(PinguFont.tiny)
                 .foregroundStyle(PinguDesign.muted)
                 .lineLimit(1)
                 .minimumScaleFactor(0.78)
@@ -466,18 +466,18 @@ private struct BadgeRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(badge.title)
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.ink)
 
                 Text(badge.subtitle)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(PinguFont.caption)
                     .foregroundStyle(PinguDesign.muted)
             }
 
             Spacer()
 
             Text(badge.isUnlocked ? "Unlocked" : "Locked")
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(PinguFont.tiny)
                 .foregroundStyle(badge.isUnlocked ? PinguDesign.blue : PinguDesign.muted)
                 .padding(.horizontal, 9)
                 .frame(height: 26)
@@ -508,11 +508,11 @@ private struct ProfileQuestRow: View {
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(quest.title)
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
 
                     Text(quest.detail)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(PinguFont.body)
                         .foregroundStyle(PinguDesign.body)
                         .lineSpacing(4)
                 }
@@ -553,11 +553,11 @@ private struct EmptyQuestProfileCard: View {
 
             VStack(alignment: .leading, spacing: 5) {
                 Text("No active quests")
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.ink)
 
                 Text("Save a reflection and Circleu will create one practical next action here.")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(4)
             }

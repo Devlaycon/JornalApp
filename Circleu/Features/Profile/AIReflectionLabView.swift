@@ -39,11 +39,11 @@ struct AIReflectionLabView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("AI Lab")
-                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .font(PinguFont.screenTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Text(statusMessage)
-                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
         }
@@ -52,11 +52,11 @@ struct AIReflectionLabView: View {
     private var exportCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("AI session export", systemImage: "cpu")
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Text("\(aiSessionStore.sessions.count) session\(aiSessionStore.sessions.count == 1 ? "" : "s") available for QA review.")
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
 
             HStack(spacing: 10) {
@@ -82,11 +82,11 @@ struct AIReflectionLabView: View {
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 10) {
             Label("No AI sessions yet", systemImage: "tray")
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Text("Seed demo data or complete a reflection to populate the AI lab.")
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
         }
@@ -99,7 +99,7 @@ struct AIReflectionLabView: View {
     private var sessionList: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("Sessions", systemImage: "list.bullet.rectangle")
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             ForEach(aiSessionStore.sessions) { session in
@@ -129,7 +129,7 @@ private struct AIReflectionSessionRow: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
                         .lineLimit(2)
 
@@ -190,7 +190,7 @@ private struct AIReflectionLabMetric: View {
         Label {
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(PinguFont.tiny)
                     .foregroundStyle(PinguDesign.muted)
                     .textCase(.uppercase)
 

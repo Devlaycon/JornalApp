@@ -51,13 +51,13 @@ struct HomeView: View {
     private var greeting: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Hey \(profileStore.firstName),")
-                .font(.system(size: 36, weight: .bold, design: .rounded))
+                .font(PinguFont.hero)
                 .foregroundStyle(PinguDesign.ink)
 
             Text(greetingSubtitle)
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
-                .lineSpacing(4)
+                .lineSpacing(3)
         }
     }
 
@@ -80,39 +80,39 @@ struct HomeView: View {
 
             VStack(spacing: 7) {
                 Text("Start today's reflection")
-                    .font(.system(size: 25, weight: .bold, design: .rounded))
+                    .font(PinguFont.sectionTitle)
                     .foregroundStyle(PinguDesign.ink)
 
-                Text("Speak for a minute, or type if voice is not ready.")
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                Text("Speak or type a quick check-in.")
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(4)
+                    .lineSpacing(3)
             }
 
             Button {
                 onStartRecording()
             } label: {
                 Label("Record now", systemImage: "mic.fill")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(PinguFont.button)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 58)
+                    .frame(height: 52)
                     .background(PinguDesign.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                    .shadow(color: PinguDesign.blue.opacity(0.22), radius: 16, y: 9)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .shadow(color: PinguDesign.blue.opacity(0.18), radius: 12, y: 7)
             }
             .buttonStyle(.plain)
         }
-        .padding(20)
+        .padding(18)
         .frame(maxWidth: .infinity)
         .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .stroke(.white.opacity(0.8), lineWidth: 1)
         }
-        .shadow(color: PinguDesign.deepBlue.opacity(0.07), radius: 22, y: 12)
+        .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 16, y: 8)
     }
 
     private var pinguOrb: some View {
@@ -165,7 +165,7 @@ struct HomeView: View {
                     .foregroundStyle(PinguDesign.muted)
 
                 Text(dailyPrompt)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.ink)
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)
@@ -220,7 +220,7 @@ struct HomeView: View {
                         .foregroundStyle(PinguDesign.muted)
 
                     Text(betaState.nextActionTitle)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
                         .lineLimit(3)
                         .fixedSize(horizontal: false, vertical: true)
@@ -230,7 +230,7 @@ struct HomeView: View {
             }
 
             Text(betaState.nextActionSubtitle)
-                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.body)
                 .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
@@ -247,7 +247,7 @@ struct HomeView: View {
 
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("From reflection")
-                                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    .font(PinguFont.caption)
                                     .foregroundStyle(PinguDesign.muted)
 
                                 Text(sourceEntry.displayTitle)
@@ -347,19 +347,19 @@ struct HomeView: View {
             }
 
             Text(entry.result.title)
-                .font(.system(size: 21, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
                 .lineLimit(2)
 
             Text(entry.result.summary)
-                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.body)
                 .lineSpacing(4)
                 .lineLimit(3)
 
             HStack {
                 Text(entry.result.emotion)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(PinguFont.caption)
                     .foregroundStyle(PinguDesign.blue)
                     .padding(.horizontal, 10)
                     .frame(height: 28)
@@ -369,7 +369,7 @@ struct HomeView: View {
                 Spacer()
 
                 Text(entry.createdAt.formatted(date: .abbreviated, time: .shortened))
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(PinguFont.caption)
                     .foregroundStyle(PinguDesign.muted)
             }
         }
@@ -388,11 +388,11 @@ struct HomeView: View {
 
             VStack(alignment: .leading, spacing: 5) {
                 Text("Your first reflection is waiting")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.ink)
 
                 Text("Record or type a short check-in to fill this space with your own insight.")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
                     .lineSpacing(3)
             }
@@ -495,7 +495,7 @@ private struct HomeStatTile: View {
                 .monospacedDigit()
 
             Text(label)
-                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .font(PinguFont.caption)
                 .foregroundStyle(PinguDesign.muted)
         }
         .frame(maxWidth: .infinity)

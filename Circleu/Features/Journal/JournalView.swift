@@ -60,11 +60,11 @@ struct JournalView: View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Journal History")
-                    .font(.system(size: 35, weight: .bold, design: .rounded))
+                    .font(PinguFont.screenTitle)
                     .foregroundStyle(PinguDesign.ink)
 
-                Text("Your saved AI reflections from real voice sessions")
-                    .font(.system(size: 17, weight: .medium, design: .rounded))
+                Text("Saved AI reflections")
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
             }
 
@@ -103,7 +103,7 @@ struct JournalView: View {
                 .foregroundStyle(PinguDesign.muted)
 
             TextField("Search journals", text: $searchText)
-                .font(.system(size: 17, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.ink)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -137,11 +137,11 @@ struct JournalView: View {
 
             VStack(spacing: 8) {
                 Text("No saved reflections yet")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(PinguFont.sectionTitle)
                     .foregroundStyle(PinguDesign.ink)
 
                 Text("Record a real voice check-in, let Circleu analyze it, then save the reflection here.")
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .font(PinguFont.body)
                     .foregroundStyle(PinguDesign.muted)
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
@@ -168,11 +168,11 @@ struct JournalView: View {
                 .foregroundStyle(PinguDesign.blue)
 
             Text("No matching reflections")
-                .font(.system(size: 23, weight: .bold, design: .rounded))
+                .font(PinguFont.sectionTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Text("Try a different emotion, word, or date from your saved check-ins.")
-                .font(.system(size: 16, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
@@ -187,7 +187,7 @@ struct JournalView: View {
     private func journalSection(title: String, entries: [JournalReflectionEntry]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
-                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             VStack(spacing: 12) {
@@ -272,7 +272,7 @@ private struct JournalEntryRow: View {
 
             VStack(alignment: .leading, spacing: 7) {
                 Text(entry.displayTitle)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(PinguFont.cardTitle)
                     .foregroundStyle(PinguDesign.ink)
                     .lineLimit(1)
 
@@ -280,7 +280,7 @@ private struct JournalEntryRow: View {
                     Label(entry.createdAt.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
                     Text(formattedDuration(entry.durationSeconds))
                 }
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(PinguFont.caption)
                 .foregroundStyle(PinguDesign.muted)
             }
 
@@ -288,7 +288,7 @@ private struct JournalEntryRow: View {
 
             VStack(alignment: .trailing, spacing: 10) {
                 Text(entry.displayEmotion)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(PinguFont.caption)
                     .foregroundStyle(PinguDesign.blue)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
@@ -296,7 +296,7 @@ private struct JournalEntryRow: View {
                     .clipShape(Capsule())
 
                 Text(entry.engineName)
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(PinguFont.tiny)
                     .foregroundStyle(PinguDesign.muted)
                     .lineLimit(1)
             }

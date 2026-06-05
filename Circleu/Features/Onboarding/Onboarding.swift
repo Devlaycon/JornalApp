@@ -76,7 +76,7 @@ struct PinguOnboardingView: View {
     private var topBar: some View {
         HStack {
             Text("Circleu")
-                .font(.system(size: 23, weight: .bold, design: .rounded))
+                .font(PinguFont.sectionTitle)
                 .foregroundStyle(.white)
 
             Spacer()
@@ -108,7 +108,7 @@ struct PinguOnboardingView: View {
 
             VStack(spacing: 14) {
                 Text(page.title)
-                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .font(PinguFont.hero)
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
                     .lineSpacing(2)
@@ -167,7 +167,7 @@ struct PinguOnboardingView: View {
                 }
 
             Text("This stays on this iPhone and helps Circleu greet you naturally.")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(PinguFont.caption)
                 .foregroundStyle(.white.opacity(0.78))
                 .lineSpacing(3)
         }

@@ -14,11 +14,11 @@ struct JournalCircleShareSheet: View {
                     VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Save to community")
-                                .font(.system(size: 31, weight: .bold, design: .rounded))
+                                .font(PinguFont.screenTitle)
                                 .foregroundStyle(PinguDesign.ink)
 
                             Text("Choose where this reflection should live as a private local community post.")
-                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                                .font(PinguFont.body)
                                 .foregroundStyle(PinguDesign.muted)
                                 .lineSpacing(4)
                         }
@@ -55,7 +55,7 @@ struct JournalCircleShareSheet: View {
                 .foregroundStyle(PinguDesign.muted)
 
             Text(entry.displayTitle)
-                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -86,11 +86,11 @@ struct JournalCircleShareSheet: View {
                 .foregroundStyle(PinguDesign.blue)
 
             Text("No communities yet")
-                .font(.system(size: 21, weight: .bold, design: .rounded))
+                .font(PinguFont.cardTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Text("Open the Circle tab and create a private community before saving journal insights there.")
-                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .lineSpacing(4)
         }
@@ -117,12 +117,12 @@ struct JournalCircleShareSheet: View {
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text(circle.name)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
                         .lineLimit(1)
 
                     Text(hasShared ? "Already saved here" : circle.intention)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(PinguFont.body)
                         .foregroundStyle(PinguDesign.muted)
                         .lineLimit(2)
                         .lineSpacing(3)

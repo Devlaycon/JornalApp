@@ -31,7 +31,7 @@ struct JournalWorkspaceEditSheet: View {
                     VStack(alignment: .leading, spacing: 18) {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Edit workspace")
-                                .font(.system(size: 31, weight: .bold, design: .rounded))
+                                .font(PinguFont.screenTitle)
                                 .foregroundStyle(PinguDesign.ink)
 
                             Text(entry.createdAt.formatted(date: .abbreviated, time: .shortened))

@@ -50,12 +50,12 @@ struct ReflectionView: View {
                         if let reflection {
                             VStack(spacing: 14) {
                                 Text("Here's what I noticed")
-                                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                                    .font(PinguFont.screenTitle)
                                     .foregroundStyle(PinguDesign.ink)
                                     .multilineTextAlignment(.center)
 
                                 Text("Take a moment to soak in your growth.")
-                                    .font(.system(size: 19, weight: .medium, design: .rounded))
+                                    .font(PinguFont.body)
                                     .foregroundStyle(PinguDesign.muted)
                             }
                             .padding(.bottom, 22)
@@ -104,19 +104,19 @@ struct ReflectionView: View {
                     .foregroundStyle(PinguDesign.blue)
 
                 Text(label)
-                    .font(.system(size: 18, weight: .medium))
-                    .tracking(1.1)
+                    .font(PinguFont.caption)
+                    .tracking(0.8)
                     .foregroundStyle(PinguDesign.muted)
             }
 
             Text(title)
-                .font(.system(size: 25, weight: .bold, design: .rounded))
+                .font(PinguFont.sectionTitle)
                 .foregroundStyle(PinguDesign.ink)
 
             Text(body)
-                .font(.system(size: 20, weight: .regular, design: .rounded))
+                .font(PinguFont.bodyLight)
                 .foregroundStyle(PinguDesign.body)
-                .lineSpacing(6)
+                .lineSpacing(4)
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -139,13 +139,13 @@ struct ReflectionView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
 
                 Text("EXPRESSION MOMENT")
-                    .font(.system(size: 18, weight: .medium))
-                    .tracking(1.1)
+                    .font(PinguFont.caption)
+                    .tracking(0.8)
                     .foregroundStyle(PinguDesign.muted)
             }
 
             Text(reflection.expressionMoment)
-                .font(.system(size: 25, weight: .bold, design: .rounded))
+                .font(PinguFont.sectionTitle)
                 .foregroundStyle(PinguDesign.ink)
                 .lineSpacing(4)
 
@@ -191,17 +191,17 @@ struct ReflectionView: View {
 
             VStack(spacing: 18) {
                 Text("”")
-                    .font(.system(size: 54, weight: .bold, design: .rounded))
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.42))
 
                 Text("\"\(reflection.quote)\"")
-                    .font(.system(size: 31, weight: .bold, design: .rounded))
+                    .font(PinguFont.sectionTitle)
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(6)
+                    .lineSpacing(4)
 
                 Text("Daily Wisdom")
-                    .font(.system(size: 17, weight: .medium, design: .rounded))
+                    .font(PinguFont.caption)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 26)
                     .frame(height: 34)
@@ -210,7 +210,7 @@ struct ReflectionView: View {
             }
             .padding(26)
         }
-        .frame(height: 248)
+        .frame(height: 214)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .shadow(color: PinguDesign.blue.opacity(0.18), radius: 18, y: 10)
     }
@@ -232,7 +232,7 @@ struct ReflectionView: View {
                         .foregroundStyle(PinguDesign.muted)
 
                     Text(reflection.suggestedQuest)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(PinguFont.cardTitle)
                         .foregroundStyle(PinguDesign.ink)
                         .lineSpacing(4)
                         .fixedSize(horizontal: false, vertical: true)
@@ -268,10 +268,10 @@ struct ReflectionView: View {
                 }
             }
             .disabled(hasSaved)
-            .font(.system(size: 22, weight: .medium, design: .rounded))
+            .font(PinguFont.button)
             .foregroundStyle(PinguDesign.blue)
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
+            .frame(height: 50)
             .background(PinguDesign.lightBlue)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .opacity(hasSaved ? 0.45 : 1)
@@ -280,9 +280,9 @@ struct ReflectionView: View {
                 regenerateReflection()
             } label: {
                 Image(systemName: isRegenerating ? "sparkles" : "arrow.triangle.2.circlepath")
-                    .font(.system(size: 23, weight: .semibold))
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(PinguDesign.blue)
-                    .frame(width: 58, height: 56)
+                    .frame(width: 52, height: 50)
                     .background(PinguDesign.lightBlue)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
@@ -291,9 +291,9 @@ struct ReflectionView: View {
 
             ShareLink(item: shareText) {
                 Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 24, weight: .semibold))
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(PinguDesign.blue)
-                    .frame(width: 58, height: 56)
+                    .frame(width: 52, height: 50)
                     .background(PinguDesign.lightBlue)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
@@ -304,10 +304,10 @@ struct ReflectionView: View {
                 saveEntry()
             }
             .disabled(hasSaved || draftEntry == nil || isRegenerating)
-            .font(.system(size: 22, weight: .medium, design: .rounded))
+            .font(PinguFont.button)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
+            .frame(height: 50)
             .background(hasSaved || draftEntry == nil || isRegenerating ? PinguDesign.muted : PinguDesign.blue)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .shadow(color: PinguDesign.blue.opacity(0.20), radius: 12, y: 6)
@@ -406,7 +406,7 @@ struct ReflectionView: View {
                 .foregroundStyle(PinguDesign.ink)
 
             Text("Record a voice check-in first. Circleu will analyze it and bring the real reflection here.")
-                .font(.system(size: 16, weight: .medium, design: .rounded))
+                .font(PinguFont.body)
                 .foregroundStyle(PinguDesign.muted)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
@@ -508,7 +508,7 @@ struct ReflectionView: View {
                 .foregroundStyle(PinguDesign.blue)
 
             Text(title)
-                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .font(PinguFont.caption)
                 .foregroundStyle(PinguDesign.ink)
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)
