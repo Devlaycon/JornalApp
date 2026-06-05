@@ -8,14 +8,18 @@ final class CircleStore: ObservableObject {
 
     private let circlesKey = "circleu.circles.v1"
     private let postsKey = "circleu.circlePosts.v1"
+    private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    init() {
+    init(userDefaults: UserDefaults = .standard, seedStarterSpaces: Bool = true) {
+        self.userDefaults = userDefaults
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
         load()
-        seedStarterSpacesIfNeeded()
+        if seedStarterSpaces {
+            seedStarterSpacesIfNeeded()
+        }
     }
 
     func createCircle(name: String, intention: String) {
@@ -97,8 +101,8 @@ final class CircleStore: ObservableObject {
     func reset(seedStarterSpaces: Bool = false) {
         circles = []
         posts = []
-        UserDefaults.standard.removeObject(forKey: circlesKey)
-        UserDefaults.standard.removeObject(forKey: postsKey)
+        userDefaults.removeObject(forKey: circlesKey)
+        userDefaults.removeObject(forKey: postsKey)
 
         if seedStarterSpaces {
             seedStarterSpacesIfNeeded()
@@ -153,19 +157,19 @@ final class CircleStore: ObservableObject {
     }
 
     private func load() {
-        if let circleData = UserDefaults.standard.data(forKey: circlesKey),
+        if let circleData = userDefaults.data(forKey: circlesKey),
            let savedCircles = try? decoder.decode([CircleSpace].self, from: circleData) {
             circles = savedCircles
         }
 
-        if let postData = UserDefaults.standard.data(forKey: postsKey),
+        if let postData = userDefaults.data(forKey: postsKey),
            let savedPosts = try? decoder.decode([CirclePost].self, from: postData) {
             posts = savedPosts
         }
     }
 
     private func seedStarterSpacesIfNeeded() {
-        guard circles.isEmpty, UserDefaults.standard.data(forKey: circlesKey) == nil else { return }
+        guard circles.isEmpty, userDefaults.data(forKey: circlesKey) == nil else { return }
 
         circles = [
             CircleSpace(
@@ -182,12 +186,12 @@ final class CircleStore: ObservableObject {
 
     private func saveCircles() {
         guard let data = try? encoder.encode(circles) else { return }
-        UserDefaults.standard.set(data, forKey: circlesKey)
+        userDefaults.set(data, forKey: circlesKey)
     }
 
     private func savePosts() {
         guard let data = try? encoder.encode(posts) else { return }
-        UserDefaults.standard.set(data, forKey: postsKey)
+        userDefaults.set(data, forKey: postsKey)
     }
 
     private func sanitized(_ value: String, fallback: String) -> String {

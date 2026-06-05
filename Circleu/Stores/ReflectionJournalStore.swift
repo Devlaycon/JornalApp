@@ -6,10 +6,12 @@ final class ReflectionJournalStore: ObservableObject {
     @Published private(set) var entries: [JournalReflectionEntry] = []
 
     private let storageKey = "circleu.saved.reflections.v1"
+    private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    init() {
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
         load()
@@ -90,7 +92,7 @@ final class ReflectionJournalStore: ObservableObject {
 
     func reset() {
         entries = []
-        UserDefaults.standard.removeObject(forKey: storageKey)
+        userDefaults.removeObject(forKey: storageKey)
     }
 
     func seedDemoData(referenceDate: Date = Date()) {
@@ -146,7 +148,7 @@ final class ReflectionJournalStore: ObservableObject {
     }
 
     private func load() {
-        guard let data = UserDefaults.standard.data(forKey: storageKey),
+        guard let data = userDefaults.data(forKey: storageKey),
               let savedEntries = try? decoder.decode([JournalReflectionEntry].self, from: data) else {
             entries = []
             return
@@ -157,7 +159,7 @@ final class ReflectionJournalStore: ObservableObject {
 
     private func save() {
         guard let data = try? encoder.encode(entries) else { return }
-        UserDefaults.standard.set(data, forKey: storageKey)
+        userDefaults.set(data, forKey: storageKey)
     }
 
     private func sanitizedOptional(_ value: String?) -> String? {

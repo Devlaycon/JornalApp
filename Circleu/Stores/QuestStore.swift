@@ -6,10 +6,12 @@ final class QuestStore: ObservableObject {
     @Published private(set) var quests: [Quest] = []
 
     private let storageKey = "circleu.quests.v1"
+    private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    init() {
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
         load()
@@ -45,17 +47,17 @@ final class QuestStore: ObservableObject {
 
     @discardableResult
     func activateSuggestedQuest(from entry: JournalReflectionEntry) -> Quest? {
+        let detail = entry.result.suggestedQuest.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !detail.isEmpty else { return nil }
+
         if let index = quests.firstIndex(where: { $0.sourceEntryID == entry.id }) {
             quests[index].title = "Try this next"
-            quests[index].detail = entry.result.suggestedQuest
+            quests[index].detail = detail
             quests[index].status = .active
             quests[index].completedAt = nil
             save()
             return quests[index]
         }
-
-        let detail = entry.result.suggestedQuest.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !detail.isEmpty else { return nil }
 
         let quest = Quest(
             title: "Try this next",
@@ -91,7 +93,7 @@ final class QuestStore: ObservableObject {
 
     func reset() {
         quests = []
-        UserDefaults.standard.removeObject(forKey: storageKey)
+        userDefaults.removeObject(forKey: storageKey)
     }
 
     func seedDemoData(entries: [JournalReflectionEntry], referenceDate: Date = Date()) {
@@ -133,7 +135,7 @@ final class QuestStore: ObservableObject {
     }
 
     private func load() {
-        guard let data = UserDefaults.standard.data(forKey: storageKey),
+        guard let data = userDefaults.data(forKey: storageKey),
               let savedQuests = try? decoder.decode([Quest].self, from: data) else {
             quests = []
             return
@@ -144,6 +146,6 @@ final class QuestStore: ObservableObject {
 
     private func save() {
         guard let data = try? encoder.encode(quests) else { return }
-        UserDefaults.standard.set(data, forKey: storageKey)
+        userDefaults.set(data, forKey: storageKey)
     }
 }
