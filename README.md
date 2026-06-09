@@ -54,7 +54,7 @@ Circleu/
   Stores/              ObservableObject state and local persistence
 ```
 
-See [docs/project-structure.md](docs/project-structure.md) for folder ownership rules.
+See [docs/engineering/project-structure.md](docs/engineering/project-structure.md) for folder ownership rules.
 
 ## Run Locally
 
@@ -87,7 +87,7 @@ xcodebuild test -project Circleu.xcodeproj -scheme Circleu -destination 'platfor
 6. Connect and unlock your iPhone.
 7. Select the iPhone in Xcode and press Run.
 
-For the full device checklist, see [docs/phone-test-checklist.md](docs/phone-test-checklist.md).
+For the full device checklist, see [docs/qa/phone-test-checklist.md](docs/qa/phone-test-checklist.md).
 
 ## Git Workflow
 
@@ -110,15 +110,19 @@ refactor: split profile qa tools
 docs: update phone test checklist
 ```
 
-See [docs/git-workflow.md](docs/git-workflow.md) for the team commit and push rules.
+See [docs/process/git-workflow.md](docs/process/git-workflow.md) and [docs/process/team-standards.md](docs/process/team-standards.md) for the team commit and push rules.
 
 ## Key Docs
 
-- [App flow](docs/app-flow.md)
-- [Domain models](docs/domain-models.md)
-- [Project structure](docs/project-structure.md)
-- [Phone test checklist](docs/phone-test-checklist.md)
-- [Release readiness](docs/release-readiness.md)
+- [Docs index](docs/README.md)
+- [Product overview](docs/product/overview.md)
+- [App flow](docs/product/app-flow.md)
+- [Domain models](docs/engineering/domain-models.md)
+- [Architecture](docs/engineering/architecture.md)
+- [Project structure](docs/engineering/project-structure.md)
+- [Phone test checklist](docs/qa/phone-test-checklist.md)
+- [Release readiness](docs/product/release-readiness.md)
+- [Team standards](docs/process/team-standards.md)
 
 ## Product Direction
 

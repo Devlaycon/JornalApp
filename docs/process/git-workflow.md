@@ -2,6 +2,8 @@
 
 Use small, reviewable commits by default. Each commit should represent one clear function, feature slice, refactor, or documentation update.
 
+For the full team rules, including branch commands, file ownership, documentation locations, and verification expectations, see [team-standards.md](team-standards.md).
+
 ## Commit Scope
 
 Prefer commits like:

@@ -7,7 +7,7 @@ This branch is prepared as the first shareable local-first MVP branch for phone 
 - Branch: `dev/mike`
 - Remote: `origin`
 - Project: `/Users/tuanm.nguyen/Documents/JornalApp-personal/Circleu.xcodeproj`
-- Commit workflow: use `docs/git-workflow.md`
+- Commit workflow: use `docs/process/git-workflow.md` and `docs/process/team-standards.md`
 
 ## MVP Coverage
 
