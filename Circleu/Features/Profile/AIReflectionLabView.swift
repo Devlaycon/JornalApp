@@ -71,8 +71,7 @@ struct AIReflectionLabView: View {
             }
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var emptyState: some View {
@@ -88,8 +87,7 @@ struct AIReflectionLabView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var sessionList: some View {
@@ -163,12 +161,7 @@ private struct AIReflectionSessionRow: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(PinguDesign.lightBlue.opacity(0.36), lineWidth: 1)
-        }
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var title: String {
@@ -224,8 +217,7 @@ private struct AIReflectionSessionExportDetailView: View {
                         .foregroundStyle(PinguDesign.ink)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(16)
-                        .background(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                        .pinguGlass(cornerRadius: 22, tint: 0.22)
                         .padding(.horizontal, PinguDesign.screenSidePadding)
                         .padding(.top, 20)
                         .padding(.bottom, 34)

@@ -37,25 +37,31 @@ enum PinguFont {
 /// when this shows through it, so use it as the root background everywhere.
 struct PinguAuroraBackground: View {
     var body: some View {
-        ZStack {
-            PinguDesign.ice
-            Circle()
-                .fill(PinguDesign.sky.opacity(0.55))
-                .frame(width: 440)
-                .blur(radius: 120)
-                .offset(x: -140, y: -280)
-            Circle()
-                .fill(Color(red: 0.55, green: 0.36, blue: 0.96).opacity(0.38))
-                .frame(width: 400)
-                .blur(radius: 130)
-                .offset(x: 160, y: -210)
-            Circle()
-                .fill(PinguDesign.electricBlue.opacity(0.40))
-                .frame(width: 480)
-                .blur(radius: 140)
-                .offset(x: 0, y: 340)
-        }
-        .ignoresSafeArea()
+        // The ice color is the layout-driving base (it accepts any proposed
+        // size). The blurred aurora circles live in an overlay so their fixed
+        // frames never inflate the background's intrinsic width.
+        PinguDesign.ice
+            .overlay {
+                ZStack {
+                    Circle()
+                        .fill(PinguDesign.sky.opacity(0.55))
+                        .frame(width: 440)
+                        .blur(radius: 120)
+                        .offset(x: -140, y: -280)
+                    Circle()
+                        .fill(Color(red: 0.55, green: 0.36, blue: 0.96).opacity(0.38))
+                        .frame(width: 400)
+                        .blur(radius: 130)
+                        .offset(x: 160, y: -210)
+                    Circle()
+                        .fill(PinguDesign.electricBlue.opacity(0.40))
+                        .frame(width: 480)
+                        .blur(radius: 140)
+                        .offset(x: 0, y: 340)
+                }
+            }
+            .clipped()
+            .ignoresSafeArea()
     }
 }
 

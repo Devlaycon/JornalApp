@@ -266,12 +266,7 @@ struct RecordingView: View {
             }
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(PinguDesign.border, lineWidth: 1)
-        }
+        .pinguGlass(cornerRadius: 22, tint: 0.18)
     }
 
     private var permissionReadinessRow: some View {
@@ -339,9 +334,7 @@ struct RecordingView: View {
                     .frame(maxWidth: 270)
             }
             .padding(24)
-            .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-            .shadow(color: PinguDesign.deepBlue.opacity(0.12), radius: 22, y: 12)
+            .pinguGlass(cornerRadius: 26, tint: 0.22)
         }
     }
 

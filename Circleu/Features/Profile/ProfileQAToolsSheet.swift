@@ -84,8 +84,7 @@ struct ProfileQAToolsSheet: View {
             ProfileDataRow(title: "Bundle", value: viewModel.bundleIdentifier)
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var dataCard: some View {
@@ -103,8 +102,7 @@ struct ProfileQAToolsSheet: View {
             ProfileDataRow(title: "Posts", value: "\(circleStore.posts.count)")
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var exportCard: some View {
@@ -128,8 +126,7 @@ struct ProfileQAToolsSheet: View {
             }
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var actionsCard: some View {
@@ -165,8 +162,7 @@ struct ProfileQAToolsSheet: View {
                 .lineSpacing(4)
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var qaExport: String {

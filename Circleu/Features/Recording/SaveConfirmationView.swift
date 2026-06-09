@@ -68,9 +68,7 @@ struct SaveConfirmationView: View {
                     }
                     .padding(18)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-                    .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 16, y: 8)
+                    .pinguGlass(cornerRadius: 22, tint: 0.22)
                     .padding(.horizontal, PinguDesign.screenSidePadding)
                 }
 

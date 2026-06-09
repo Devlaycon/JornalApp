@@ -156,12 +156,7 @@ struct PinguOnboardingView: View {
                 .autocorrectionDisabled()
                 .padding(.horizontal, 16)
                 .frame(height: 54)
-                .background(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(.white.opacity(0.22), lineWidth: 1)
-                }
+                .pinguGlass(cornerRadius: 18, tint: 0.18)
 
             Text("This stays on this iPhone and helps Circleu greet you naturally.")
                 .font(PinguFont.caption)

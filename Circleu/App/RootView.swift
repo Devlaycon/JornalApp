@@ -39,6 +39,18 @@ struct RootView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
 
+            // Fade scrolling content out before it reaches the floating glass
+            // tab bar, so nothing peeks through or below the translucent pill.
+            LinearGradient(
+                colors: [PinguDesign.ice.opacity(0), PinguDesign.ice],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 132)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .allowsHitTesting(false)
+            .ignoresSafeArea()
+
             PinguBottomTabBar(selection: $selectedTab)
         }
         .background(PinguAuroraBackground())

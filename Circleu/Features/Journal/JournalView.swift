@@ -84,9 +84,7 @@ struct JournalView: View {
                         .font(.system(size: 19, weight: .bold))
                         .foregroundStyle(PinguDesign.blue)
                         .frame(width: 44, height: 44)
-                        .background(.white)
-                        .clipShape(Circle())
-                        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 10, y: 5)
+                        .pinguGlass(cornerRadius: 22, tint: 0.16)
                 }
                 .buttonStyle(.plain)
             }
@@ -118,12 +116,7 @@ struct JournalView: View {
         }
         .padding(.horizontal, 18)
         .frame(height: 56)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(PinguDesign.border.opacity(0.72), lineWidth: 1)
-        }
+        .pinguGlass(cornerRadius: 18, tint: 0.18)
     }
 
     private var emptyState: some View {
@@ -153,9 +146,7 @@ struct JournalView: View {
         }
         .padding(22)
         .frame(maxWidth: .infinity)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 16, y: 8)
+        .pinguGlass(cornerRadius: 26, tint: 0.22)
     }
 
     private var noSearchResults: some View {
@@ -176,9 +167,7 @@ struct JournalView: View {
         }
         .padding(22)
         .frame(maxWidth: .infinity)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 16, y: 8)
+        .pinguGlass(cornerRadius: 26, tint: 0.22)
     }
 
     private func journalSection(title: String, entries: [JournalReflectionEntry]) -> some View {
@@ -277,9 +266,7 @@ private struct JournalEntryRow: View {
             }
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 14, y: 7)
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private func formattedDuration(_ seconds: Int) -> String {

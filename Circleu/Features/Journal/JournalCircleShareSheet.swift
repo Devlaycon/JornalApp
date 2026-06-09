@@ -75,8 +75,7 @@ struct JournalCircleShareSheet: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var emptyCommunityState: some View {
@@ -96,8 +95,7 @@ struct JournalCircleShareSheet: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private func circleChoice(_ circle: CircleSpace) -> some View {
@@ -135,8 +133,7 @@ struct JournalCircleShareSheet: View {
                     .foregroundStyle(hasShared ? PinguDesign.muted : PinguDesign.blue)
             }
             .padding(15)
-            .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .pinguGlass(cornerRadius: 20, tint: 0.22)
             .opacity(hasShared ? 0.62 : 1)
         }
         .buttonStyle(.plain)

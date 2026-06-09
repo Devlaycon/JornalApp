@@ -99,13 +99,7 @@ struct HomeView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(.white.opacity(0.8), lineWidth: 1)
-        }
-        .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 16, y: 8)
+        .pinguGlass(cornerRadius: 24, tint: 0.22)
     }
 
     private var pinguOrb: some View {
@@ -181,12 +175,7 @@ struct HomeView: View {
             .buttonStyle(.plain)
         }
         .padding(16)
-        .background(PinguDesign.lightBlue.opacity(0.42))
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(PinguDesign.border.opacity(0.7), lineWidth: 1)
-        }
+        .pinguGlass(cornerRadius: 22, tint: 0.12)
     }
 
     private var statsRow: some View {
@@ -301,13 +290,7 @@ struct HomeView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(PinguDesign.border.opacity(0.62), lineWidth: 1)
-        }
-        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 14, y: 7)
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var latestReflectionSection: some View {
@@ -368,9 +351,7 @@ struct HomeView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 16, y: 8)
+        .pinguGlass(cornerRadius: 24, tint: 0.22)
     }
 
     private var emptyReflectionCard: some View {
@@ -405,9 +386,7 @@ struct HomeView: View {
             .buttonStyle(.plain)
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 16, y: 8)
+        .pinguGlass(cornerRadius: 24, tint: 0.22)
     }
 
     private var activeQuest: Quest? {
@@ -466,9 +445,7 @@ private struct HomeStatTile: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 94)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 12, y: 6)
+        .pinguGlass(cornerRadius: 20, tint: 0.22)
     }
 }
 

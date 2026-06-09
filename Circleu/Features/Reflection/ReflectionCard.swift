@@ -17,9 +17,7 @@ struct ReflectionCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 14, y: 6)
+        .pinguGlass(cornerRadius: 24, tint: 0.22)
     }
 }
 

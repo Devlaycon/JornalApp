@@ -100,8 +100,7 @@ struct CircleView: View {
                 .font(.system(size: 16, weight: .bold))
                 .foregroundStyle(PinguDesign.blue)
                 .frame(width: 38, height: 38)
-                .background(.white)
-                .clipShape(Circle())
+                .pinguGlass(cornerRadius: 19, tint: 0.16)
 
             VStack(alignment: .leading, spacing: 5) {
                 Text("Local community mode")
@@ -146,9 +145,7 @@ struct CircleView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 14, y: 7)
+        .pinguGlass(cornerRadius: 24, tint: 0.22)
     }
 }
 
@@ -208,9 +205,7 @@ private struct CommunitySpaceCard: View {
                 }
             }
             .padding(16)
-            .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 14, y: 7)
+            .pinguGlass(cornerRadius: 24, tint: 0.22)
         }
         .buttonStyle(.plain)
     }
@@ -242,9 +237,7 @@ private struct CircleSummaryTile: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 92)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 12, y: 6)
+        .pinguGlass(cornerRadius: 20, tint: 0.22)
     }
 }
 

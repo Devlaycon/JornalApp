@@ -151,8 +151,7 @@ struct CircleDetailSheet: View {
             .opacity(entries.isEmpty ? 0.55 : 1)
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private func addNoteForm(circle: CircleSpace) -> some View {
@@ -174,8 +173,7 @@ struct CircleDetailSheet: View {
             .opacity(viewModel.canSaveNote ? 1 : 0.55)
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private func postsList(circle: CircleSpace) -> some View {
@@ -192,8 +190,7 @@ struct CircleDetailSheet: View {
                     .lineSpacing(4)
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .pinguGlass(cornerRadius: 20, tint: 0.22)
             } else {
                 ForEach(posts) { post in
                     CirclePostCard(post: post)
@@ -243,8 +240,7 @@ private struct CirclePostCard: View {
                 .lineSpacing(4)
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .pinguGlass(cornerRadius: 20, tint: 0.22)
     }
 }
 
@@ -342,8 +338,7 @@ private struct ReflectionPickerSheet: View {
                                         .foregroundStyle(PinguDesign.blue)
                                 }
                                 .padding(15)
-                                .background(.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                .pinguGlass(cornerRadius: 20, tint: 0.22)
                             }
                             .buttonStyle(.plain)
                             .disabled(circleStore.posts(for: circle).contains { $0.sourceEntryID == entry.id })

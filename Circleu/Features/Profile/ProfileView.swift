@@ -145,9 +145,7 @@ struct ProfileView: View {
                 .lineSpacing(3)
         }
         .padding(20)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 14, y: 7)
+        .pinguGlass(cornerRadius: 24, tint: 0.22)
     }
 
     private var statsRow: some View {
@@ -276,9 +274,7 @@ struct ProfileView: View {
                     .foregroundStyle(PinguDesign.muted)
             }
             .padding(16)
-            .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 14, y: 7)
+            .pinguGlass(cornerRadius: 22, tint: 0.22)
         }
         .buttonStyle(.plain)
     }
@@ -376,12 +372,10 @@ private struct ProfileEditSheet: View {
                 .autocorrectionDisabled()
                 .padding(.horizontal, 14)
                 .frame(height: 50)
-                .background(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .pinguGlass(cornerRadius: 16, tint: 0.18)
         }
         .padding(14)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .pinguGlass(cornerRadius: 18, tint: 0.22)
     }
 }
 
@@ -412,8 +406,7 @@ private struct ProfileEditorRow: View {
             Spacer()
         }
         .padding(14)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .pinguGlass(cornerRadius: 18, tint: 0.22)
     }
 }
 
@@ -437,9 +430,7 @@ private struct ProfileStat: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 82)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 12, y: 6)
+        .pinguGlass(cornerRadius: 20, tint: 0.22)
     }
 }
 
@@ -476,9 +467,7 @@ private struct BadgeRow: View {
                 .clipShape(Capsule())
         }
         .padding(15)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 12, y: 6)
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 }
 
@@ -526,9 +515,7 @@ private struct ProfileQuestRow: View {
             }
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 14, y: 7)
+        .pinguGlass(cornerRadius: 24, tint: 0.22)
     }
 }
 
@@ -554,9 +541,7 @@ private struct EmptyQuestProfileCard: View {
             }
         }
         .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 14, y: 7)
+        .pinguGlass(cornerRadius: 24, tint: 0.22)
     }
 }
 

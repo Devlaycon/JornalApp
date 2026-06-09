@@ -115,12 +115,7 @@ struct ReflectionView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 17, style: .continuous)
-                .stroke(PinguDesign.border, lineWidth: 1)
-        }
+        .pinguGlass(cornerRadius: 17, tint: 0.22)
     }
 
     private func expressionCard(reflection: AIReflectionResult) -> some View {
@@ -162,12 +157,7 @@ struct ReflectionView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 17, style: .continuous)
-                .stroke(PinguDesign.border, lineWidth: 1)
-        }
+        .pinguGlass(cornerRadius: 17, tint: 0.22)
     }
 
     private func quoteCard(reflection: AIReflectionResult) -> some View {
@@ -353,9 +343,7 @@ struct ReflectionView: View {
         }
         .padding(22)
         .frame(maxWidth: .infinity)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 16, y: 8)
+        .pinguGlass(cornerRadius: 26, tint: 0.22)
     }
 
     private var regenerationStatus: some View {
@@ -381,12 +369,7 @@ struct ReflectionView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .background(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(PinguDesign.border, lineWidth: 1)
-                    }
+                    .pinguGlass(cornerRadius: 12, tint: 0.22)
             }
         }
     }
@@ -431,12 +414,7 @@ struct ReflectionView: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity)
-                .background(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(PinguDesign.border, lineWidth: 1)
-                }
+                .pinguGlass(cornerRadius: 12, tint: 0.22)
             }
         }
     }

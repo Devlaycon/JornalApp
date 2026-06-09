@@ -152,12 +152,7 @@ struct TipsReplyOptionCard: View {
             .foregroundStyle(PinguDesign.blue)
         }
         .padding(13)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(PinguDesign.border.opacity(0.82), lineWidth: 1)
-        }
+        .pinguGlass(cornerRadius: 14, tint: 0.22)
     }
 }
 
@@ -193,12 +188,7 @@ struct TipsPracticeHistorySection: View {
             }
         }
         .padding(16)
-        .background(.white.opacity(0.84))
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(PinguDesign.border.opacity(0.9), lineWidth: 1)
-        }
+        .pinguGlass(cornerRadius: 20, tint: 0.22)
     }
 }
 
@@ -243,12 +233,7 @@ private struct TipsPracticeSessionRow: View {
                         .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(PinguDesign.muted)
                         .frame(width: 34, height: 34)
-                        .background(.white)
-                        .clipShape(Circle())
-                        .overlay {
-                            Circle()
-                                .stroke(PinguDesign.border, lineWidth: 1)
-                        }
+                        .pinguGlass(cornerRadius: 17, tint: 0.16)
                 }
                 .accessibilityLabel("Delete practice")
             }
@@ -306,8 +291,7 @@ struct ReflectionTipsHistorySection: View {
                         .foregroundStyle(PinguDesign.muted)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(14)
-                        .background(.white.opacity(0.74))
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .pinguGlass(cornerRadius: 16, tint: 0.22)
                 }
             }
             .padding(.top, 10)
@@ -327,8 +311,7 @@ struct ReflectionTipsHistorySection: View {
             }
         }
         .padding(16)
-        .background(.white.opacity(0.82))
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .pinguGlass(cornerRadius: 20, tint: 0.22)
     }
 
     private func row(title: String, quest: Quest, actionTitle: String, action: @escaping () -> Void) -> some View {

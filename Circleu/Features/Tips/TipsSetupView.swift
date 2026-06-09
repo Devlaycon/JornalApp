@@ -154,13 +154,7 @@ struct TipsSetupView: View {
                 }
             }
             .padding(16)
-            .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(viewModel.canContinue ? PinguDesign.blue.opacity(0.52) : PinguDesign.border, lineWidth: 1.3)
-            }
-            .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 14, y: 8)
+            .pinguGlass(cornerRadius: 18, tint: 0.18)
         }
     }
 
@@ -219,13 +213,7 @@ struct TipsSetupView: View {
             .foregroundStyle(PinguDesign.muted)
         }
         .padding(18)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(PinguDesign.border, lineWidth: 1)
-        }
-        .shadow(color: PinguDesign.deepBlue.opacity(0.05), radius: 13, y: 7)
+        .pinguGlass(cornerRadius: 18, tint: 0.22)
     }
 
     private var situationSection: some View {
@@ -252,12 +240,7 @@ struct TipsSetupView: View {
                 }
             }
             .padding(14)
-            .background(.white.opacity(0.82))
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(PinguDesign.border, lineWidth: 1)
-            }
+            .pinguGlass(cornerRadius: 18, tint: 0.18)
         }
     }
 

@@ -63,8 +63,7 @@ struct JournalEntryDetailView: View {
                     }
                     .padding(18)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .pinguGlass(cornerRadius: 22, tint: 0.22)
 
                     Text(currentEntry.createdAt.formatted(date: .complete, time: .shortened))
                         .font(.system(size: 13, weight: .bold, design: .rounded))
@@ -143,9 +142,7 @@ struct JournalEntryDetailView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 12, y: 6)
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var workspaceCard: some View {
@@ -218,9 +215,7 @@ struct JournalEntryDetailView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 12, y: 6)
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private var sessionHistoryCard: some View {
@@ -262,9 +257,7 @@ struct JournalEntryDetailView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 12, y: 6)
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     private func sessionMetric(title: String, value: String) -> some View {
@@ -339,9 +332,7 @@ struct JournalEntryDetailView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .shadow(color: PinguDesign.deepBlue.opacity(0.04), radius: 12, y: 6)
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
     @ViewBuilder
