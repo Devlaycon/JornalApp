@@ -120,6 +120,7 @@ See [docs/process/git-workflow.md](docs/process/git-workflow.md) and [docs/proce
 - [Domain models](docs/engineering/domain-models.md)
 - [Architecture](docs/engineering/architecture.md)
 - [Backend boundaries](docs/engineering/backend-boundaries.md)
+- [Backend roadmap](docs/engineering/backend-roadmap.md)
 - [Project structure](docs/engineering/project-structure.md)
 - [Phone test checklist](docs/qa/phone-test-checklist.md)
 - [Release readiness](docs/product/release-readiness.md)
