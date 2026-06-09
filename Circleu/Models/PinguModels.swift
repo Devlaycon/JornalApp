@@ -121,6 +121,62 @@ struct CirclePost: Identifiable, Codable, Equatable {
     }
 }
 
+/// A single points reward, shown in the Profile rewards log.
+struct PointEntry: Identifiable, Codable, Equatable {
+    let id: UUID
+    var label: String
+    var points: Int
+    var icon: String
+    var createdAt: Date
+
+    init(
+        id: UUID = UUID(),
+        label: String,
+        points: Int,
+        icon: String,
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.label = label
+        self.points = points
+        self.icon = icon
+        self.createdAt = createdAt
+    }
+}
+
+enum ActivityType: String, Codable, Equatable {
+    case reflect
+    case tips
+    case communitySelect = "community_select"
+    case communityJoin = "community_join"
+}
+
+/// A lightweight record-history event for the Profile timeline.
+struct ActivityEvent: Identifiable, Codable, Equatable {
+    let id: UUID
+    var type: ActivityType
+    var title: String
+    var keyword: String
+    var refID: UUID?
+    var createdAt: Date
+
+    init(
+        id: UUID = UUID(),
+        type: ActivityType,
+        title: String,
+        keyword: String,
+        refID: UUID? = nil,
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.type = type
+        self.title = title
+        self.keyword = keyword
+        self.refID = refID
+        self.createdAt = createdAt
+    }
+}
+
 struct ProgressBadge: Identifiable, Equatable {
     let id: String
     let title: String

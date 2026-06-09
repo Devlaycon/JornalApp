@@ -1,564 +1,584 @@
 import SwiftUI
 
 struct ProfileView: View {
+    var onStartRecording: () -> Void = {}
+    var onOpenTips: () -> Void = {}
+    var onOpenEntry: (UUID) -> Void = { _ in }
+
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @EnvironmentObject private var journalStore: ReflectionJournalStore
     @EnvironmentObject private var profileStore: UserProfileStore
     @EnvironmentObject private var circleStore: CircleStore
-    @EnvironmentObject private var questStore: QuestStore
-    @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
-    @StateObject private var viewModel = ProfileViewModel()
+    @EnvironmentObject private var rewardsStore: RewardsStore
+
+    @State private var filter: ActivityFilter = .all
+
+    private var xp: Int { rewardsStore.points }
+    private var level: Int { rewardsStore.level }
+    private var intoLevel: Int { rewardsStore.intoLevel }
+    private var joinedCount: Int { circleStore.circles.filter { $0.joined }.count }
+    private var streak: Int { Self.computeStreak(journalStore.entries) }
+    private var questsDone: Int { DailyQuest.all.filter { rewardsStore.isDone($0.id) }.count }
+    private var events: [ActivityEvent] {
+        Array(rewardsStore.activity.filter { filter.matches($0.type) }.prefix(60))
+    }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                PinguScreenBackground()
+        ZStack {
+            PinguAurora()
 
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 20) {
-                        profileHeader
-                        progressCard
-                        statsRow
-                        badgeSection
-                        activeQuestSection
-                        localDataCard
-                        qaToolsCard
-                    }
-                    .padding(.horizontal, PinguDesign.screenSidePadding)
-                    .padding(.top, 22)
-                    .padding(.bottom, PinguDesign.bottomBarHeight + 36)
-                }
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    header
+                        .slideUp(0)
+                        .padding(.bottom, 20)
 
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Button {
-                            viewModel.showProfileEditor = true
-                        } label: {
-                            Image(systemName: "pencil")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundStyle(.white)
-                                .frame(width: 62, height: 62)
-                                .background(PinguDesign.blue)
-                                .clipShape(Circle())
-                                .shadow(color: PinguDesign.blue.opacity(0.25), radius: 16, y: 10)
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.trailing, 26)
-                        .padding(.bottom, PinguDesign.bottomBarHeight + 14)
-                    }
+                    statsRow
+                        .slideUp(0.06)
+                        .padding(.bottom, 20)
+
+                    questsHeader
+                        .slideUp(0.1)
+                        .padding(.bottom, 12)
+                    questsSection
+                        .slideUp(0.14)
+                        .padding(.bottom, 24)
+
+                    rewardsHeader
+                        .slideUp(0.16)
+                        .padding(.bottom, 12)
+                    rewardsSection
+                        .slideUp(0.18)
+                        .padding(.bottom, 24)
+
+                    historyHeader
+                        .slideUp(0.12)
+                        .padding(.bottom, 12)
+                    filterRow
+                        .slideUp(0.16)
+                        .padding(.bottom, 16)
+                    historySection
+                        .slideUp(0.2)
+
+                    historyFooter
+                        .padding(.top, 12)
+
+                    logoutButton
+                        .padding(.top, 24)
+
+                    resetButton
+                        .padding(.top, 16)
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 64)
+                .padding(.bottom, 120)
             }
-            .navigationBarHidden(true)
         }
-        .sheet(isPresented: $viewModel.showProfileEditor) {
-            ProfileEditSheet(
-                entriesCount: progress.entryCount,
-                circleCount: circleStore.circles.count,
-                completedQuestCount: progress.completedQuestCount
-            )
-            .environmentObject(profileStore)
-            .presentationDetents([.medium])
-        }
-        .sheet(isPresented: $viewModel.showQATools) {
-            ProfileQAToolsSheet(
-                hasCompletedOnboarding: $hasCompletedOnboarding
-            )
-            .environmentObject(journalStore)
-            .environmentObject(profileStore)
-            .environmentObject(circleStore)
-            .environmentObject(questStore)
-            .environmentObject(aiSessionStore)
-            .presentationDetents([.large])
-        }
+        .navigationBarHidden(true)
     }
 
-    private var profileHeader: some View {
+    // MARK: - Header
+
+    private var header: some View {
         HStack(spacing: 16) {
-            Image("PinguMascot")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 86, height: 86)
-                .background(.white)
-                .clipShape(Circle())
-                .overlay {
-                    Circle()
-                        .stroke(.white, lineWidth: 5)
-                }
-                .shadow(color: PinguDesign.deepBlue.opacity(0.12), radius: 14, y: 7)
+            PinguMascot(size: 72, mood: .idle)
+                .padding(6)
+                .glass(.strong, cornerRadius: 24)
 
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 0) {
+                Kicker("LEVEL \(level) · \(xp) XP")
+
                 Text(profileStore.firstName.capitalized)
-                    .font(PinguFont.screenTitle)
-                    .foregroundStyle(PinguDesign.ink)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundStyle(Pingu.ink)
+                    .padding(.top, 2)
 
-                Text(profileTitle)
-                    .font(PinguFont.cardTitle)
-                    .foregroundStyle(PinguDesign.blue)
+                GeometryReader { proxy in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(.white.opacity(0.6))
+                        GlassPrimaryFill(cornerRadius: 999)
+                            .frame(width: proxy.size.width * CGFloat(intoLevel) / 100, height: proxy.size.height)
+                            .clipShape(Capsule())
+                    }
+                }
+                .frame(height: 8)
+                .padding(.top, 8)
 
-                Text("Level \(progress.level) local journey")
-                    .font(PinguFont.body)
-                    .foregroundStyle(PinguDesign.muted)
+                Text("\(100 - intoLevel) XP to level \(rewardsStore.nextLevel)")
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundStyle(Pingu.slate)
+                    .padding(.top, 5)
             }
-
-            Spacer()
         }
     }
 
-    private var progressCard: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Progress to Level \(min(progress.level + 1, 12))")
-                        .font(PinguFont.cardTitle)
-                        .foregroundStyle(PinguDesign.ink)
-
-                    Text("\(progress.xp) XP earned")
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundStyle(PinguDesign.blue)
-                }
-
-                Spacer()
-
-                Text("\(Int(levelProgress * 100))%")
-                    .font(PinguFont.sectionTitle)
-                    .foregroundStyle(PinguDesign.blue)
-                    .monospacedDigit()
-            }
-
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(PinguDesign.lightBlue.opacity(0.65))
-
-                    Capsule()
-                        .fill(PinguDesign.blue)
-                            .frame(width: proxy.size.width * levelProgress)
-                }
-            }
-            .frame(height: 13)
-
-            Text("XP comes from reflections, streaks, and completed tips.")
-                .font(PinguFont.body)
-                .foregroundStyle(PinguDesign.muted)
-                .lineSpacing(3)
-        }
-        .padding(20)
-        .pinguGlass(cornerRadius: 24, tint: 0.22)
-    }
+    // MARK: - Stats
 
     private var statsRow: some View {
         HStack(spacing: 10) {
-            ProfileStat(value: "\(progress.entryCount)", title: "Entries")
-            ProfileStat(value: "\(progress.streak)", title: "Streak")
-            ProfileStat(value: "\(circleStore.circles.count)", title: "Communities")
-            ProfileStat(value: progress.mostCommonEmotion, title: "Mood")
+            ProfileStatCard(icon: "book.fill", color: Pingu.accent, value: "\(journalStore.entries.count)", label: "Entries")
+            ProfileStatCard(icon: "flame.fill", color: Pingu.amber, value: "\(streak)", label: "Streak")
+            ProfileStatCard(icon: "trophy.fill", color: Pingu.green, value: "\(joinedCount)", label: "Circles")
         }
     }
 
-    private var badgeSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Badges")
-                .font(PinguFont.sectionTitle)
-                .foregroundStyle(PinguDesign.ink)
+    // MARK: - Quests
 
-            VStack(spacing: 10) {
-                ForEach(progress.badges) { badge in
-                    BadgeRow(badge: badge)
-                }
+    private var questsHeader: some View {
+        HStack {
+            HStack(spacing: 6) {
+                Image(systemName: "target")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(Pingu.accent)
+                Text("Today's quests")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundStyle(Pingu.ink)
             }
+            Spacer()
+            Text("\(questsDone)/\(DailyQuest.all.count) done")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundStyle(Pingu.accent)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Pingu.accent.opacity(0.1))
+                .clipShape(Capsule())
         }
     }
 
-    private var activeQuestSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Active Quests")
-                .font(PinguFont.sectionTitle)
-                .foregroundStyle(PinguDesign.ink)
+    private var questsSection: some View {
+        VStack(spacing: 10) {
+            ForEach(DailyQuest.all) { quest in
+                QuestRow(
+                    quest: quest,
+                    done: rewardsStore.isDone(quest.id),
+                    onStart: {
+                        switch quest.go {
+                        case .record: onStartRecording()
+                        case .tips: onOpenTips()
+                        case .none: break
+                        }
+                    }
+                )
+            }
 
-            if questStore.activeQuests.isEmpty {
-                EmptyQuestProfileCard()
-            } else {
-                VStack(spacing: 12) {
-                    ForEach(questStore.activeQuests) { quest in
-                        ProfileQuestRow(
-                            quest: quest,
-                            onComplete: { viewModel.complete(quest, questStore: questStore) },
-                            onSkip: { viewModel.skip(quest, questStore: questStore) }
-                        )
+            Text("Quests refresh every day — points level you up and keep your streak alive.")
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundStyle(Pingu.muted)
+                .multilineTextAlignment(.center)
+                .lineSpacing(2)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 16)
+                .padding(.top, 4)
+        }
+    }
+
+    // MARK: - Rewards
+
+    private var rewardsHeader: some View {
+        HStack {
+            HStack(spacing: 6) {
+                Image(systemName: "star.fill")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Pingu.amber)
+                Text("Recent rewards")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundStyle(Pingu.ink)
+            }
+            Spacer()
+            Text("\(xp) pts total")
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundStyle(Pingu.muted)
+        }
+    }
+
+    private var rewardsSection: some View {
+        GlassCard(style: .regular, cornerRadius: 24) {
+            VStack(spacing: 0) {
+                let log = Array(rewardsStore.pointsLog.prefix(5))
+                ForEach(Array(log.enumerated()), id: \.element.id) { index, entry in
+                    HStack(spacing: 12) {
+                        Text(entry.icon)
+                            .font(.system(size: 15))
+                            .frame(width: 32, height: 32)
+                            .glass(.pill, cornerRadius: 999)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(entry.label)
+                                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                .foregroundStyle(Pingu.ink)
+                                .lineLimit(1)
+                            Text(CircleViewModel.timeAgo(entry.createdAt))
+                                .font(.system(size: 10.5, weight: .medium, design: .rounded))
+                                .foregroundStyle(Pingu.muted)
+                        }
+
+                        Spacer()
+
+                        Text("+\(entry.points)")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundStyle(Pingu.green)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 10)
+
+                    if index < log.count - 1 {
+                        Rectangle()
+                            .fill(.white.opacity(0.4))
+                            .frame(height: 1)
                     }
                 }
             }
+            .padding(8)
         }
     }
 
-    private var localDataCard: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: 42, height: 42)
-                    .background(PinguDesign.blue)
-                    .clipShape(Circle())
+    // MARK: - Record history
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Local data")
-                        .font(PinguFont.cardTitle)
-                        .foregroundStyle(PinguDesign.ink)
-
-                    Text("Stored on this iPhone")
-                        .font(PinguFont.body)
-                        .foregroundStyle(PinguDesign.muted)
-                }
-            }
-
-            VStack(spacing: 9) {
-                ProfileDataRow(title: "Saved reflections", value: "\(progress.entryCount)")
-                ProfileDataRow(title: "Communities", value: "\(circleStore.circles.count)")
-                ProfileDataRow(title: "Support posts", value: "\(circleStore.posts.count)")
-                ProfileDataRow(title: "Completed quests", value: "\(progress.completedQuestCount)")
-            }
-
-            HStack(spacing: 10) {
-                Button {
-                    viewModel.copySummary(profileSummary)
-                } label: {
-                    Label(viewModel.didCopySummary ? "Copied" : "Copy summary", systemImage: "doc.on.doc")
-                }
-                .buttonStyle(ProfileActionButtonStyle(isPrimary: false))
-
-                ShareLink(item: profileSummary) {
-                    Label("Share", systemImage: "square.and.arrow.up")
-                }
-                .buttonStyle(ProfileActionButtonStyle(isPrimary: true))
-            }
-
-            Text("Your journal, AI sessions and transcripts, communities, quests, and profile name stay in local app storage until you delete the app or clear app data from iOS.")
-                .font(PinguFont.caption)
-                .foregroundStyle(PinguDesign.muted)
-                .lineSpacing(4)
+    private var historyHeader: some View {
+        HStack {
+            Text("Record history")
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .foregroundStyle(Pingu.ink)
+            Spacer()
+            Text("\(rewardsStore.activity.count) events")
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundStyle(Pingu.muted)
         }
-        .padding(18)
-        .background(PinguDesign.lightBlue.opacity(0.45))
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
-    private var qaToolsCard: some View {
-        Button {
-            viewModel.showQATools = true
-        } label: {
-            HStack(spacing: 14) {
-                Image(systemName: "wrench.and.screwdriver.fill")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: 46, height: 46)
-                    .background(PinguDesign.ink)
-                    .clipShape(Circle())
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("QA tools")
-                        .font(PinguFont.cardTitle)
-                        .foregroundStyle(PinguDesign.ink)
-
-                    Text("Reset, seed, and export local test data")
-                        .font(PinguFont.body)
-                        .foregroundStyle(PinguDesign.muted)
+    private var filterRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(ActivityFilter.allCases, id: \.self) { f in
+                    let active = filter == f
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { filter = f }
+                    } label: {
+                        Text(f.label)
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundStyle(active ? .white : Pingu.ink)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background {
+                                if active {
+                                    GlassPrimaryFill(cornerRadius: 999)
+                                } else {
+                                    Color.clear.glass(.pill, cornerRadius: 999)
+                                }
+                            }
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(PressableButtonStyle())
                 }
+            }
+        }
+    }
 
-                Spacer()
+    private var historySection: some View {
+        GlassCard(style: .regular, cornerRadius: 24) {
+            Group {
+                if events.isEmpty {
+                    Text("No activity in this filter yet.")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(Pingu.muted)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                } else {
+                    ZStack(alignment: .topLeading) {
+                        Rectangle()
+                            .fill(Pingu.accent.opacity(0.15))
+                            .frame(width: 2)
+                            .padding(.leading, 9)
+                            .padding(.vertical, 8)
 
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(PinguDesign.muted)
+                        VStack(spacing: 0) {
+                            ForEach(events) { event in
+                                historyRow(event)
+                            }
+                        }
+                    }
+                }
             }
             .padding(16)
-            .pinguGlass(cornerRadius: 22, tint: 0.22)
         }
-        .buttonStyle(.plain)
     }
 
-    private var progress: AppProgressSnapshot {
-        viewModel.progress(entries: journalStore.entries, quests: questStore.quests)
-    }
+    private func historyRow(_ event: ActivityEvent) -> some View {
+        let meta = ActivityMeta.meta(for: event.type)
+        let clickable = event.type == .reflect && event.refID != nil
 
-    private var profileSummary: String {
-        viewModel.profileSummary(
-            profileStore: profileStore,
-            progress: progress,
-            circleCount: circleStore.circles.count,
-            supportPostCount: circleStore.posts.count
-        )
-    }
+        return HStack(alignment: .top, spacing: 12) {
+            Image(systemName: meta.icon)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(meta.color)
+                .frame(width: 20, height: 20)
+                .background(Circle().fill(meta.color.opacity(0.12)))
+                .overlay(Circle().stroke(.white.opacity(0.7), lineWidth: 3))
 
-    private var profileTitle: String {
-        viewModel.profileTitle(for: progress)
-    }
-
-    private var levelProgress: CGFloat {
-        viewModel.levelProgress(for: progress)
-    }
-}
-
-private struct ProfileEditSheet: View {
-    let entriesCount: Int
-    let circleCount: Int
-    let completedQuestCount: Int
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var profileStore: UserProfileStore
-    @StateObject private var viewModel = ProfileEditViewModel()
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Capsule()
-                .fill(PinguDesign.border)
-                .frame(width: 46, height: 5)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 8)
-
-            HStack(spacing: 16) {
-                Image("PinguMascot")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 72, height: 72)
-                    .background(.white)
-                    .clipShape(Circle())
-
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(profileStore.firstName.capitalized)
-                        .font(PinguFont.screenTitle)
-                        .foregroundStyle(PinguDesign.ink)
-
-                    Text("Local profile")
-                        .font(PinguFont.cardTitle)
-                        .foregroundStyle(PinguDesign.blue)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 8) {
+                    Text(meta.label.uppercased())
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .tracking(0.4)
+                        .foregroundStyle(meta.color)
+                    Text(CircleViewModel.timeAgo(event.createdAt))
+                        .font(.system(size: 10.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(Pingu.muted)
                 }
+                Text(event.title)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Pingu.ink)
+                    .lineLimit(1)
+                Text(event.keyword)
+                    .font(.system(size: 12, weight: .regular, design: .rounded))
+                    .foregroundStyle(Pingu.slate)
+                    .lineLimit(1)
             }
 
-            VStack(alignment: .leading, spacing: 12) {
-                displayNameEditor
-                ProfileEditorRow(icon: "sparkles", title: "Journey", value: "\(entriesCount) saved reflections")
-                ProfileEditorRow(icon: "person.2.fill", title: "Communities", value: "\(circleCount) local spaces")
-                ProfileEditorRow(icon: "checkmark.seal.fill", title: "Quests", value: "\(completedQuestCount) completed")
-                ProfileEditorRow(icon: "lock.fill", title: "Privacy", value: "Local journal and communities")
-            }
+            Spacer(minLength: 0)
 
-            Spacer()
-
-            Button("Save Profile") {
-                viewModel.save(profileStore: profileStore)
-                dismiss()
+            if clickable {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Pingu.muted)
+                    .padding(.top, 2)
             }
-            .buttonStyle(PinguPrimaryButtonStyle())
         }
-        .padding(24)
-        .background(PinguDesign.ice)
-        .onAppear {
-            viewModel.load(profileStore: profileStore)
+        .padding(.bottom, 16)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if clickable, let id = event.refID { onOpenEntry(id) }
         }
     }
 
-    private var displayNameEditor: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Display name")
-                .font(.system(size: 15, weight: .bold, design: .rounded))
-                .foregroundStyle(PinguDesign.ink)
+    private var historyFooter: some View {
+        Text("History stores lightweight keywords only (capped at 100 events) — your full reflections live privately in Journal.")
+            .font(.system(size: 11, weight: .medium, design: .rounded))
+            .foregroundStyle(Pingu.muted)
+            .multilineTextAlignment(.center)
+            .lineSpacing(2)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
+    }
 
-            TextField("Your name", text: $viewModel.draftName)
-                .font(.system(size: 17, weight: .semibold, design: .rounded))
-                .foregroundStyle(PinguDesign.ink)
-                .textInputAutocapitalization(.words)
-                .autocorrectionDisabled()
-                .padding(.horizontal, 14)
-                .frame(height: 50)
-                .pinguGlass(cornerRadius: 16, tint: 0.18)
+    // MARK: - Footer actions
+
+    private var logoutButton: some View {
+        Button {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.86)) {
+                hasCompletedOnboarding = false
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "rectangle.portrait.and.arrow.right")
+                    .font(.system(size: 16, weight: .bold))
+                Text("Log out")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+            }
+            .foregroundStyle(Pingu.red)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .glass(.pill, cornerRadius: 16)
         }
-        .padding(14)
-        .pinguGlass(cornerRadius: 18, tint: 0.22)
+        .buttonStyle(PressableButtonStyle())
+    }
+
+    private var resetButton: some View {
+        Button {
+            rewardsStore.resetToSeed()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.counterclockwise")
+                    .font(.system(size: 13, weight: .bold))
+                Text("Reset demo data")
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+            }
+            .foregroundStyle(Pingu.muted)
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(PressableButtonStyle())
+    }
+
+    // MARK: - Streak
+
+    private static func computeStreak(_ entries: [JournalReflectionEntry]) -> Int {
+        guard !entries.isEmpty else { return 0 }
+        let calendar = Calendar.current
+        let days = Set(entries.map { calendar.startOfDay(for: $0.createdAt) })
+        var streak = 0
+        var cursor = calendar.startOfDay(for: Date())
+        while days.contains(cursor) {
+            streak += 1
+            guard let previous = calendar.date(byAdding: .day, value: -1, to: cursor) else { break }
+            cursor = previous
+        }
+        return max(streak, 1)
     }
 }
 
-private struct ProfileEditorRow: View {
+// MARK: - Daily quest model
+
+private struct DailyQuest: Identifiable {
+    enum Destination { case record, tips }
+
+    let id: String
+    let label: String
+    let desc: String
+    let points: Int
+    let emoji: String
+    let go: Destination?
+
+    static let all: [DailyQuest] = [
+        DailyQuest(id: "daily_login", label: "Daily check-in", desc: "Open Circleu today", points: 5, emoji: "☀️", go: nil),
+        DailyQuest(id: "daily_reflect", label: "Reflect once", desc: "Record a reflection", points: 30, emoji: "📓", go: .record),
+        DailyQuest(id: "daily_tips", label: "Practise a conversation", desc: "Finish a communication tip", points: 20, emoji: "💬", go: .tips)
+    ]
+}
+
+private enum ActivityFilter: String, CaseIterable {
+    case all, reflect, tips, circles
+
+    var label: String {
+        switch self {
+        case .all: return "All"
+        case .reflect: return "Reflections"
+        case .tips: return "Tips"
+        case .circles: return "Circles"
+        }
+    }
+
+    func matches(_ type: ActivityType) -> Bool {
+        switch self {
+        case .all: return true
+        case .reflect: return type == .reflect
+        case .tips: return type == .tips
+        case .circles: return type == .communityJoin || type == .communitySelect
+        }
+    }
+}
+
+private enum ActivityMeta {
+    static func meta(for type: ActivityType) -> (label: String, color: Color, icon: String) {
+        switch type {
+        case .reflect: return ("Reflection", Pingu.accent, "sparkles")
+        case .tips: return ("Communication tip", Pingu.violet, "message.fill")
+        case .communitySelect: return ("Viewed circle", Pingu.cyan, "person.2.fill")
+        case .communityJoin: return ("Joined circle", Pingu.green, "person.fill.badge.plus")
+        }
+    }
+}
+
+// MARK: - Stat card
+
+private struct ProfileStatCard: View {
     let icon: String
-    let title: String
+    let color: Color
     let value: String
-
-    var body: some View {
-        HStack(spacing: 13) {
-            Image(systemName: icon)
-                .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(PinguDesign.blue)
-                .frame(width: 38, height: 38)
-                .background(PinguDesign.lightBlue.opacity(0.68))
-                .clipShape(Circle())
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundStyle(PinguDesign.ink)
-
-                Text(value)
-                    .font(PinguFont.body)
-                    .foregroundStyle(PinguDesign.muted)
-            }
-
-            Spacer()
-        }
-        .padding(14)
-        .pinguGlass(cornerRadius: 18, tint: 0.22)
-    }
-}
-
-private struct ProfileStat: View {
-    let value: String
-    let title: String
+    let label: String
 
     var body: some View {
         VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(color)
             Text(value)
-                .font(.system(size: value.count > 7 ? 13 : 21, weight: .bold, design: .rounded))
-                .foregroundStyle(PinguDesign.ink)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-
-            Text(title)
-                .font(PinguFont.tiny)
-                .foregroundStyle(PinguDesign.muted)
-                .lineLimit(1)
-                .minimumScaleFactor(0.78)
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .foregroundStyle(Pingu.ink)
+            Text(label)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundStyle(Pingu.slate)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 82)
-        .pinguGlass(cornerRadius: 20, tint: 0.22)
+        .padding(.vertical, 14)
+        .glass(.regular, cornerRadius: 18)
     }
 }
 
-private struct BadgeRow: View {
-    let badge: ProgressBadge
+// MARK: - Quest row
+
+private struct QuestRow: View {
+    let quest: DailyQuest
+    let done: Bool
+    let onStart: () -> Void
 
     var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: badge.icon)
-                .font(.system(size: 19, weight: .bold))
-                .foregroundStyle(badge.isUnlocked ? .white : PinguDesign.muted)
-                .frame(width: 48, height: 48)
-                .background(badge.isUnlocked ? PinguDesign.blue : PinguDesign.border.opacity(0.7))
-                .clipShape(Circle())
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(badge.title)
-                    .font(PinguFont.cardTitle)
-                    .foregroundStyle(PinguDesign.ink)
-
-                Text(badge.subtitle)
-                    .font(PinguFont.caption)
-                    .foregroundStyle(PinguDesign.muted)
+        HStack(spacing: 12) {
+            ZStack {
+                if done {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 16, weight: .heavy))
+                        .foregroundStyle(.white)
+                        .frame(width: 36, height: 36)
+                        .background(GlassPrimaryFill(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                } else {
+                    Text(quest.emoji)
+                        .font(.system(size: 17))
+                        .frame(width: 36, height: 36)
+                        .glass(.pill, cornerRadius: 12)
+                }
             }
 
-            Spacer()
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(quest.label)
+                        .font(.system(size: 13.5, weight: .bold, design: .rounded))
+                        .foregroundStyle(done ? Pingu.muted : Pingu.ink)
+                        .strikethrough(done, color: Pingu.muted)
+                        .lineLimit(1)
+                    HStack(spacing: 2) {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 9))
+                        Text("\(quest.points)")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                    }
+                    .foregroundStyle(Pingu.amber)
+                }
+                Text(quest.desc)
+                    .font(.system(size: 11, weight: .regular, design: .rounded))
+                    .foregroundStyle(Pingu.slate)
+                    .lineLimit(1)
+            }
 
-            Text(badge.isUnlocked ? "Unlocked" : "Locked")
-                .font(PinguFont.tiny)
-                .foregroundStyle(badge.isUnlocked ? PinguDesign.blue : PinguDesign.muted)
-                .padding(.horizontal, 9)
-                .frame(height: 26)
-                .background((badge.isUnlocked ? PinguDesign.lightBlue : PinguDesign.border).opacity(0.65))
+            Spacer(minLength: 4)
+
+            trailing
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .glass(.regular, cornerRadius: 20)
+    }
+
+    @ViewBuilder
+    private var trailing: some View {
+        if done {
+            Text("Earned")
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundStyle(Pingu.green)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Pingu.green.opacity(0.1))
                 .clipShape(Capsule())
-        }
-        .padding(15)
-        .pinguGlass(cornerRadius: 22, tint: 0.22)
-    }
-}
-
-private struct ProfileQuestRow: View {
-    let quest: Quest
-    let onComplete: () -> Void
-    let onSkip: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 13) {
-                Image(systemName: "flag.fill")
-                    .font(.system(size: 18, weight: .bold))
+        } else if quest.go != nil {
+            Button(action: onStart) {
+                Text("Start")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
-                    .frame(width: 46, height: 46)
-                    .background(PinguDesign.orange)
-                    .clipShape(Circle())
-
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(quest.title)
-                        .font(PinguFont.cardTitle)
-                        .foregroundStyle(PinguDesign.ink)
-
-                    Text(quest.detail)
-                        .font(PinguFont.body)
-                        .foregroundStyle(PinguDesign.body)
-                        .lineSpacing(4)
-                }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(GlassPrimaryFill(cornerRadius: 999))
+                    .clipShape(Capsule())
             }
-
-            HStack(spacing: 10) {
-                Button {
-                    onComplete()
-                } label: {
-                    Label("Complete", systemImage: "checkmark")
-                }
-                .buttonStyle(ProfileQuestButtonStyle(isPrimary: true))
-
-                Button {
-                    onSkip()
-                } label: {
-                    Label("Skip", systemImage: "forward.fill")
-                }
-                .buttonStyle(ProfileQuestButtonStyle(isPrimary: false))
-            }
+            .buttonStyle(PressableButtonStyle())
+        } else {
+            Text("Pending")
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .foregroundStyle(Pingu.muted)
         }
-        .padding(16)
-        .pinguGlass(cornerRadius: 24, tint: 0.22)
     }
 }
 
-private struct EmptyQuestProfileCard: View {
-    var body: some View {
-        HStack(alignment: .top, spacing: 13) {
-            Image(systemName: "flag")
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(PinguDesign.blue)
-                .frame(width: 46, height: 46)
-                .background(PinguDesign.lightBlue.opacity(0.72))
-                .clipShape(Circle())
-
-            VStack(alignment: .leading, spacing: 5) {
-                Text("No active quests")
-                    .font(PinguFont.cardTitle)
-                    .foregroundStyle(PinguDesign.ink)
-
-                Text("Save a reflection and Circleu will create one practical next action here.")
-                    .font(PinguFont.body)
-                    .foregroundStyle(PinguDesign.muted)
-                    .lineSpacing(4)
-            }
-        }
-        .padding(16)
-        .pinguGlass(cornerRadius: 24, tint: 0.22)
-    }
-}
-
-private struct ProfileQuestButtonStyle: ButtonStyle {
-    let isPrimary: Bool
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 13, weight: .bold, design: .rounded))
-            .foregroundStyle(isPrimary ? .white : PinguDesign.blue)
-            .frame(maxWidth: .infinity)
-            .frame(height: 40)
-            .background(isPrimary ? PinguDesign.blue : PinguDesign.lightBlue.opacity(0.74))
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .opacity(configuration.isPressed ? 0.76 : 1)
-    }
-}
+// MARK: - Shared QA helpers (used by ProfileQAToolsSheet)
 
 struct ProfileDataRow: View {
     let title: String
@@ -604,6 +624,5 @@ struct ProfileActionButtonStyle: ButtonStyle {
         .environmentObject(ReflectionJournalStore())
         .environmentObject(UserProfileStore())
         .environmentObject(CircleStore())
-        .environmentObject(QuestStore())
-        .environmentObject(AIReflectionSessionStore())
+        .environmentObject(RewardsStore())
 }

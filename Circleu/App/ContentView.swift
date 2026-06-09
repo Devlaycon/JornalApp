@@ -8,11 +8,13 @@ struct ContentView: View {
     @StateObject private var questStore = QuestStore()
     @StateObject private var tipsPracticeStore = TipsPracticeStore()
     @StateObject private var aiSessionStore = AIReflectionSessionStore()
+    @StateObject private var rewardsStore = RewardsStore()
 
     var body: some View {
         Group {
             if hasCompletedOnboarding {
                 RootView()
+                    .onAppear { rewardsStore.claimDailyLogin() }
             } else {
                 PinguOnboardingView {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.86)) {
@@ -27,6 +29,7 @@ struct ContentView: View {
         .environmentObject(questStore)
         .environmentObject(tipsPracticeStore)
         .environmentObject(aiSessionStore)
+        .environmentObject(rewardsStore)
     }
 }
 
