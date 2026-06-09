@@ -6,8 +6,8 @@ final class CircleStore: ObservableObject {
     @Published private(set) var circles: [CircleSpace] = []
     @Published private(set) var posts: [CirclePost] = []
 
-    private let circlesKey = "circleu.circles.v1"
-    private let postsKey = "circleu.circlePosts.v1"
+    private let circlesKey = "circleu.circles.v2"
+    private let postsKey = "circleu.circlePosts.v2"
     private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
@@ -22,40 +22,69 @@ final class CircleStore: ObservableObject {
         }
     }
 
-    func createCircle(name: String, intention: String) {
+    // MARK: - Circles
+
+    func createCircle(name: String, intention: String, emoji: String = "🌱") {
         let cleanName = sanitized(name, fallback: "Reflection Space")
-        let cleanIntention = sanitized(intention, fallback: "A private place to organize support notes.")
-        circles.insert(CircleSpace(name: cleanName, intention: cleanIntention), at: 0)
-        saveCircles()
-    }
-
-    func updateCircle(_ circle: CircleSpace, name: String, intention: String) {
-        guard let index = circles.firstIndex(where: { $0.id == circle.id }) else { return }
-        circles[index].name = sanitized(name, fallback: circle.name)
-        circles[index].intention = sanitized(intention, fallback: circle.intention)
-        saveCircles()
-    }
-
-    func addNote(circle: CircleSpace, title: String, body: String) {
-        let cleanTitle = sanitized(title, fallback: "Support note")
-        let cleanBody = sanitized(body, fallback: "A small reminder to return to.")
-        posts.insert(
-            CirclePost(
-                circleID: circle.id,
-                title: cleanTitle,
-                body: cleanBody
-            ),
+        let cleanIntention = sanitized(intention, fallback: "A gentle space")
+        circles.insert(
+            CircleSpace(name: cleanName, intention: cleanIntention, emoji: emoji, members: 1, joined: true),
             at: 0
         )
+        saveCircles()
+    }
+
+    func joinCircle(_ id: UUID) {
+        guard let index = circles.firstIndex(where: { $0.id == id }), !circles[index].joined else { return }
+        circles[index].joined = true
+        circles[index].members += 1
+        saveCircles()
+    }
+
+    func deleteCircle(_ circle: CircleSpace) {
+        circles.removeAll { $0.id == circle.id }
+        posts.removeAll { $0.circleID == circle.id }
+        saveCircles()
         savePosts()
     }
 
-    func updatePost(_ post: CirclePost, title: String, body: String) {
-        guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
-        posts[index].title = sanitized(title, fallback: post.title)
-        posts[index].body = sanitized(body, fallback: post.body)
+    // MARK: - Posts
+
+    func addPost(circleID: UUID, text: String) {
+        let clean = sanitized(text, fallback: "")
+        guard !clean.isEmpty else { return }
+        posts.insert(CirclePost(circleID: circleID, who: "You", text: clean), at: 0)
         savePosts()
     }
+
+    func toggleLikePost(_ id: UUID) {
+        guard let index = posts.firstIndex(where: { $0.id == id }) else { return }
+        posts[index].liked.toggle()
+        posts[index].likes += posts[index].liked ? 1 : -1
+        savePosts()
+    }
+
+    func addReply(postID: UUID, text: String) {
+        let clean = sanitized(text, fallback: "")
+        guard !clean.isEmpty, let index = posts.firstIndex(where: { $0.id == postID }) else { return }
+        posts[index].replies.append(PostReply(who: "You", text: clean))
+        savePosts()
+    }
+
+    func toggleLikeReply(postID: UUID, replyID: UUID) {
+        guard let pIndex = posts.firstIndex(where: { $0.id == postID }),
+              let rIndex = posts[pIndex].replies.firstIndex(where: { $0.id == replyID }) else { return }
+        posts[pIndex].replies[rIndex].liked.toggle()
+        posts[pIndex].replies[rIndex].likes += posts[pIndex].replies[rIndex].liked ? 1 : -1
+        savePosts()
+    }
+
+    func deletePost(_ post: CirclePost) {
+        posts.removeAll { $0.id == post.id }
+        savePosts()
+    }
+
+    // MARK: - Journal sharing
 
     func share(entry: JournalReflectionEntry, to circle: CircleSpace) {
         guard !hasShared(entry: entry, to: circle) else { return }
@@ -63,8 +92,8 @@ final class CircleStore: ObservableObject {
         posts.insert(
             CirclePost(
                 circleID: circle.id,
-                title: entry.displayTitle,
-                body: "\(entry.displaySummary)\n\nQuest: \(entry.displayQuest)",
+                who: "You",
+                text: entry.displaySummary,
                 sourceEntryID: entry.id
             ),
             at: 0
@@ -76,6 +105,8 @@ final class CircleStore: ObservableObject {
         posts.contains { $0.circleID == circle.id && $0.sourceEntryID == entry.id }
     }
 
+    // MARK: - Queries
+
     func posts(for circle: CircleSpace) -> [CirclePost] {
         posts
             .filter { $0.circleID == circle.id }
@@ -86,17 +117,7 @@ final class CircleStore: ObservableObject {
         posts(for: circle).first?.createdAt ?? circle.createdAt
     }
 
-    func deleteCircle(_ circle: CircleSpace) {
-        circles.removeAll { $0.id == circle.id }
-        posts.removeAll { $0.circleID == circle.id }
-        saveCircles()
-        savePosts()
-    }
-
-    func deletePost(_ post: CirclePost) {
-        posts.removeAll { $0.id == post.id }
-        savePosts()
-    }
+    // MARK: - Reset / seed
 
     func reset(seedStarterSpaces: Bool = false) {
         circles = []
@@ -110,42 +131,17 @@ final class CircleStore: ObservableObject {
     }
 
     func seedDemoData(entries: [JournalReflectionEntry], referenceDate: Date = Date()) {
-        let confidenceCircle = CircleSpace(
-            name: "Class Confidence Community",
-            intention: "Keep reflection cards that help before speaking in class.",
-            createdAt: Calendar.current.date(byAdding: .day, value: -4, to: referenceDate) ?? referenceDate
-        )
+        seedStarterCircles(referenceDate: referenceDate)
+        seedStarterPosts(referenceDate: referenceDate)
 
-        let tipsCircle = CircleSpace(
-            name: "Daily Voice Tips",
-            intention: "Collect small actions and notes that make expression feel easier.",
-            createdAt: Calendar.current.date(byAdding: .day, value: -3, to: referenceDate) ?? referenceDate
-        )
-
-        circles = [confidenceCircle, tipsCircle]
-
-        posts = [
-            CirclePost(
-                circleID: confidenceCircle.id,
-                createdAt: Calendar.current.date(byAdding: .day, value: -2, to: referenceDate) ?? referenceDate,
-                title: "Before class reminder",
-                body: "Pause, breathe, and ask one clear question. Small public tips counts."
-            ),
-            CirclePost(
-                circleID: tipsCircle.id,
-                createdAt: Calendar.current.date(byAdding: .hour, value: -6, to: referenceDate) ?? referenceDate,
-                title: "Two-minute voice warmup",
-                body: "Read one note out loud and listen for the clearest sentence."
-            )
-        ]
-
-        if let latestEntry = entries.sorted(by: { $0.createdAt > $1.createdAt }).first {
+        if let latestEntry = entries.sorted(by: { $0.createdAt > $1.createdAt }).first,
+           let firstCircle = circles.first {
             posts.insert(
                 CirclePost(
-                    circleID: tipsCircle.id,
+                    circleID: firstCircle.id,
+                    who: "You",
+                    text: latestEntry.displaySummary,
                     createdAt: referenceDate,
-                    title: latestEntry.displayTitle,
-                    body: "\(latestEntry.displaySummary)\n\nQuest: \(latestEntry.displayQuest)",
                     sourceEntryID: latestEntry.id
                 ),
                 at: 0
@@ -170,18 +166,80 @@ final class CircleStore: ObservableObject {
 
     private func seedStarterSpacesIfNeeded() {
         guard circles.isEmpty, userDefaults.data(forKey: circlesKey) == nil else { return }
+        seedStarterCircles(referenceDate: Date())
+        seedStarterPosts(referenceDate: Date())
+        saveCircles()
+        savePosts()
+    }
 
+    private func seedStarterCircles(referenceDate: Date) {
+        let day: TimeInterval = 86_400
         circles = [
             CircleSpace(
-                name: "Reflection Tips Community",
-                intention: "Save reflection takeaways you want to revisit before speaking or studying."
+                name: "Boundary Builders",
+                intention: "Practising saying no with kindness",
+                emoji: "🛟",
+                members: 128,
+                joined: true,
+                createdAt: referenceDate.addingTimeInterval(-day * 5)
             ),
             CircleSpace(
-                name: "Encouragement Community",
-                intention: "Keep short support notes for days when you need a steadier voice."
+                name: "Calm Mornings",
+                intention: "Small rituals for a softer start",
+                emoji: "🌅",
+                members: 86,
+                joined: false,
+                createdAt: referenceDate.addingTimeInterval(-day * 6)
+            ),
+            CircleSpace(
+                name: "First-Job Nerves",
+                intention: "Navigating early-career conversations",
+                emoji: "💼",
+                members: 203,
+                joined: false,
+                createdAt: referenceDate.addingTimeInterval(-day * 7)
             )
         ]
-        saveCircles()
+    }
+
+    private func seedStarterPosts(referenceDate: Date) {
+        let hour: TimeInterval = 3_600
+        let day: TimeInterval = 86_400
+        guard circles.count >= 2 else { posts = []; return }
+        let c1 = circles[0].id
+        let c2 = circles[1].id
+
+        posts = [
+            CirclePost(
+                circleID: c1,
+                who: "Anonymous penguin",
+                text: "Used the 'bounded yes' line today and it actually worked. Felt proud.",
+                createdAt: referenceDate.addingTimeInterval(-hour * 3),
+                likes: 12,
+                replies: [
+                    PostReply(
+                        who: "Anonymous penguin",
+                        text: "Love this — going to steal that phrasing for my 1:1 tomorrow 🙌",
+                        createdAt: referenceDate.addingTimeInterval(-hour * 2),
+                        likes: 3
+                    )
+                ]
+            ),
+            CirclePost(
+                circleID: c1,
+                who: "Anonymous penguin",
+                text: "Reminder that resting is allowed. Took my slow 10 minutes 🍃",
+                createdAt: referenceDate.addingTimeInterval(-day),
+                likes: 8
+            ),
+            CirclePost(
+                circleID: c2,
+                who: "Anonymous penguin",
+                text: "Made tea before checking my phone this morning. Tiny win, big calm.",
+                createdAt: referenceDate.addingTimeInterval(-day * 2),
+                likes: 5
+            )
+        ]
     }
 
     private func saveCircles() {
@@ -200,6 +258,6 @@ final class CircleStore: ObservableObject {
             .joined(separator: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { return fallback }
-        return String(clean.prefix(180))
+        return String(clean.prefix(280))
     }
 }

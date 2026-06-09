@@ -34,41 +34,89 @@ struct Quest: Identifiable, Codable, Equatable {
     }
 }
 
-struct CircleSpace: Identifiable, Codable, Equatable {
+struct CircleSpace: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     var name: String
     var intention: String
+    var emoji: String
+    var members: Int
+    var joined: Bool
     var createdAt: Date
 
-    init(id: UUID = UUID(), name: String, intention: String, createdAt: Date = Date()) {
+    init(
+        id: UUID = UUID(),
+        name: String,
+        intention: String,
+        emoji: String = "🌱",
+        members: Int = 1,
+        joined: Bool = true,
+        createdAt: Date = Date()
+    ) {
         self.id = id
         self.name = name
         self.intention = intention
+        self.emoji = emoji
+        self.members = members
+        self.joined = joined
         self.createdAt = createdAt
+    }
+}
+
+struct PostReply: Identifiable, Codable, Equatable {
+    let id: UUID
+    var who: String
+    var text: String
+    var createdAt: Date
+    var likes: Int
+    var liked: Bool
+
+    init(
+        id: UUID = UUID(),
+        who: String = "You",
+        text: String,
+        createdAt: Date = Date(),
+        likes: Int = 0,
+        liked: Bool = false
+    ) {
+        self.id = id
+        self.who = who
+        self.text = text
+        self.createdAt = createdAt
+        self.likes = likes
+        self.liked = liked
     }
 }
 
 struct CirclePost: Identifiable, Codable, Equatable {
     let id: UUID
     var circleID: UUID
+    var who: String
+    var text: String
     var createdAt: Date
-    var title: String
-    var body: String
+    var likes: Int
+    var liked: Bool
+    var replies: [PostReply]
     var sourceEntryID: UUID?
 
     init(
         id: UUID = UUID(),
         circleID: UUID,
+        who: String = "You",
+        text: String,
         createdAt: Date = Date(),
-        title: String,
-        body: String,
+        likes: Int = 0,
+        liked: Bool = false,
+        replies: [PostReply] = [],
         sourceEntryID: UUID? = nil
     ) {
         self.id = id
         self.circleID = circleID
+        self.who = who
+        self.text = text
         self.createdAt = createdAt
-        self.title = title
-        self.body = body
+        self.likes = likes
+        self.liked = liked
+        self.replies = replies
         self.sourceEntryID = sourceEntryID
     }
 }

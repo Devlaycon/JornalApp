@@ -1,413 +1,352 @@
 import SwiftUI
 
-struct CircleCreateSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var circleStore: CircleStore
-    @StateObject private var viewModel = CircleCreateViewModel()
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Capsule()
-                .fill(PinguDesign.border)
-                .frame(width: 46, height: 5)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 8)
-
-            Text("Create community")
-                .font(PinguFont.screenTitle)
-                .foregroundStyle(PinguDesign.ink)
-
-            VStack(spacing: 12) {
-                PinguTextInput(title: "Name", placeholder: "Study confidence", text: $viewModel.name)
-                PinguTextInput(title: "Purpose", placeholder: "What will this community help you tips?", text: $viewModel.intention)
-            }
-
-            Text("This creates a private local community space. Live group sync can be added later when the backend is ready.")
-                .font(PinguFont.body)
-                .foregroundStyle(PinguDesign.muted)
-
-            Spacer()
-
-            Button {
-                viewModel.create(circleStore: circleStore)
-                dismiss()
-            } label: {
-                Label("Create community", systemImage: "plus")
-            }
-            .buttonStyle(PinguPrimaryButtonStyle())
-            .disabled(!viewModel.canSave)
-            .opacity(viewModel.canSave ? 1 : 0.55)
-        }
-        .padding(24)
-        .background(PinguDesign.ice)
-    }
-}
-
-struct CircleDetailSheet: View {
+struct CircleDetailView: View {
     let circleID: UUID
-    let entries: [JournalReflectionEntry]
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var circleStore: CircleStore
-    @StateObject private var viewModel = CircleDetailViewModel()
+    @State private var draft = ""
+
+    private var circle: CircleSpace? {
+        circleStore.circles.first { $0.id == circleID }
+    }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                PinguScreenBackground()
+        ZStack {
+            PinguAurora()
+
+            VStack(spacing: 0) {
+                DemoNavBar(title: circle?.name ?? "Circle", onBack: { dismiss() })
 
                 if let circle {
                     ScrollView(showsIndicators: false) {
-                        VStack(alignment: .leading, spacing: 18) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(circle.name)
-                                    .font(PinguFont.screenTitle)
-                                    .foregroundStyle(PinguDesign.ink)
+                        VStack(alignment: .leading, spacing: 0) {
+                            headerCard(circle)
+                                .padding(.top, 8)
+                                .padding(.bottom, 16)
 
-                                Text(circle.intention)
-                                    .font(PinguFont.body)
-                                    .foregroundStyle(PinguDesign.muted)
-                                    .lineSpacing(4)
-                            }
+                            Text("RECENT SHARES")
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .tracking(0.8)
+                                .foregroundStyle(Pingu.slate)
+                                .padding(.leading, 4)
+                                .padding(.bottom, 8)
 
-                            quickActions(circle: circle)
-                            addNoteForm(circle: circle)
-                            postsList(circle: circle)
+                            composer(circle)
+                                .padding(.bottom, 12)
+
+                            postsList(circle)
                         }
-                        .padding(.horizontal, PinguDesign.screenSidePadding)
-                        .padding(.top, 18)
-                        .padding(.bottom, 34)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 110)
                     }
                 } else {
-                    Text("This community is no longer available.")
+                    Spacer()
+                    Text("Not found")
                         .font(PinguFont.cardTitle)
-                        .foregroundStyle(PinguDesign.muted)
+                        .foregroundStyle(Pingu.slate)
+                    Spacer()
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Done") {
-                        dismiss()
-                    }
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .preference(key: TabBarHiddenKey.self, value: true)
+    }
+
+    private func headerCard(_ circle: CircleSpace) -> some View {
+        GlassCard(style: .strong, sheen: true) {
+            VStack(spacing: 0) {
+                Text(circle.emoji)
+                    .font(.system(size: 40))
+                    .padding(.bottom, 4)
+
+                Text(circle.name)
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .foregroundStyle(Pingu.ink)
+
+                Text(circle.intention)
+                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                    .foregroundStyle(Pingu.slate)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 4)
+                    .padding(.bottom, 12)
+
+                HStack(spacing: 6) {
+                    Image(systemName: "person.2.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text("\(circle.members) members")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    Text("·")
+                    Text("created \(CircleViewModel.timeAgo(circle.createdAt))")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
                 }
+                .foregroundStyle(Pingu.muted)
+                .padding(.bottom, 16)
 
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack {
-                        if let circle {
-                            Button {
-                                viewModel.showEditCircle = true
-                            } label: {
-                                Image(systemName: "pencil")
-                            }
-
-                            Button(role: .destructive) {
-                                circleStore.deleteCircle(circle)
-                                dismiss()
-                            } label: {
-                                Image(systemName: "trash")
-                            }
+                if circle.joined {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 14, weight: .heavy))
+                        Text("You're in this circle")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                    }
+                    .foregroundStyle(Color(hex: 0x16A34A))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(Color(hex: 0x16A34A).opacity(0.12))
+                    .clipShape(Capsule())
+                } else {
+                    Button {
+                        circleStore.joinCircle(circle.id)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 14, weight: .bold))
+                            Text("Join circle")
                         }
                     }
+                    .buttonStyle(PinguPrimaryButtonStyle())
                 }
             }
-        }
-        .sheet(isPresented: $viewModel.showEditCircle) {
-            if let circle {
-                CircleEditSheet(circle: circle)
-                    .environmentObject(circleStore)
-                    .presentationDetents([.medium])
-            }
-        }
-        .sheet(isPresented: $viewModel.showReflectionPicker) {
-            if let circle {
-                ReflectionPickerSheet(circle: circle, entries: entries)
-                    .environmentObject(circleStore)
-                    .presentationDetents([.large])
-            }
-        }
-        .sheet(item: $viewModel.editingPost) { post in
-            CirclePostEditSheet(post: post)
-                .environmentObject(circleStore)
-                .presentationDetents([.medium])
+            .frame(maxWidth: .infinity)
+            .padding(24)
         }
     }
 
-    private var circle: CircleSpace? {
-        viewModel.circle(id: circleID, circleStore: circleStore)
-    }
+    private func composer(_ circle: CircleSpace) -> some View {
+        GlassCard(style: .regular, cornerRadius: 24) {
+            HStack(spacing: 8) {
+                Text("🐧")
+                    .font(.system(size: 13))
+                    .frame(width: 28, height: 28)
+                    .glass(.pill, cornerRadius: 999)
 
-    private func quickActions(circle: CircleSpace) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Quick actions")
-                .font(PinguFont.cardTitle)
-                .foregroundStyle(PinguDesign.ink)
+                TextField("Share something kind…", text: $draft)
+                    .font(.system(size: 13, design: .rounded))
+                    .foregroundStyle(Pingu.ink)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(.white.opacity(0.7))
+                    .overlay { Capsule().strokeBorder(.white.opacity(0.6), lineWidth: 1) }
+                    .clipShape(Capsule())
+                    .onSubmit { sharePost(circle) }
 
-            Button {
-                viewModel.showReflectionPicker = true
-            } label: {
-                Label(entries.isEmpty ? "Save a reflection first" : "Share a reflection card", systemImage: "sparkles")
+                sendButton(enabled: !draft.trimmed.isEmpty, size: 40) {
+                    sharePost(circle)
+                }
             }
-            .buttonStyle(PinguPrimaryButtonStyle())
-            .disabled(entries.isEmpty)
-            .opacity(entries.isEmpty ? 0.55 : 1)
+            .padding(10)
         }
-        .padding(16)
-        .pinguGlass(cornerRadius: 22, tint: 0.22)
     }
 
-    private func addNoteForm(circle: CircleSpace) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Add community note")
-                .font(PinguFont.cardTitle)
-                .foregroundStyle(PinguDesign.ink)
-
-            PinguTextInput(title: "Title", placeholder: "Before presentation", text: $viewModel.noteTitle)
-            PinguTextInput(title: "Note", placeholder: "What should this community help you remember?", text: $viewModel.noteBody, axis: .vertical)
-
-            Button {
-                viewModel.saveNote(circle: circle, circleStore: circleStore)
-            } label: {
-                Label("Save note", systemImage: "text.badge.plus")
-            }
-            .buttonStyle(PinguSecondaryButtonStyle())
-            .disabled(!viewModel.canSaveNote)
-            .opacity(viewModel.canSaveNote ? 1 : 0.55)
-        }
-        .padding(16)
-        .pinguGlass(cornerRadius: 22, tint: 0.22)
-    }
-
-    private func postsList(circle: CircleSpace) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Saved posts")
-                .font(PinguFont.cardTitle)
-                .foregroundStyle(PinguDesign.ink)
-
-            let posts = circleStore.posts(for: circle)
+    private func postsList(_ circle: CircleSpace) -> some View {
+        let posts = circleStore.posts(for: circle)
+        return VStack(spacing: 12) {
             if posts.isEmpty {
-                Text("Community notes and reflection cards you save here will appear in this space.")
-                    .font(PinguFont.body)
-                    .foregroundStyle(PinguDesign.muted)
-                    .lineSpacing(4)
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .pinguGlass(cornerRadius: 20, tint: 0.22)
+                Text("Be the first to share something gentle here.")
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundStyle(Pingu.muted)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 24)
             } else {
-                ForEach(posts) { post in
+                ForEach(Array(posts.enumerated()), id: \.element.id) { index, post in
                     CirclePostCard(post: post)
-                        .contextMenu {
-                            Button {
-                                viewModel.edit(post)
-                            } label: {
-                                Label("Edit post", systemImage: "pencil")
-                            }
-
-                            Button(role: .destructive) {
-                                circleStore.deletePost(post)
-                            } label: {
-                                Label("Delete post", systemImage: "trash")
-                            }
-                        }
+                        .slideUp(Double(index) * 0.06)
                 }
             }
         }
+    }
+
+    private func sharePost(_ circle: CircleSpace) {
+        let text = draft.trimmed
+        guard !text.isEmpty else { return }
+        circleStore.addPost(circleID: circle.id, text: text)
+        draft = ""
     }
 }
 
 private struct CirclePostCard: View {
     let post: CirclePost
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 9) {
-            HStack {
-                Label(post.sourceEntryID == nil ? "Note" : "Reflection", systemImage: post.sourceEntryID == nil ? "text.bubble.fill" : "sparkles")
-                    .font(PinguFont.caption)
-                    .foregroundStyle(PinguDesign.blue)
-
-                Spacer()
-
-                Text(post.createdAt.formatted(date: .abbreviated, time: .shortened))
-                    .font(PinguFont.tiny)
-                    .foregroundStyle(PinguDesign.muted)
-            }
-
-            Text(post.title)
-                .font(PinguFont.cardTitle)
-                .foregroundStyle(PinguDesign.ink)
-
-            Text(post.body)
-                .font(PinguFont.body)
-                .foregroundStyle(PinguDesign.body)
-                .lineSpacing(4)
-        }
-        .padding(16)
-        .pinguGlass(cornerRadius: 20, tint: 0.22)
-    }
-}
-
-private struct CircleEditSheet: View {
-    let circle: CircleSpace
-    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var circleStore: CircleStore
-    @StateObject private var viewModel = CircleEditViewModel()
+    @State private var open = false
+    @State private var reply = ""
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Capsule()
-                .fill(PinguDesign.border)
-                .frame(width: 46, height: 5)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 8)
+        GlassCard(style: .regular, cornerRadius: 24) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 8) {
+                    Text("🐧")
+                        .font(.system(size: 13))
+                        .frame(width: 28, height: 28)
+                        .glass(.pill, cornerRadius: 999)
+                    Text(post.who)
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundStyle(Pingu.ink)
+                    Spacer()
+                    Text(CircleViewModel.timeAgo(post.createdAt))
+                        .font(.system(size: 11, weight: .regular, design: .rounded))
+                        .foregroundStyle(Pingu.muted)
+                }
+                .padding(.bottom, 6)
 
-            Text("Edit community")
-                .font(PinguFont.screenTitle)
-                .foregroundStyle(PinguDesign.ink)
+                Text(post.text)
+                    .font(.system(size: 13.5, weight: .regular, design: .rounded))
+                    .foregroundStyle(Pingu.body)
+                    .lineSpacing(3)
+                    .padding(.bottom, 10)
 
-            VStack(spacing: 12) {
-                PinguTextInput(title: "Name", placeholder: "Community name", text: $viewModel.name)
-                PinguTextInput(title: "Purpose", placeholder: "What this community supports", text: $viewModel.intention)
+                HStack(spacing: 8) {
+                    likeButton(
+                        liked: post.liked,
+                        count: post.likes,
+                        action: { circleStore.toggleLikePost(post.id) }
+                    )
+
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { open.toggle() }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "bubble.left")
+                                .font(.system(size: 13, weight: .semibold))
+                            Text(post.replies.isEmpty ? "Reply" : "\(post.replies.count)")
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                        }
+                        .foregroundStyle(Pingu.slate)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .glass(.pill, cornerRadius: 999)
+                    }
+                    .buttonStyle(PressableButtonStyle())
+                }
+
+                if open {
+                    repliesSection
+                        .padding(.top, 12)
+                }
             }
-
-            Spacer()
-
-            Button("Save changes") {
-                viewModel.save(circle: circle, circleStore: circleStore)
-                dismiss()
-            }
-            .buttonStyle(PinguPrimaryButtonStyle())
-            .disabled(!viewModel.canSave)
-            .opacity(viewModel.canSave ? 1 : 0.55)
-        }
-        .padding(24)
-        .background(PinguDesign.ice)
-        .onAppear {
-            viewModel.load(circle: circle)
+            .padding(16)
         }
     }
-}
 
-private struct ReflectionPickerSheet: View {
-    let circle: CircleSpace
-    let entries: [JournalReflectionEntry]
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var circleStore: CircleStore
-
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                PinguScreenBackground()
-
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 14) {
-                        Text("Share to \(circle.name)")
-                            .font(PinguFont.screenTitle)
-                            .foregroundStyle(PinguDesign.ink)
-
-                        Text("Choose a saved reflection. Circleu keeps a privacy-safe local copy in this community.")
-                            .font(PinguFont.body)
-                            .foregroundStyle(PinguDesign.muted)
-                            .lineSpacing(4)
-
-                        ForEach(entries) { entry in
-                            Button {
-                                circleStore.share(entry: entry, to: circle)
-                                dismiss()
-                            } label: {
-                                HStack(spacing: 13) {
-                                    Image(systemName: "sparkles")
-                                        .font(.system(size: 18, weight: .bold))
-                                        .foregroundStyle(PinguDesign.blue)
-                                        .frame(width: 44, height: 44)
-                                        .background(PinguDesign.lightBlue.opacity(0.66))
-                                        .clipShape(Circle())
-
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text(entry.displayTitle)
-                                            .font(PinguFont.cardTitle)
-                                            .foregroundStyle(PinguDesign.ink)
-                                            .lineLimit(1)
-
-                                        Text("\(entry.displayEmotion) - \(entry.createdAt.formatted(date: .abbreviated, time: .shortened))")
-                                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                                            .foregroundStyle(PinguDesign.muted)
-                                    }
-
-                                    Spacer()
-
-                                    Image(systemName: "plus.circle.fill")
-                                        .font(.system(size: 22, weight: .bold))
-                                        .foregroundStyle(PinguDesign.blue)
-                                }
-                                .padding(15)
-                                .pinguGlass(cornerRadius: 20, tint: 0.22)
+    private var repliesSection: some View {
+        HStack(spacing: 0) {
+            Rectangle()
+                .fill(Pingu.accent.opacity(0.15))
+                .frame(width: 2)
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach(post.replies) { r in
+                    HStack(alignment: .top, spacing: 8) {
+                        Text("🐧")
+                            .font(.system(size: 11))
+                            .frame(width: 24, height: 24)
+                            .glass(.pill, cornerRadius: 999)
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 6) {
+                                Text(r.who)
+                                    .font(.system(size: 11.5, weight: .bold, design: .rounded))
+                                    .foregroundStyle(Pingu.ink)
+                                Text(CircleViewModel.timeAgo(r.createdAt))
+                                    .font(.system(size: 10.5, weight: .regular, design: .rounded))
+                                    .foregroundStyle(Pingu.muted)
                             }
-                            .buttonStyle(.plain)
-                            .disabled(circleStore.posts(for: circle).contains { $0.sourceEntryID == entry.id })
-                            .opacity(circleStore.posts(for: circle).contains { $0.sourceEntryID == entry.id } ? 0.45 : 1)
+                            Text(r.text)
+                                .font(.system(size: 12.5, weight: .regular, design: .rounded))
+                                .foregroundStyle(Pingu.body)
+                                .lineSpacing(2)
+
+                            Button {
+                                circleStore.toggleLikeReply(postID: post.id, replyID: r.id)
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: r.liked ? "heart.fill" : "heart")
+                                        .font(.system(size: 11, weight: .bold))
+                                    Text("\(r.likes)")
+                                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                                }
+                                .foregroundStyle(r.liked ? Color(hex: 0xEC4899) : Pingu.muted)
+                            }
+                            .buttonStyle(PressableButtonStyle())
+                            .padding(.top, 1)
                         }
                     }
-                    .padding(.horizontal, PinguDesign.screenSidePadding)
-                    .padding(.top, 20)
-                    .padding(.bottom, 34)
                 }
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
+
+                HStack(spacing: 8) {
+                    Text("🐧")
+                        .font(.system(size: 11))
+                        .frame(width: 24, height: 24)
+                        .glass(.pill, cornerRadius: 999)
+                    TextField("Write a kind reply…", text: $reply)
+                        .font(.system(size: 12.5, design: .rounded))
+                        .foregroundStyle(Pingu.ink)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(.white.opacity(0.7))
+                        .overlay { Capsule().strokeBorder(.white.opacity(0.6), lineWidth: 1) }
+                        .clipShape(Capsule())
+                        .onSubmit { sendReply() }
+                    sendButton(enabled: !reply.trimmed.isEmpty, size: 32) {
+                        sendReply()
                     }
                 }
+                .padding(.top, 1)
+            }
+            .padding(.leading, 12)
+        }
+    }
+
+    @ViewBuilder
+    private func likeButton(liked: Bool, count: Int, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            let pill = HStack(spacing: 6) {
+                Image(systemName: liked ? "heart.fill" : "heart")
+                    .font(.system(size: 13, weight: .semibold))
+                Text("\(count)")
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+            }
+            .foregroundStyle(liked ? Color(hex: 0xEC4899) : Pingu.slate)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+
+            if liked {
+                pill
+                    .background(Color(hex: 0xEC4899).opacity(0.12))
+                    .clipShape(Capsule())
+            } else {
+                pill.glass(.pill, cornerRadius: 999)
             }
         }
+        .buttonStyle(PressableButtonStyle())
+    }
+
+    private func sendReply() {
+        let text = reply.trimmed
+        guard !text.isEmpty else { return }
+        circleStore.addReply(postID: post.id, text: text)
+        reply = ""
+        open = true
     }
 }
 
-private struct CirclePostEditSheet: View {
-    let post: CirclePost
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var circleStore: CircleStore
-    @StateObject private var viewModel = CirclePostEditViewModel()
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Capsule()
-                .fill(PinguDesign.border)
-                .frame(width: 46, height: 5)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 8)
-
-            Text(post.sourceEntryID == nil ? "Edit note" : "Edit saved reflection")
-                .font(PinguFont.screenTitle)
-                .foregroundStyle(PinguDesign.ink)
-
-            VStack(spacing: 12) {
-                PinguTextInput(title: "Title", placeholder: "Post title", text: $viewModel.title)
-                PinguTextInput(title: "Body", placeholder: "Post body", text: $viewModel.postBody, axis: .vertical)
-            }
-
-            Spacer()
-
-            HStack(spacing: 10) {
-                Button(role: .destructive) {
-                    circleStore.deletePost(post)
-                    dismiss()
-                } label: {
-                    Label("Delete", systemImage: "trash")
+private func sendButton(enabled: Bool, size: CGFloat, action: @escaping () -> Void) -> some View {
+    Button(action: action) {
+        Image(systemName: "paperplane.fill")
+            .font(.system(size: size * 0.38, weight: .bold))
+            .foregroundStyle(.white)
+            .frame(width: size, height: size)
+            .background {
+                if enabled {
+                    GlassPrimaryFill(cornerRadius: 999)
+                } else {
+                    Circle().fill(Color(hex: 0xCBD5E1))
                 }
-                .buttonStyle(PinguSecondaryButtonStyle())
-
-                Button("Save") {
-                    viewModel.save(post: post, circleStore: circleStore)
-                    dismiss()
-                }
-                .buttonStyle(PinguPrimaryButtonStyle())
-                .disabled(!viewModel.canSave)
-                .opacity(viewModel.canSave ? 1 : 0.55)
             }
-        }
-        .padding(24)
-        .background(PinguDesign.ice)
-        .onAppear {
-            viewModel.load(post: post)
-        }
+            .clipShape(Circle())
     }
+    .buttonStyle(PressableButtonStyle())
+    .disabled(!enabled)
+}
+
+private extension String {
+    var trimmed: String { trimmingCharacters(in: .whitespacesAndNewlines) }
 }
