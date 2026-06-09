@@ -8,10 +8,12 @@ final class AIReflectionSessionStore: ObservableObject {
     @Published private(set) var sessions: [AIReflectionSession] = []
 
     private let storageKey = "circleu.aiReflectionSessions.v1"
+    private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    init() {
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
         load()
@@ -96,7 +98,7 @@ final class AIReflectionSessionStore: ObservableObject {
 
     func reset() {
         sessions = []
-        UserDefaults.standard.removeObject(forKey: storageKey)
+        userDefaults.removeObject(forKey: storageKey)
     }
 
     func exportText() -> String {
@@ -135,14 +137,14 @@ final class AIReflectionSessionStore: ObservableObject {
     }
 
     private func load() {
-        guard let data = UserDefaults.standard.data(forKey: storageKey) else {
+        guard let data = userDefaults.data(forKey: storageKey) else {
             sessions = []
             return
         }
 
         guard let savedSessions = try? decoder.decode([AIReflectionSession].self, from: data) else {
             sessions = []
-            UserDefaults.standard.removeObject(forKey: storageKey)
+            userDefaults.removeObject(forKey: storageKey)
             return
         }
 
@@ -354,6 +356,6 @@ final class AIReflectionSessionStore: ObservableObject {
 
     private func save() {
         guard let data = try? encoder.encode(sessions) else { return }
-        UserDefaults.standard.set(data, forKey: storageKey)
+        userDefaults.set(data, forKey: storageKey)
     }
 }

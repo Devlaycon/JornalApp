@@ -22,9 +22,17 @@ Future backend work should enter through `Circleu/Services/BackendPreparation.sw
 The current protocol boundaries are:
 
 - `UserIdentityProviding`: local or backend-backed user identity and display name.
-- `ReflectionSyncing`: sync boundary for reflections, tips, circles, and AI sessions.
-- `AnalyticsTracking`: event tracking boundary.
-- `ReflectionModelProvider`: model-provider availability and provider identity.
+- `ReflectionSyncing`: sync boundary for a `BackendSyncSnapshot` containing reflections, tips, circles, circle posts, and AI sessions.
+- `AnalyticsTracking`: privacy-safe `AnalyticsEvent` tracking boundary.
+- `ReflectionModelProvider`: model-provider availability, provider identity, and on-device capability.
+
+The current backend contract types are:
+
+- `BackendSyncSnapshot`: local data payload prepared for future sync.
+- `BackendSyncCounts`: count summary for sync visibility and test assertions.
+- `BackendSyncResult`: result of a sync attempt, including failed scopes.
+- `BackendSyncScope`: the local data groups that can be synced independently later.
+- `AnalyticsEvent`: sanitized event name, properties, and timestamp.
 
 Do not call a backend directly from `Circleu/Features/`. A feature should call a ViewModel. A ViewModel should coordinate Stores, Engines, and Services.
 

@@ -8,16 +8,18 @@ final class UserProfileStore: ObservableObject {
     }
 
     @Published var dailyPromptIndex: Int {
-        didSet { UserDefaults.standard.set(dailyPromptIndex, forKey: dailyPromptIndexKey) }
+        didSet { userDefaults.set(dailyPromptIndex, forKey: dailyPromptIndexKey) }
     }
 
+    private let userDefaults: UserDefaults
     private let displayNameKey = "circleu.profile.displayName.v1"
     private let dailyPromptIndexKey = "circleu.profile.dailyPromptIndex.v1"
 
-    init() {
-        let savedName = UserDefaults.standard.string(forKey: displayNameKey) ?? ""
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+        let savedName = userDefaults.string(forKey: displayNameKey) ?? ""
         displayName = savedName.trimmingCharacters(in: .whitespacesAndNewlines)
-        dailyPromptIndex = UserDefaults.standard.integer(forKey: dailyPromptIndexKey)
+        dailyPromptIndex = userDefaults.integer(forKey: dailyPromptIndexKey)
     }
 
     var firstName: String {
@@ -37,8 +39,8 @@ final class UserProfileStore: ObservableObject {
     func reset() {
         displayName = ""
         dailyPromptIndex = 0
-        UserDefaults.standard.removeObject(forKey: displayNameKey)
-        UserDefaults.standard.removeObject(forKey: dailyPromptIndexKey)
+        userDefaults.removeObject(forKey: displayNameKey)
+        userDefaults.removeObject(forKey: dailyPromptIndexKey)
     }
 
     func seedDemoProfile() {
@@ -78,6 +80,6 @@ final class UserProfileStore: ObservableObject {
 
     private func saveDisplayName(_ value: String) {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        UserDefaults.standard.set(trimmed, forKey: displayNameKey)
+        userDefaults.set(trimmed, forKey: displayNameKey)
     }
 }
