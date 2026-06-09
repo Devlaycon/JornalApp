@@ -1,6 +1,14 @@
 import SwiftUI
 
+struct TabBarHiddenKey: PreferenceKey {
+    static var defaultValue: Bool = false
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
+    }
+}
+
 struct RootView: View {
+    @State private var hidesTabBar = false
     @State private var selectedTab: PinguTab = {
         switch ProcessInfo.processInfo.environment["START_TAB"] {
         case "journal": return .journal
@@ -37,8 +45,12 @@ struct RootView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            PinguBottomTabBar(selection: $selectedTab)
+            if !hidesTabBar {
+                PinguBottomTabBar(selection: $selectedTab)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
+        .onPreferenceChange(TabBarHiddenKey.self) { hidesTabBar = $0 }
         .background(PinguAurora())
         .fullScreenCover(isPresented: $showRecording) {
             RecordingView(

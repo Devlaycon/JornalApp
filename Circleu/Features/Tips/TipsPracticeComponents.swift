@@ -26,29 +26,49 @@ struct TipsSceneChip: View {
     let scene: TipsPracticeScene
     let title: String
     let isSelected: Bool
+    var isAddButton: Bool = false
     let action: () -> Void
+
+    private var label: String {
+        if isAddButton && !isSelected {
+            return "+ \(title)"
+        }
+        return "\(scene.emoji) \(title)"
+    }
+
+    private var textColor: Color {
+        if isSelected { return .white }
+        if isAddButton { return Pingu.muted }
+        return Pingu.ink
+    }
 
     var body: some View {
         Button(action: action) {
-            Text(title)
+            Text(label)
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
-                .foregroundStyle(isSelected ? .white : Pingu.ink)
+                .foregroundStyle(textColor)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 9)
-                .background {
-                    if isSelected {
-                        GlassPrimaryFill(cornerRadius: 999)
-                    } else {
-                        Capsule().fill(.ultraThinMaterial)
-                            .overlay { Capsule().fill(.white.opacity(0.28)) }
-                            .overlay { Capsule().strokeBorder(.white.opacity(0.55), lineWidth: 1) }
-                    }
-                }
+                .background { background }
                 .clipShape(Capsule())
         }
         .buttonStyle(PressableButtonStyle())
+    }
+
+    @ViewBuilder
+    private var background: some View {
+        if isSelected {
+            GlassPrimaryFill(cornerRadius: 999)
+        } else if isAddButton {
+            Capsule()
+                .stroke(Pingu.muted.opacity(0.6), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
+        } else {
+            Capsule().fill(.ultraThinMaterial)
+                .overlay { Capsule().fill(.white.opacity(0.28)) }
+                .overlay { Capsule().strokeBorder(.white.opacity(0.55), lineWidth: 1) }
+        }
     }
 }
 
@@ -89,17 +109,21 @@ struct TipsCoachBubble: View {
     let text: String
     let role: TipsPracticeRole
 
+    private var isTrailing: Bool {
+        role == .user || role == .simulatedPerson
+    }
+
     var body: some View {
-        VStack(alignment: role == .user ? .trailing : .leading, spacing: 6) {
+        VStack(alignment: isTrailing ? .trailing : .leading, spacing: 6) {
             Text(label.uppercased())
                 .font(.system(size: 9, weight: .bold, design: .rounded))
                 .tracking(0.8)
                 .foregroundStyle(role == .coach ? Pingu.accent : Pingu.muted)
 
             bubble
-                .frame(maxWidth: role == .coach ? 310 : 285, alignment: role == .user ? .trailing : .leading)
+                .frame(maxWidth: role == .coach ? 310 : 285, alignment: isTrailing ? .trailing : .leading)
         }
-        .frame(maxWidth: .infinity, alignment: role == .user ? .trailing : .leading)
+        .frame(maxWidth: .infinity, alignment: isTrailing ? .trailing : .leading)
     }
 
     @ViewBuilder
@@ -118,7 +142,31 @@ struct TipsCoachBubble: View {
                     topLeadingRadius: 18, bottomLeadingRadius: 18,
                     bottomTrailingRadius: 4, topTrailingRadius: 18
                 ))
-        case .coach, .simulatedPerson:
+        case .simulatedPerson:
+            let shape = UnevenRoundedRectangle(
+                topLeadingRadius: 18, bottomLeadingRadius: 18,
+                bottomTrailingRadius: 4, topTrailingRadius: 18,
+                style: .continuous
+            )
+            textView
+                .foregroundStyle(Pingu.ink)
+                .background {
+                    ZStack {
+                        shape.fill(.ultraThinMaterial)
+                        shape.fill(.white.opacity(0.40))
+                    }
+                }
+                .overlay {
+                    shape.strokeBorder(
+                        LinearGradient(
+                            colors: [.white.opacity(0.70), .white.opacity(0.30)],
+                            startPoint: .top, endPoint: .bottom
+                        ),
+                        lineWidth: 1
+                    )
+                }
+                .clipShape(shape)
+        case .coach:
             textView
                 .foregroundStyle(Pingu.ink)
                 .glass(.strong, cornerRadius: 18)

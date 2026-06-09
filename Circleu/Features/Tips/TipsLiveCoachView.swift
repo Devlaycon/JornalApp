@@ -41,8 +41,8 @@ struct TipsLiveCoachView: View {
             }
 
             composer
-                .padding(.bottom, PinguDesign.bottomBarHeight)
         }
+        .preference(key: TabBarHiddenKey.self, value: true)
         .onChange(of: selectedReplyItem) { _, newItem in
             Task {
                 guard let data = try? await newItem?.loadTransferable(type: Data.self) else { return }

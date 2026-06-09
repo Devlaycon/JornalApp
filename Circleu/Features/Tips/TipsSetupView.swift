@@ -158,7 +158,8 @@ struct TipsSetupView: View {
                 TipsSceneChip(
                     scene: .custom,
                     title: viewModel.scene == .custom ? viewModel.sceneTitle : "Add specific",
-                    isSelected: viewModel.scene == .custom
+                    isSelected: viewModel.scene == .custom,
+                    isAddButton: true
                 ) {
                     viewModel.selectScene(.custom)
                 }

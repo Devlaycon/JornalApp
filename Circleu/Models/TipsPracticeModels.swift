@@ -37,6 +37,21 @@ enum TipsPracticeScene: String, Codable, CaseIterable, Equatable {
         }
     }
 
+    var emoji: String {
+        switch self {
+        case .workplace:
+            "🏢"
+        case .family:
+            "🏠"
+        case .friendship:
+            "👥"
+        case .romantic:
+            "♡"
+        case .custom:
+            "✨"
+        }
+    }
+
     func displayTitle(customScene: String?) -> String {
         guard self == .custom else { return title }
         let clean = customScene?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
