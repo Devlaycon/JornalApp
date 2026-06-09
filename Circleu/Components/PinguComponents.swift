@@ -2,8 +2,7 @@ import SwiftUI
 
 struct PinguScreenBackground: View {
     var body: some View {
-        PinguDesign.ice
-            .ignoresSafeArea()
+        PinguAuroraBackground()
     }
 }
 
@@ -18,9 +17,7 @@ struct PinguCard<Content: View>: View {
         content
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(PinguDesign.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .shadow(color: PinguDesign.deepBlue.opacity(0.06), radius: 16, x: 0, y: 8)
+            .pinguGlass(cornerRadius: 24)
     }
 }
 
@@ -95,9 +92,9 @@ struct PinguTopBar: View {
         }
         .padding(.horizontal, PinguDesign.screenSidePadding)
         .frame(height: 70)
-        .background(PinguDesign.ice.opacity(0.98))
+        .background(.ultraThinMaterial)
         .overlay(alignment: .bottom) {
-            Divider().overlay(PinguDesign.border.opacity(0.55))
+            Divider().overlay(.white.opacity(0.4))
         }
     }
 
@@ -113,12 +110,7 @@ struct PinguTopBar: View {
         }
         .padding(.horizontal, 12)
         .frame(height: 36)
-        .background(PinguDesign.lightBlue.opacity(0.78))
-        .clipShape(Capsule())
-        .overlay {
-            Capsule()
-                .stroke(.white.opacity(0.75), lineWidth: 1)
-        }
+        .pinguGlass(cornerRadius: 18, tint: 0.10)
     }
 }
 
@@ -153,16 +145,16 @@ struct PinguBottomTabBar: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.82)
                     }
-                    .foregroundStyle(selection == tab ? PinguDesign.ink : PinguDesign.muted)
+                    .foregroundStyle(selection == tab ? PinguDesign.blue : PinguDesign.muted)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 58)
+                    .frame(height: 56)
                     .background {
                         if selection == tab {
                             Capsule()
-                                .fill(PinguDesign.lightBlue.opacity(0.92))
+                                .fill(.white.opacity(0.38))
                                 .overlay {
                                     Capsule()
-                                        .stroke(.white.opacity(0.78), lineWidth: 1)
+                                        .strokeBorder(.white.opacity(0.65), lineWidth: 0.8)
                                 }
                         }
                     }
@@ -170,13 +162,11 @@ struct PinguBottomTabBar: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 26)
-        .padding(.top, 10)
-        .frame(height: PinguDesign.bottomBarHeight)
-        .background(PinguDesign.ice.opacity(0.98))
-        .overlay(alignment: .top) {
-            Divider().overlay(PinguDesign.border.opacity(0.7))
-        }
+        .padding(.horizontal, 12)
+        .frame(height: 64)
+        .pinguGlass(cornerRadius: 30)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
     }
 }
 
@@ -217,9 +207,9 @@ struct PinguNavBar: View {
         }
         .padding(.horizontal, PinguDesign.screenSidePadding)
         .frame(height: 66)
-        .background(PinguDesign.ice)
+        .background(.ultraThinMaterial)
         .overlay(alignment: .bottom) {
-            Divider().overlay(PinguDesign.border.opacity(0.7))
+            Divider().overlay(.white.opacity(0.4))
         }
     }
 }
@@ -231,8 +221,23 @@ struct PinguPrimaryButtonStyle: ButtonStyle {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 52)
-            .background(PinguDesign.blue.opacity(configuration.isPressed ? 0.82 : 1))
+            .background {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [PinguDesign.electricBlue, PinguDesign.blue],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .opacity(configuration.isPressed ? 0.85 : 1)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(.white.opacity(0.45), lineWidth: 0.8)
+            }
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: PinguDesign.blue.opacity(0.40), radius: 14, x: 0, y: 8)
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
     }
 }
@@ -244,11 +249,6 @@ struct PinguSecondaryButtonStyle: ButtonStyle {
             .foregroundStyle(PinguDesign.ink)
             .frame(maxWidth: .infinity)
             .frame(height: 52)
-            .background(Color.white.opacity(configuration.isPressed ? 0.74 : 0.92))
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(PinguDesign.lightBlue.opacity(0.5), lineWidth: 1)
-            }
+            .pinguGlass(cornerRadius: 16, tint: configuration.isPressed ? 0.06 : 0.16)
     }
 }
