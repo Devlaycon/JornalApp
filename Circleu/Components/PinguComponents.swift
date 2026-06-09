@@ -22,21 +22,32 @@ struct PinguCard<Content: View>: View {
 }
 
 enum PinguTab: String {
-    case home = "Home"
-    case journal = "Journal"
-    case tips = "Tips"
-    case circle = "Circle"
-    case profile = "Profile"
+    case home
+    case journal
+    case tips
+    case circle
+    case profile
 
-    static let bottomTabs: [PinguTab] = [.home, .tips, .circle, .profile]
+    static let bottomTabs: [PinguTab] = [.home, .journal, .tips, .circle, .profile]
+
+    /// Demo tab-bar label (differs from the route id).
+    var label: String {
+        switch self {
+        case .home: "Journal"
+        case .journal: "Reflect"
+        case .tips: "Tips"
+        case .circle: "Circle"
+        case .profile: "Profile"
+        }
+    }
 
     var icon: String {
         switch self {
-        case .home: "house.fill"
-        case .journal: "book.closed.fill"
-        case .tips: "mic.fill"
-        case .circle: "person.2.fill"
-        case .profile: "person.crop.circle.fill"
+        case .home: "book"
+        case .journal: "sparkles"
+        case .tips: "message"
+        case .circle: "person.2"
+        case .profile: "person"
         }
     }
 }
@@ -132,41 +143,39 @@ struct PinguBottomTabBar: View {
     @Binding var selection: PinguTab
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 0) {
             ForEach(PinguTab.bottomTabs, id: \.self) { tab in
+                let active = selection == tab
                 Button {
                     selection = tab
                 } label: {
-                    VStack(spacing: 3) {
+                    VStack(spacing: 2) {
                         Image(systemName: tab.icon)
                             .font(.system(size: 21, weight: .semibold))
-                        Text(tab.rawValue)
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.82)
-                    }
-                    .foregroundStyle(selection == tab ? PinguDesign.blue : PinguDesign.muted)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background {
-                        if selection == tab {
-                            Capsule()
-                                .fill(.white.opacity(0.38))
-                                .overlay {
-                                    Capsule()
-                                        .strokeBorder(.white.opacity(0.65), lineWidth: 0.8)
+                            .foregroundStyle(active ? .white : Pingu.muted)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 4)
+                            .background {
+                                if active {
+                                    GlassPrimaryFill(cornerRadius: 999)
                                 }
-                        }
+                            }
+
+                        Text(tab.label)
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundStyle(active ? Pingu.accent : Pingu.muted)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PressableButtonStyle())
             }
         }
-        .padding(.horizontal, 12)
-        .frame(height: 64)
-        .pinguGlass(cornerRadius: 30)
+        .padding(8)
+        .glass(.nav, cornerRadius: 26)
         .padding(.horizontal, 16)
-        .padding(.bottom, 8)
+        .padding(.bottom, 20)
     }
 }
 

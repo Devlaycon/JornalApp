@@ -14,7 +14,7 @@ struct TipsLiveCoachView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 14) {
                     if let session = viewModel.activeSession {
-                        PinguAvatar(size: 64)
+                        PinguMascot(size: 64, mood: .idle)
                             .padding(.top, 8)
 
                         ForEach(session.turns) { turn in
@@ -42,41 +42,20 @@ struct TipsLiveCoachView: View {
     }
 
     private var topBar: some View {
-        HStack {
-            Button {
-                viewModel.backToSetup()
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(PinguDesign.blue)
-                    .frame(width: 42, height: 42)
-            }
-
-            Spacer()
-
-            VStack(spacing: 2) {
-                Text("Live coach")
-                    .font(PinguFont.cardTitle)
-                    .foregroundStyle(PinguDesign.ink)
-                Text("Practice in real time")
-                    .font(PinguFont.tiny)
-                    .foregroundStyle(PinguDesign.blue)
-            }
-
-            Spacer()
-
+        DemoNavBar(
+            title: "Live coach",
+            subtitle: "in real time",
+            onBack: { viewModel.backToSetup() }
+        ) {
             Button {
                 viewModel.startNewTip()
             } label: {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundStyle(PinguDesign.blue)
-                    .frame(width: 42, height: 42)
+                Image(systemName: "clock")
+                    .font(.system(size: 19, weight: .semibold))
+                    .foregroundStyle(Pingu.slate)
             }
+            .buttonStyle(PressableButtonStyle())
         }
-        .padding(.horizontal, 12)
-        .padding(.top, 8)
-        .padding(.bottom, 6)
     }
 
     private var contextBar: some View {
@@ -84,10 +63,10 @@ struct TipsLiveCoachView: View {
             contextChip(viewModel.sceneTitle, icon: viewModel.scene.icon, isPrimary: true)
             contextChip(viewModel.tone.title, icon: "slider.horizontal.3", isPrimary: false)
             Spacer()
-            Button("edit") {
+            Button("edit ↗") {
                 viewModel.backToSetup()
             }
-            .font(PinguFont.caption)
+            .font(.system(size: 12, weight: .bold, design: .rounded))
             .foregroundStyle(PinguDesign.blue)
         }
         .padding(.horizontal, PinguDesign.screenSidePadding)
@@ -96,16 +75,20 @@ struct TipsLiveCoachView: View {
 
     private func contextChip(_ title: String, icon: String, isPrimary: Bool) -> some View {
         Label(title, systemImage: icon)
-            .font(PinguFont.caption)
+            .font(.system(size: 12, weight: .semibold, design: .rounded))
             .foregroundStyle(isPrimary ? .white : PinguDesign.ink)
-            .padding(.horizontal, 11)
+            .padding(.horizontal, 12)
             .frame(height: 30)
-            .background(isPrimary ? PinguDesign.blue : .white)
-            .clipShape(Capsule())
-            .overlay {
-                Capsule()
-                    .stroke(isPrimary ? PinguDesign.blue : PinguDesign.border, lineWidth: 1)
+            .background {
+                if isPrimary {
+                    GlassPrimaryFill(cornerRadius: 999)
+                } else {
+                    Capsule().fill(.ultraThinMaterial)
+                        .overlay { Capsule().fill(.white.opacity(0.28)) }
+                        .overlay { Capsule().strokeBorder(.white.opacity(0.55), lineWidth: 1) }
+                }
             }
+            .clipShape(Capsule())
     }
 
     private func coachDetailCard(_ output: TipsCoachOutput) -> some View {
@@ -135,18 +118,7 @@ struct TipsLiveCoachView: View {
             }
         }
         .padding(16)
-        .background(
-            LinearGradient(
-                colors: [.white, PinguDesign.lightBlue.opacity(0.5)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(PinguDesign.border, lineWidth: 1)
-        }
+        .glass(.strong, cornerRadius: 20)
     }
 
     private var composer: some View {
@@ -220,11 +192,6 @@ struct TipsLiveCoachView: View {
         }
         .padding(.horizontal, PinguDesign.screenSidePadding)
         .padding(.top, 12)
-        .background(.white.opacity(0.96))
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(PinguDesign.border.opacity(0.55))
-                .frame(height: 1)
-        }
+        .glass(.nav, cornerRadius: 0)
     }
 }

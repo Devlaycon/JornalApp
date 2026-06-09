@@ -8,37 +8,29 @@ struct TipsSetupView: View {
     @State private var selectedMessageItem: PhotosPickerItem?
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 20) {
-                    header
-                    if !recentSessions.isEmpty {
-                        TipsPracticeHistorySection(
-                            sessions: recentSessions,
-                            onResume: { session in
-                                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
-                                    viewModel.resume(session)
-                                }
-                            },
-                            onDelete: { session in
-                                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
-                                    viewModel.delete(session)
-                                }
-                            }
-                        )
-                    }
-                    messageCard
-                    sceneSection
-                    toneSection
-                    situationSection
-                    reflectionHistory
-                }
-                .padding(.horizontal, PinguDesign.screenSidePadding)
-                .padding(.top, 18)
-                .padding(.bottom, PinguDesign.bottomBarHeight + 106)
+        VStack(spacing: 0) {
+            DemoNavBar(title: "New tip") {
+                Image(systemName: "clock")
+                    .font(.system(size: 19, weight: .semibold))
+                    .foregroundStyle(Pingu.slate)
             }
 
-            continueButton
+            ZStack(alignment: .bottom) {
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 20) {
+                        header
+                        messageCard
+                        sceneSection
+                        toneSection
+                        situationSection
+                    }
+                    .padding(.horizontal, PinguDesign.screenSidePadding)
+                    .padding(.top, 12)
+                    .padding(.bottom, PinguDesign.bottomBarHeight + 106)
+                }
+
+                continueButton
+            }
         }
         .sheet(isPresented: $viewModel.showCustomSceneSheet) {
             customSceneSheet
@@ -55,32 +47,22 @@ struct TipsSetupView: View {
     }
 
     private var header: some View {
-        VStack(spacing: 13) {
-            HStack {
-                Spacer()
-                Text("New Tip")
-                    .font(PinguFont.cardTitle)
-                    .foregroundStyle(PinguDesign.ink)
-                Spacer()
-            }
+        VStack(spacing: 0) {
+            PinguMascot(size: 92, mood: .think)
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 16)
 
-            PinguAvatar(size: 92)
-                .shadow(color: PinguDesign.deepBlue.opacity(0.10), radius: 16, y: 8)
-
-            VStack(alignment: .leading, spacing: 10) {
-                Text("STEP 01 · DESCRIBE")
-                    .font(PinguFont.tiny)
-                    .tracking(1.3)
-                    .foregroundStyle(PinguDesign.blue)
+            VStack(alignment: .leading, spacing: 8) {
+                Kicker("STEP 01 · DESCRIBE")
 
                 Text("What do you want to say?")
-                    .font(PinguFont.hero)
-                    .foregroundStyle(PinguDesign.ink)
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundStyle(Pingu.ink)
                     .lineSpacing(2)
 
-                Text("Tell us the message in your own words.")
-                    .font(PinguFont.body)
-                    .foregroundStyle(PinguDesign.muted)
+                Text("Tell me the message in your own words. The scene comes next.")
+                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                    .foregroundStyle(Pingu.slate)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -154,7 +136,7 @@ struct TipsSetupView: View {
                 }
             }
             .padding(16)
-            .pinguGlass(cornerRadius: 18, tint: 0.18)
+            .glass(.strong, cornerRadius: 18)
         }
     }
 
@@ -213,7 +195,7 @@ struct TipsSetupView: View {
             .foregroundStyle(PinguDesign.muted)
         }
         .padding(18)
-        .pinguGlass(cornerRadius: 18, tint: 0.22)
+        .glass(.strong, cornerRadius: 18)
     }
 
     private var situationSection: some View {
@@ -240,34 +222,27 @@ struct TipsSetupView: View {
                 }
             }
             .padding(14)
-            .pinguGlass(cornerRadius: 18, tint: 0.18)
+            .glass(.regular, cornerRadius: 18)
         }
     }
 
     private var continueButton: some View {
-        VStack {
-            Button {
-                viewModel.startCoach()
-            } label: {
-                HStack(spacing: 8) {
-                    Text("Continue")
-                    Image(systemName: "chevron.right.circle.fill")
+        PinguGlassButton(
+            enabled: viewModel.canContinue,
+            action: { viewModel.startCoach() }
+        ) {
+            HStack(spacing: 8) {
+                Text("Continue")
+                ZStack {
+                    Circle().fill(.white).frame(width: 24, height: 24)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Pingu.accent)
                 }
             }
-            .buttonStyle(PinguPrimaryButtonStyle())
-            .disabled(!viewModel.canContinue)
-            .opacity(viewModel.canContinue ? 1 : 0.45)
         }
         .padding(.horizontal, PinguDesign.screenSidePadding)
-        .padding(.top, 18)
-        .padding(.bottom, PinguDesign.bottomBarHeight + 10)
-        .background(
-            LinearGradient(
-                colors: [PinguDesign.ice.opacity(0), PinguDesign.ice, PinguDesign.ice],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
+        .padding(.bottom, PinguDesign.bottomBarHeight + 16)
     }
 
     private var customSceneSheet: some View {

@@ -6,22 +6,31 @@ final class HomeViewModel: ObservableObject {
     @Published var selectedEntry: JournalReflectionEntry?
 
     let dailyPrompts = [
-        "What feeling has been sitting with you today?",
-        "What small moment changed your mood?",
-        "What do you want to understand about yourself today?",
-        "What would make tomorrow feel lighter?"
+        "What drained you today, and what refilled you?",
+        "Where did you show courage, even a little?",
+        "What's one thing you handled better than last week?",
+        "Who or what are you quietly grateful for?"
     ]
 
-    func dailyPrompt(for profileStore: UserProfileStore) -> String {
-        dailyPrompts[profileStore.dailyPromptIndex % dailyPrompts.count]
+    func dailyPrompt(entries: [JournalReflectionEntry]) -> String {
+        dailyPrompts[entries.count % dailyPrompts.count]
     }
 
-    func greetingSubtitle(entries: [JournalReflectionEntry]) -> String {
-        entries.isEmpty ? "Ready for your first check-in?" : "Your reflection space is ready."
+    func greetingSubtitle(streak: Int) -> String {
+        streak > 0 ? "\(streak)-day streak — let's keep it gentle." : "Let's start a small reflection."
     }
 
-    func latestEmotionLabel(entries: [JournalReflectionEntry]) -> String {
-        entries.first?.result.emotion ?? "Start"
+    func greetingKicker() -> String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        if hour < 12 { return "GOOD MORNING" }
+        if hour < 18 { return "GOOD AFTERNOON" }
+        return "GOOD EVENING"
+    }
+
+    func timeAgo(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
 
     func activeQuest(from questStore: QuestStore) -> Quest? {

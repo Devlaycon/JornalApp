@@ -7,16 +7,16 @@ struct TipsSectionLabel: View {
     let note: String
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 7) {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
             Text(number)
-                .font(PinguFont.caption)
-                .foregroundStyle(PinguDesign.blue)
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .foregroundStyle(Pingu.accent)
             Text(title)
-                .font(PinguFont.caption)
-                .foregroundStyle(PinguDesign.ink)
-            Text(note)
-                .font(.system(size: 11, weight: .medium, design: .rounded))
-                .foregroundStyle(PinguDesign.muted)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundStyle(Pingu.ink)
+            Text("· \(note)")
+                .font(.system(size: 11, weight: .regular, design: .rounded))
+                .foregroundStyle(Pingu.muted)
             Spacer()
         }
     }
@@ -30,22 +30,25 @@ struct TipsSceneChip: View {
 
     var body: some View {
         Button(action: action) {
-            Label(title, systemImage: scene.icon)
+            Text(title)
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
-                .foregroundStyle(isSelected ? .white : PinguDesign.ink)
-                .padding(.horizontal, 14)
-                .frame(height: 42)
-                .background(isSelected ? PinguDesign.blue : .white)
-                .clipShape(Capsule())
-                .overlay {
-                    Capsule()
-                        .stroke(isSelected ? PinguDesign.blue : PinguDesign.border, lineWidth: 1.2)
+                .foregroundStyle(isSelected ? .white : Pingu.ink)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 9)
+                .background {
+                    if isSelected {
+                        GlassPrimaryFill(cornerRadius: 999)
+                    } else {
+                        Capsule().fill(.ultraThinMaterial)
+                            .overlay { Capsule().fill(.white.opacity(0.28)) }
+                            .overlay { Capsule().strokeBorder(.white.opacity(0.55), lineWidth: 1) }
+                    }
                 }
-                .shadow(color: isSelected ? PinguDesign.blue.opacity(0.18) : .clear, radius: 8, y: 4)
+                .clipShape(Capsule())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressableButtonStyle())
     }
 }
 
@@ -91,30 +94,34 @@ struct TipsCoachBubble: View {
             Text(label.uppercased())
                 .font(.system(size: 9, weight: .bold, design: .rounded))
                 .tracking(0.8)
-                .foregroundStyle(role == .coach ? PinguDesign.blue : PinguDesign.muted)
+                .foregroundStyle(role == .coach ? Pingu.accent : Pingu.muted)
 
-            Text(text)
-                .font(PinguFont.body)
-                .foregroundStyle(role == .user ? .white : PinguDesign.ink)
-                .lineSpacing(3)
-                .padding(14)
-                .background(background)
-                .clipShape(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                )
+            bubble
                 .frame(maxWidth: role == .coach ? 310 : 285, alignment: role == .user ? .trailing : .leading)
         }
         .frame(maxWidth: .infinity, alignment: role == .user ? .trailing : .leading)
     }
 
-    private var background: Color {
+    @ViewBuilder
+    private var bubble: some View {
+        let textView = Text(text)
+            .font(.system(size: 14, weight: .regular, design: .rounded))
+            .lineSpacing(3)
+            .padding(14)
+
         switch role {
         case .user:
-            PinguDesign.blue
-        case .coach:
-            .white
-        case .simulatedPerson:
-            PinguDesign.lightBlue.opacity(0.72)
+            textView
+                .foregroundStyle(Color.white)
+                .background(GlassPrimaryFill(cornerRadius: 18))
+                .clipShape(UnevenRoundedRectangle(
+                    topLeadingRadius: 18, bottomLeadingRadius: 18,
+                    bottomTrailingRadius: 4, topTrailingRadius: 18
+                ))
+        case .coach, .simulatedPerson:
+            textView
+                .foregroundStyle(Pingu.ink)
+                .glass(.strong, cornerRadius: 18)
         }
     }
 }

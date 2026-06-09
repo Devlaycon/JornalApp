@@ -33,6 +33,12 @@ final class JournalViewModel: ObservableObject {
         clean(searchText).isEmpty ? "Saved reflections" : "Search results"
     }
 
+    func timeAgo(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+
     func clearSearch() {
         searchText = ""
     }
