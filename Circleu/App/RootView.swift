@@ -42,7 +42,7 @@ struct RootView: View {
 
             PinguBottomTabBar(selection: $selectedTab)
         }
-        .background(PinguDesign.ice)
+        .background(PinguAuroraBackground())
         .fullScreenCover(isPresented: $showRecording) {
             RecordingView(
                 onViewJournal: {
