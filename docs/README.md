@@ -9,8 +9,9 @@ Use this folder for shared project knowledge that helps the team build, test, an
 3. [Project structure](engineering/project-structure.md)
 4. [Architecture](engineering/architecture.md)
 5. [Domain models](engineering/domain-models.md)
-6. [Phone test checklist](qa/phone-test-checklist.md)
-7. [Team standards](process/team-standards.md)
+6. [Backend boundaries](engineering/backend-boundaries.md)
+7. [Phone test checklist](qa/phone-test-checklist.md)
+8. [Team standards](process/team-standards.md)
 
 ## Folder Rules
 
