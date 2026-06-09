@@ -3,35 +3,53 @@ import Foundation
 
 @MainActor
 final class OnboardingViewModel: ObservableObject {
-    @Published var selectedPage = 0
-    @Published var draftName = ""
-
-    let pages = PinguOnboardingPage.allPages
-
-    var primaryButtonTitle: String {
-        selectedPage == pages.indices.last ? "Start Reflecting" : "Continue"
+    enum Stage {
+        case welcome
+        case signup
+        case signin
     }
 
-    var primaryButtonIcon: String {
-        selectedPage == pages.indices.last ? "mic.fill" : "arrow.right"
+    @Published var stage: Stage = .welcome
+    @Published var name = ""
+    @Published var email = ""
+    @Published var password = ""
+    @Published var errorMessage: String?
+
+    var canSubmitSignup: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    func advance(profileStore: UserProfileStore, onContinue: () -> Void) {
-        if selectedPage == pages.indices.last {
-            completeOnboarding(profileStore: profileStore, onContinue: onContinue)
-        } else {
-            selectedPage += 1
+    func go(to stage: Stage) {
+        errorMessage = nil
+        self.stage = stage
+    }
+
+    func signUp(authStore: AuthStore, profileStore: UserProfileStore, onContinue: () -> Void) {
+        do {
+            let account = try authStore.signUp(name: name, email: email, password: password)
+            profileStore.updateDisplayName(account.displayName)
+            errorMessage = nil
+            onContinue()
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 
-    func completeOnboarding(profileStore: UserProfileStore, onContinue: () -> Void) {
-        let name = draftName.trimmingCharacters(in: .whitespacesAndNewlines)
+    func signIn(authStore: AuthStore, profileStore: UserProfileStore, onContinue: () -> Void) {
+        do {
+            let account = try authStore.signIn(email: email, password: password)
+            profileStore.updateDisplayName(account.displayName)
+            errorMessage = nil
+            onContinue()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func skip(profileStore: UserProfileStore, onContinue: () -> Void) {
         if !profileStore.hasDisplayName {
-            profileStore.updateDisplayName(name.isEmpty ? "Friend" : name)
-        } else if !name.isEmpty {
-            profileStore.updateDisplayName(name)
+            profileStore.updateDisplayName("Friend")
         }
-
         onContinue()
     }
 }
