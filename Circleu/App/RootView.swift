@@ -32,6 +32,7 @@ struct RootView: View {
     @State private var selectedJournalEntry: JournalReflectionEntry?
     @State private var lastJoinedIDs: Set<UUID> = []
     @State private var restoredBackendUserID: String?
+    @State private var pendingBackupTask: Task<Void, Never>?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -88,7 +89,7 @@ struct RootView: View {
         .onPreferenceChange(TabBarHiddenKey.self) { hidesTabBar = $0 }
         .onAppear {
             lastJoinedIDs = Set(circleStore.circles.filter { $0.joined }.map { $0.id })
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: journalStore.entries.count) { oldCount, newCount in
             guard newCount > oldCount, let entry = journalStore.entries.first else { return }
@@ -99,16 +100,16 @@ struct RootView: View {
                 keyword: "\(entry.displayEmotion) · reflection",
                 refID: entry.id
             )
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: journalStore.entries) { _, _ in
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: questStore.quests) { _, _ in
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: aiSessionStore.sessions) { _, _ in
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: tipsPracticeStore.recentSessions.count) { oldCount, newCount in
             guard newCount > oldCount, let session = tipsPracticeStore.recentSessions.first else { return }
@@ -118,22 +119,22 @@ struct RootView: View {
                 title: session.sceneTitle,
                 keyword: "\(session.tone)"
             )
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: tipsPracticeStore.recentSessions) { _, _ in
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: rewardsStore.points) { _, _ in
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: rewardsStore.activity) { _, _ in
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: profileStore.displayName) { _, _ in
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: profileStore.dailyPromptIndex) { _, _ in
-            uploadPrivateBackup()
+            requestPrivateBackup()
         }
         .onChange(of: circleStore.circles.filter { $0.joined }.count) { _, _ in
             let current = Set(circleStore.circles.filter { $0.joined }.map { $0.id })
@@ -172,9 +173,15 @@ struct RootView: View {
         }
     }
 
-    private func uploadPrivateBackup() {
-        Task {
+    private func requestPrivateBackup() {
+        pendingBackupTask?.cancel()
+        pendingBackupTask = Task {
+            try? await Task.sleep(for: .seconds(0.8))
+            guard !Task.isCancelled else { return }
+            await waitForCurrentBackendOperation()
+            guard !Task.isCancelled else { return }
             await restorePrivateBackupIfNeeded()
+            guard !Task.isCancelled else { return }
             await backendSessionStore.uploadPrivateBackup(
                 profileStore: profileStore,
                 journalStore: journalStore,
@@ -184,6 +191,14 @@ struct RootView: View {
                 circleStore: circleStore,
                 aiSessionStore: aiSessionStore
             )
+        }
+    }
+
+    private func waitForCurrentBackendOperation() async {
+        var attempts = 0
+        while backendSessionStore.isSyncing && attempts < 20 {
+            try? await Task.sleep(for: .seconds(0.25))
+            attempts += 1
         }
     }
 
