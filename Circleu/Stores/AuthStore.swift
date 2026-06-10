@@ -23,7 +23,7 @@ enum AuthError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .invalidEmail: return "Please enter a valid email address."
-        case .weakPassword: return "Password must be at least 6 characters."
+        case .weakPassword: return "Password must be more than 8 characters."
         case .emailTaken: return "An account with this email already exists."
         case .noAccount: return "No account found for this email."
         case .wrongPassword: return "Incorrect password. Please try again."
@@ -66,7 +66,7 @@ final class AuthStore: ObservableObject {
         let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard isValidEmail(cleanEmail) else { throw AuthError.invalidEmail }
-        guard password.count >= 6 else { throw AuthError.weakPassword }
+        guard password.count > 8 else { throw AuthError.weakPassword }
         guard !accounts.contains(where: { $0.email == cleanEmail }) else { throw AuthError.emailTaken }
 
         let salt = Self.makeSalt()
