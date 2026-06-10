@@ -134,7 +134,7 @@ struct ProfileQAToolsSheet: View {
                 Button {
                     backUpNow()
                 } label: {
-                    Label("Back Up Now", systemImage: "arrow.up.doc")
+                    Label("Force Upload", systemImage: "arrow.up.doc")
                 }
                 .buttonStyle(ProfileActionButtonStyle(isPrimary: true))
                 .disabled(backendActionsDisabled)
@@ -142,7 +142,7 @@ struct ProfileQAToolsSheet: View {
                 Button {
                     restoreNow()
                 } label: {
-                    Label("Restore Now", systemImage: "arrow.down.doc")
+                    Label("Force Restore", systemImage: "arrow.down.doc")
                 }
                 .buttonStyle(ProfileActionButtonStyle(isPrimary: false))
                 .disabled(backendActionsDisabled)
@@ -169,9 +169,12 @@ struct ProfileQAToolsSheet: View {
             ProfileDataRow(title: "Operation", value: backendSessionStore.syncOperation.rawValue.capitalized)
             ProfileDataRow(title: "Firebase path", value: backendSessionStore.backendUserID == nil ? "None" : "users/\(shortUID)")
             ProfileDataRow(title: "Local payload", value: localPayloadSummary)
-            ProfileDataRow(title: "Last upload", value: formattedSyncTime(backendSessionStore.lastUploadResult))
+            ProfileDataRow(title: "Last attempt", value: formattedDate(backendSessionStore.lastSyncAttemptedAt))
+            ProfileDataRow(title: "Upload started", value: formattedDate(backendSessionStore.lastUploadStartedAt))
+            ProfileDataRow(title: "Upload succeeded", value: formattedDate(backendSessionStore.lastUploadSucceededAt))
             ProfileDataRow(title: "Uploaded payload", value: uploadedDiagnosticsSummary)
-            ProfileDataRow(title: "Last restore", value: formattedSyncTime(backendSessionStore.lastRestoreResult))
+            ProfileDataRow(title: "Restore started", value: formattedDate(backendSessionStore.lastRestoreStartedAt))
+            ProfileDataRow(title: "Restore succeeded", value: formattedDate(backendSessionStore.lastRestoreSucceededAt))
             ProfileDataRow(title: "Restored payload", value: restoredDiagnosticsSummary)
             ProfileDataRow(title: "Last error source", value: lastErrorSourceSummary)
         }
@@ -296,7 +299,7 @@ struct ProfileQAToolsSheet: View {
             return
         }
 
-        viewModel.statusMessage = "Backing up private Firebase data..."
+        viewModel.statusMessage = "Force uploading private Firebase data..."
         Task {
             await backendSessionStore.uploadPrivateBackup(
                 profileStore: profileStore,
@@ -308,8 +311,8 @@ struct ProfileQAToolsSheet: View {
                 aiSessionStore: aiSessionStore
             )
             viewModel.statusMessage = backendSessionStore.lastSyncErrorMessage == nil
-                ? "Firebase backup finished."
-                : "Firebase backup finished with an error."
+                ? "Firebase force upload finished."
+                : "Firebase force upload finished with an error."
         }
     }
 
@@ -319,7 +322,7 @@ struct ProfileQAToolsSheet: View {
             return
         }
 
-        viewModel.statusMessage = "Restoring private Firebase data..."
+        viewModel.statusMessage = "Force restoring private Firebase data..."
         Task {
             await backendSessionStore.restorePrivateBackup(
                 profileStore: profileStore,
@@ -330,8 +333,8 @@ struct ProfileQAToolsSheet: View {
                 aiSessionStore: aiSessionStore
             )
             viewModel.statusMessage = backendSessionStore.lastSyncErrorMessage == nil
-                ? "Firebase restore finished."
-                : "Firebase restore finished with an error."
+                ? "Firebase force restore finished."
+                : "Firebase force restore finished with an error."
         }
     }
 
@@ -406,9 +409,9 @@ struct ProfileQAToolsSheet: View {
         return "\(operation.rawValue.capitalized): \(message)"
     }
 
-    private func formattedSyncTime(_ result: BackendSyncResult?) -> String {
-        guard let result else { return "Never" }
-        return result.syncedAt.formatted(date: .abbreviated, time: .shortened)
+    private func formattedDate(_ date: Date?) -> String {
+        guard let date else { return "Never" }
+        return date.formatted(date: .abbreviated, time: .shortened)
     }
 
     private func privateDocumentCount(

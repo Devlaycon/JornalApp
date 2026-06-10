@@ -26,14 +26,17 @@ This checklist describes what must be true before a branch is considered shareab
 
 1. Run the app on a connected iPhone from Xcode.
 2. Open **Profile > QA tools**.
-3. Tap **Seed demo data**.
-4. Confirm Home, Journal, Tips, Circles, and Profile reflect the seeded local state.
-5. Start a new reflection and choose **Save & Open Tips**.
-6. Confirm the Tips tab opens with the new active tip.
-7. Complete, skip, and restart tips.
-8. Save a reflection into a private circle and confirm duplicate saves are disabled.
-9. Open Circles and confirm the saved reflection appears as a privacy-safe post.
-10. Return to **Profile > QA tools** and test **Copy QA**, **Share QA**, and **Reset local data**.
+3. Confirm Firebase status shows auth, sync, last attempt, upload, and restore fields.
+4. Tap **Force Upload** and confirm the upload success time changes.
+5. Tap **Force Restore** and confirm local data remains present after merge-only restore.
+6. Tap **Seed demo data**.
+7. Confirm Home, Journal, Tips, Circles, and Profile reflect the seeded local state.
+8. Start a new reflection and choose **Save & Open Tips**.
+9. Confirm the Tips tab opens with the new active tip.
+10. Complete, skip, and restart tips.
+11. Save a reflection into a private circle and confirm duplicate saves are disabled.
+12. Open Circles and confirm the saved reflection appears as a privacy-safe post.
+13. Return to **Profile > QA tools** and test **Copy QA**, **Share QA**, and **Reset local data**.
 
 ## Backend Status
 

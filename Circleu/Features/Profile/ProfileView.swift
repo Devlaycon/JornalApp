@@ -484,6 +484,10 @@ struct ProfileView: View {
             return "Sign in to keep your reflections available across devices."
         }
 
+        if let uploadSucceededAt = backendSessionStore.lastUploadSucceededAt {
+            return "Last upload \(uploadSucceededAt.formatted(date: .omitted, time: .shortened))."
+        }
+
         guard let syncedAt = backendSessionStore.lastSyncResult?.syncedAt else {
             return "Your reflections will back up automatically."
         }
