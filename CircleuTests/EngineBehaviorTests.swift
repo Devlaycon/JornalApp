@@ -132,6 +132,21 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertEqual(result.suggestedQuest, "Record again with one real moment, one feeling, and one thing you want to understand.")
     }
 
+    func testLocalReflectionEngineCoachesCoherentRoughLanguageWithoutGenericPraise() async throws {
+        let result = try await analyze(
+            "She said something really rough and I felt angry. Should I tell her that it was fucking disrespectful and crossed a line?",
+            durationSeconds: 45
+        )
+
+        XCTAssertEqual(result.title, "Pause before you respond")
+        XCTAssertEqual(result.emotion, "Heated")
+        XCTAssertFalse(result.summary.contains("You gave shape to what was on your mind"))
+        XCTAssertFalse(result.summary.lowercased().contains("fuck"))
+        XCTAssertFalse(result.expressionMoment.lowercased().contains("fuck"))
+        XCTAssertFalse(result.quote.contains("Small honest words"))
+        XCTAssertEqual(result.suggestedQuest, "Write one calm sentence that names the boundary without attacking the person.")
+    }
+
     func testAppleIntelligencePromptAsksForSpecificTranscriptAnchoredFeedback() {
         let prompt = ReflectionPromptContent.prompt(
             transcript: "I felt ignored in the team meeting, then I asked one clear question and felt calmer.",
@@ -146,6 +161,7 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertTrue(prompt.contains("insight should name one pattern, tension, or need"))
         XCTAssertTrue(prompt.contains("quote should be original, plainspoken, and specific to this reflection"))
         XCTAssertTrue(prompt.contains("If the transcript is mostly filler, repeated words, or rough language"))
+        XCTAssertTrue(prompt.contains("coherent rough, angry, or hostile language"))
         XCTAssertTrue(prompt.contains("Do not repeat profanity"))
         XCTAssertTrue(prompt.contains("expressionMoment should be a short clean phrase from the transcript"))
         XCTAssertTrue(prompt.contains("suggestedQuest should be one small concrete next action"))

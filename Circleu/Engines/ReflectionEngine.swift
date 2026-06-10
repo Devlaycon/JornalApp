@@ -58,6 +58,7 @@ enum ReflectionPromptContent {
         - Keep the tone supportive and grounded.
         - Use short app-ready copy.
         - If the transcript is mostly filler, repeated words, or rough language, do not pretend it is a complete reflection. Gently say the check-in needs a clearer real moment.
+        - If the transcript includes coherent rough, angry, or hostile language, coach the user toward a calmer boundary or repair step instead of praising it as thoughtful.
         - Do not repeat profanity, insults, slurs, or hostile phrases in any field.
         - summary should name what happened, what the user felt, and why it mattered.
         - insight should name one pattern, tension, or need.
@@ -96,6 +97,10 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
             return roughLowSignalReflection(durationSeconds: durationSeconds)
         }
 
+        if TranscriptQuality.containsRoughLanguage(cleanTranscript) {
+            return roughLanguageReflection()
+        }
+
         let lowercased = cleanTranscript.lowercased()
         let profile = reflectionProfile(for: lowercased)
         let summary = summarize(cleanTranscript)
@@ -122,6 +127,19 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
             quote: "A clearer moment gives your reflection something kind to hold.",
             confidenceScore: 0.32,
             suggestedQuest: "Record again with one real moment, one feeling, and one thing you want to understand."
+        )
+    }
+
+    private func roughLanguageReflection() -> AIReflectionResult {
+        AIReflectionResult(
+            title: "Pause before you respond",
+            emotion: "Heated",
+            summary: "There is strong emotion in this check-in, and it may help to slow the response before choosing words.",
+            insight: "Rough language often points to a boundary, hurt, or frustration. Naming the boundary clearly will land better than matching the intensity.",
+            expressionMoment: "You noticed the words might be too sharp.",
+            quote: "A steady boundary can be stronger than a sharper sentence.",
+            confidenceScore: 0.58,
+            suggestedQuest: "Write one calm sentence that names the boundary without attacking the person."
         )
     }
 
