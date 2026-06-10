@@ -8,6 +8,7 @@ struct TipsLiveCoachView: View {
     @State private var composerMode: ComposerMode = .reply
     @State private var copiedMain = false
     @State private var copiedOptionID: TipsCoachReplyOption.ID?
+    @FocusState private var composerFocused: Bool
 
     private enum ComposerMode { case reply, context }
 
@@ -53,7 +54,12 @@ struct TipsLiveCoachView: View {
                                 dividerPill
                             }
                             if turn.role == .user || turn.role == .simulatedPerson {
-                                TipsCoachBubble(label: turn.label, text: turn.text, role: turn.role)
+                                TipsCoachBubble(
+                                    label: turn.label,
+                                    text: turn.text,
+                                    role: turn.role,
+                                    imageData: turn.imageData
+                                )
                             } else if turn.role == .coach && turn.label == "Suggested phrasing" {
                                 suggestedPhrasingCard(text: turn.text, why: session.coachOutput.whyItWorks)
                             }
@@ -67,10 +73,27 @@ struct TipsLiveCoachView: View {
                 .padding(.horizontal, PinguDesign.screenSidePadding)
                 .padding(.bottom, 18)
             }
+            .scrollDismissesKeyboard(.interactively)
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil, from: nil, for: nil
+                    )
+                }
+            )
 
             composer
         }
         .preference(key: TabBarHiddenKey.self, value: true)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") { composerFocused = false }
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(PinguDesign.blue)
+            }
+        }
         .onChange(of: selectedReplyItem) { _, newItem in
             Task {
                 guard let data = try? await newItem?.loadTransferable(type: Data.self) else { return }
@@ -331,6 +354,7 @@ struct TipsLiveCoachView: View {
                         .font(.system(size: 13, design: .rounded))
                         .foregroundStyle(PinguDesign.ink)
                         .lineLimit(1...3)
+                        .focused($composerFocused)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .frame(minHeight: 40)
@@ -344,6 +368,7 @@ struct TipsLiveCoachView: View {
                         .font(.system(size: 13, design: .rounded))
                         .foregroundStyle(PinguDesign.ink)
                         .lineLimit(1...3)
+                        .focused($composerFocused)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
                         .frame(minHeight: 40)

@@ -248,11 +248,14 @@ final class TipsPracticeViewModel: ObservableObject {
         speechRecognizer.stop()
         activeSpeechTarget = nil
 
-        let reply = clean(replyInput).isEmpty && replyImageData != nil
-            ? "They replied in the attached chat screenshot."
-            : clean(replyInput)
+        let reply = clean(replyInput)
+        let attached = replyImageData
 
-        let updated = engine.handleIncomingReply(session, reply: reply)
+        let updated = engine.handleIncomingReply(
+            session,
+            reply: reply,
+            imageData: attached
+        )
         activeSession = updated
         store?.updateCurrentSession(updated)
         replyInput = ""

@@ -64,8 +64,6 @@ struct ReflectionView: View {
 
                             expressionCard(reflection: reflection)
 
-                            questCard(reflection: reflection)
-
                             quoteCard(reflection: reflection)
 
                             aiSessionStatusCard
@@ -200,51 +198,6 @@ struct ReflectionView: View {
         .shadow(color: PinguDesign.blue.opacity(0.18), radius: 18, y: 10)
     }
 
-    private func questCard(reflection: AIReflectionResult) -> some View {
-        VStack(alignment: .leading, spacing: 15) {
-            HStack(alignment: .top, spacing: 14) {
-                Image(systemName: "flag.fill")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: 46, height: 46)
-                    .background(PinguDesign.orange)
-                    .clipShape(Circle())
-
-                VStack(alignment: .leading, spacing: 7) {
-                    Text("NEXT TIP")
-                        .font(.system(size: 14, weight: .bold))
-                        .tracking(1.2)
-                        .foregroundStyle(PinguDesign.muted)
-
-                    Text(reflection.suggestedQuest)
-                        .font(PinguFont.cardTitle)
-                        .foregroundStyle(PinguDesign.ink)
-                        .lineSpacing(4)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer(minLength: 0)
-            }
-
-            Button {
-                saveAndStartTips()
-            } label: {
-                Label("Save & Open Tips", systemImage: "checklist.checked")
-            }
-            .buttonStyle(PinguPrimaryButtonStyle())
-            .disabled(!viewModel.canEdit)
-            .opacity(viewModel.canEdit ? 1 : 0.48)
-        }
-        .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(PinguDesign.lightBlue.opacity(0.46))
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(PinguDesign.border.opacity(0.7), lineWidth: 1)
-        }
-    }
-
     private var bottomActions: some View {
         HStack(spacing: 10) {
             Button("Cancel") {
@@ -305,10 +258,6 @@ struct ReflectionView: View {
 
     private func saveEntry() {
         saveEntry(to: .confirmation)
-    }
-
-    private func saveAndStartTips() {
-        saveEntry(to: .tips)
     }
 
     private func saveEntry(to destination: ReflectionSaveDestination) {

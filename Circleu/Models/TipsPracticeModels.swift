@@ -105,19 +105,25 @@ struct TipsPracticeTurn: Identifiable, Codable, Equatable {
     var label: String
     var text: String
     var createdAt: Date
+    /// Optional JPEG-compressed image attached to this turn (e.g. a chat screenshot
+    /// the user pasted along with the reply). Default keeps existing persisted
+    /// turns decoding cleanly.
+    var imageData: Data?
 
     nonisolated init(
         id: UUID = UUID(),
         role: TipsPracticeRole,
         label: String,
         text: String,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        imageData: Data? = nil
     ) {
         self.id = id
         self.role = role
         self.label = label
         self.text = text
         self.createdAt = createdAt
+        self.imageData = imageData
     }
 }
 

@@ -16,6 +16,15 @@ struct CircleView: View {
     @State private var editCoverItems: [PhotosPickerItem] = []
     @State private var editCoverData: [Data] = []
     @State private var pendingDelete: CircleSpace?
+    @State private var showingSaved = false
+
+    /// Circles the current user has bookmarked, newest first.
+    private var savedCircles: [CircleSpace] {
+        let uid = circleStore.currentUserID
+        return circleStore.circles
+            .filter { $0.isFavorited(by: uid) }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
 
     private var joinedCount: Int {
         circleStore.circles.filter { $0.joined }.count
@@ -99,11 +108,22 @@ struct CircleView: View {
                 CircleDetailView(circleID: circle.id)
                     .environmentObject(circleStore)
             }
+            .sheet(isPresented: $showingSaved) {
+                SavedCirclesSheet(
+                    circles: savedCircles,
+                    onOpen: { circle in
+                        showingSaved = false
+                        viewModel.open(circle)
+                    },
+                    onUnsave: { circleStore.toggleFavoriteCircle($0.id) }
+                )
+                .environmentObject(circleStore)
+            }
         }
     }
 
     private var header: some View {
-        HStack(alignment: .bottom) {
+        HStack(alignment: .bottom, spacing: 10) {
             VStack(alignment: .leading, spacing: 4) {
                 Kicker("GENTLE COMMUNITIES")
                 Text("Circle")
@@ -112,6 +132,30 @@ struct CircleView: View {
             }
 
             Spacer()
+
+            Button {
+                showingSaved = true
+            } label: {
+                ZStack(alignment: .topTrailing) {
+                    Image(systemName: "bookmark.fill")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Pingu.accent)
+                        .frame(width: 44, height: 44)
+                        .glass(.pill, cornerRadius: 999)
+
+                    if !savedCircles.isEmpty {
+                        Text("\(savedCircles.count)")
+                            .font(.system(size: 10, weight: .heavy, design: .rounded))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(Color(hex: 0xF59E0B))
+                            .clipShape(Capsule())
+                            .offset(x: 4, y: -2)
+                    }
+                }
+            }
+            .buttonStyle(PressableButtonStyle())
 
             Button {
                 creating = true
@@ -327,10 +371,12 @@ struct CircleView: View {
         }
     }
 
-    /// Downscale and JPEG-compress so UserDefaults storage stays reasonable.
+    /// Downscale + JPEG-compress to fit inside Firestore's 1 MB-per-document budget when
+    /// base64-encoded. Up to 6 covers per circle, so each must stay well under ~120 KB
+    /// pre-encoding (base64 inflates by ~33%). 800px @ q=0.55 typically lands at 60–90 KB.
     private func compress(imageData: Data) -> Data? {
         guard let img = UIImage(data: imageData) else { return nil }
-        let maxDim: CGFloat = 1200
+        let maxDim: CGFloat = 800
         let scale = min(1, maxDim / max(img.size.width, img.size.height))
         let target = CGSize(width: img.size.width * scale, height: img.size.height * scale)
         let format = UIGraphicsImageRendererFormat()
@@ -339,7 +385,15 @@ struct CircleView: View {
         let resized = renderer.image { _ in
             img.draw(in: CGRect(origin: .zero, size: target))
         }
-        return resized.jpegData(compressionQuality: 0.75)
+        // Iterate quality down if the first pass exceeds the budget — keeps tall photos sane.
+        let budget = 120_000
+        var quality: CGFloat = 0.55
+        var data = resized.jpegData(compressionQuality: quality)
+        while let current = data, current.count > budget, quality > 0.2 {
+            quality -= 0.1
+            data = resized.jpegData(compressionQuality: quality)
+        }
+        return data
     }
 
     private var editModal: some View {
@@ -433,6 +487,7 @@ private enum CircleHeroPalette {
 // MARK: - Hero card (vertical, big-image style)
 
 private struct CircleHeroCard: View {
+    @EnvironmentObject private var circleStore: CircleStore
     let circle: CircleSpace
     let accent: [Color]
     let heroHeight: CGFloat
@@ -476,19 +531,6 @@ private struct CircleHeroCard: View {
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                // Small emoji badge in the bottom-left for the photo variant
-                VStack {
-                    Spacer()
-                    HStack {
-                        Text(circle.emoji)
-                            .font(.system(size: 22))
-                            .padding(8)
-                            .background(.white.opacity(0.85))
-                            .clipShape(Circle())
-                        Spacer()
-                    }
-                    .padding(10)
-                }
             } else {
                 LinearGradient(colors: accent, startPoint: .topLeading, endPoint: .bottomTrailing)
 
@@ -527,7 +569,7 @@ private struct CircleHeroCard: View {
                         .clipShape(Capsule())
                 }
                 Spacer()
-                if circle.isOwnedByMe {
+                if circle.isOwnedBy(uid: circleStore.currentUserID) {
                     menuButton
                 }
             }
@@ -570,10 +612,10 @@ private struct CircleHeroCard: View {
             HStack(spacing: 4) {
                 Image(systemName: "person.2.fill")
                     .font(.system(size: 9, weight: .semibold))
-                Text("\(circle.members)")
+                Text("\(circle.displayMemberCount)")
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                 Text("·")
-                Text(circle.isOwnedByMe ? "Yours" : "Community")
+                Text(circle.isOwnedBy(uid: circleStore.currentUserID) ? "Yours" : "Community")
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
             }
             .foregroundStyle(Pingu.muted)
@@ -599,6 +641,130 @@ private struct CircleMiniStat: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .glass(.regular, cornerRadius: 16)
+    }
+}
+
+/// Sheet that lists circles the current user has bookmarked. Tap a row to open the detail
+/// view; tap the bookmark icon on the row to un-save without leaving the list.
+private struct SavedCirclesSheet: View {
+    let circles: [CircleSpace]
+    let onOpen: (CircleSpace) -> Void
+    let onUnsave: (CircleSpace) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                PinguAurora()
+
+                if circles.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "bookmark")
+                            .font(.system(size: 36, weight: .regular))
+                            .foregroundStyle(Pingu.muted)
+                        Text("No saved circles yet")
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundStyle(Pingu.ink)
+                        Text("Tap the bookmark on any circle to save it here.")
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundStyle(Pingu.slate)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                    }
+                } else {
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            ForEach(circles) { circle in
+                                Button {
+                                    onOpen(circle)
+                                } label: {
+                                    SavedCircleRow(circle: circle, onUnsave: { onUnsave(circle) })
+                                }
+                                .buttonStyle(PressableButtonStyle())
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 12)
+                        .padding(.bottom, 32)
+                    }
+                }
+            }
+            .navigationTitle("Saved")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundStyle(Pingu.accent)
+                }
+            }
+        }
+    }
+}
+
+private struct SavedCircleRow: View {
+    let circle: CircleSpace
+    let onUnsave: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Thumbnail: first cover photo if available, otherwise emoji bubble
+            if let firstCover = circle.coverImages.first,
+               let img = UIImage(data: firstCover) {
+                Image(uiImage: img)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 56, height: 56)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            } else {
+                Text(circle.emoji)
+                    .font(.system(size: 26))
+                    .frame(width: 56, height: 56)
+                    .background(.white.opacity(0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(circle.name)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundStyle(Pingu.ink)
+                    .lineLimit(1)
+                Text(circle.intention)
+                    .font(.system(size: 12, weight: .regular, design: .rounded))
+                    .foregroundStyle(Pingu.slate)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                HStack(spacing: 4) {
+                    Image(systemName: "person.2.fill")
+                        .font(.system(size: 9, weight: .semibold))
+                    Text("\(circle.displayMemberCount)")
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    if circle.likeCount > 0 {
+                        Text("·")
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(Color(hex: 0xEC4899))
+                        Text("\(circle.likeCount)")
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    }
+                }
+                .foregroundStyle(Pingu.muted)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button {
+                onUnsave()
+            } label: {
+                Image(systemName: "bookmark.fill")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color(hex: 0xF59E0B))
+                    .frame(width: 36, height: 36)
+                    .glass(.pill, cornerRadius: 999)
+            }
+            .buttonStyle(PressableButtonStyle())
+        }
+        .padding(12)
+        .glass(.regular, cornerRadius: 18)
     }
 }
 

@@ -37,6 +37,17 @@ final class BackendSessionStore: ObservableObject {
         session = self.authenticator.currentSession
     }
 
+    /// Wire backend-dependent stores to follow the current Firebase auth session. Call once
+    /// (during app launch) and again whenever the session changes via sign-in / sign-out.
+    /// Currently scoped to CircleStore (public circles need real-time sync).
+    func wireBackendStores(circleStore: CircleStore) {
+        if let session {
+            circleStore.configureBackend(uid: session.uid, displayName: session.displayName)
+        } else {
+            circleStore.teardownBackend()
+        }
+    }
+
     var backendUserID: String? {
         session?.uid
     }

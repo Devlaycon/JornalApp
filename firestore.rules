@@ -46,11 +46,51 @@ service cloud.firestore {
       }
     }
 
+    // Public circles — every signed-in user can read the global list. Writes are restricted:
+    // - create: caller must stamp themselves as the creator
+    // - update: only the creator can edit metadata (name/intention/emoji/coverImagesBase64),
+    //           BUT any signed-in user can mutate `memberUserIDs` to join/leave
+    // - delete: only the creator
     match /circles/{circleID} {
-      allow read, create, update, delete: if false;
+      allow read: if isSignedIn();
 
-      match /{circleDocument=**} {
-        allow read, create, update, delete: if false;
+      allow create: if isSignedIn()
+        && request.resource.data.creatorUserID == request.auth.uid;
+
+      allow update: if isSignedIn() && (
+        // Creator-only fields are unchanged when this is a membership-only toggle.
+        (resource.data.creatorUserID == request.auth.uid)
+        || (
+          request.resource.data.creatorUserID == resource.data.creatorUserID
+          && request.resource.data.name == resource.data.name
+          && request.resource.data.intention == resource.data.intention
+          && request.resource.data.emoji == resource.data.emoji
+          && request.resource.data.creatorName == resource.data.creatorName
+        )
+      );
+
+      allow delete: if isSignedIn() && resource.data.creatorUserID == request.auth.uid;
+
+      // Posts subcollection — same public read, author-gated writes.
+      match /posts/{postID} {
+        allow read: if isSignedIn();
+
+        allow create: if isSignedIn()
+          && request.resource.data.authorUserID == request.auth.uid;
+
+        // Anyone signed-in can mutate `likedBy` (for like toggle) and `replies`
+        // (for adding new replies). The author can edit text or delete.
+        allow update: if isSignedIn() && (
+          resource.data.authorUserID == request.auth.uid
+          || (
+            request.resource.data.authorUserID == resource.data.authorUserID
+            && request.resource.data.text == resource.data.text
+            && request.resource.data.who == resource.data.who
+            && request.resource.data.createdAt == resource.data.createdAt
+          )
+        );
+
+        allow delete: if isSignedIn() && resource.data.authorUserID == request.auth.uid;
       }
     }
 

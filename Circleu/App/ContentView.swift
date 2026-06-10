@@ -34,6 +34,14 @@ struct ContentView: View {
         .environmentObject(rewardsStore)
         .environmentObject(authStore)
         .environmentObject(backendSessionStore)
+        // Keep CircleStore tied to the current Firebase auth session so public circles sync
+        // from /circles for whoever is signed in (and tear down when signed out).
+        .onAppear {
+            backendSessionStore.wireBackendStores(circleStore: circleStore)
+        }
+        .onChange(of: backendSessionStore.session?.uid) {
+            backendSessionStore.wireBackendStores(circleStore: circleStore)
+        }
     }
 }
 

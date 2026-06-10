@@ -108,6 +108,7 @@ struct TipsCoachBubble: View {
     let label: String
     let text: String
     let role: TipsPracticeRole
+    var imageData: Data? = nil
 
     private var isTrailing: Bool {
         role == .user || role == .simulatedPerson
@@ -120,8 +121,22 @@ struct TipsCoachBubble: View {
                 .tracking(0.8)
                 .foregroundStyle(role == .coach ? Pingu.accent : Pingu.muted)
 
-            bubble
-                .frame(maxWidth: role == .coach ? 310 : 285, alignment: isTrailing ? .trailing : .leading)
+            if let imageData, let image = UIImage(data: imageData) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: 220, maxHeight: 260)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .strokeBorder(.white.opacity(0.55), lineWidth: 1)
+                    }
+            }
+
+            if !text.isEmpty {
+                bubble
+                    .frame(maxWidth: role == .coach ? 310 : 285, alignment: isTrailing ? .trailing : .leading)
+            }
         }
         .frame(maxWidth: .infinity, alignment: isTrailing ? .trailing : .leading)
     }

@@ -51,23 +51,34 @@ struct CircleDetailView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .preference(key: TabBarHiddenKey.self, value: true)
+        .onAppear { circleStore.observePosts(for: circleID) }
+        .onDisappear { circleStore.stopObservingPosts(for: circleID) }
     }
 
     @ViewBuilder
     private func coverHero(_ circle: CircleSpace) -> some View {
         if !circle.coverImages.isEmpty {
+            // Compute aspect ratio from the first cover so the carousel preserves the
+            // photo's original proportions instead of cropping square. Clamp to a sane
+            // portrait/landscape range so a 16:9 panorama or a 9:16 portrait still fits.
+            let firstImage = circle.coverImages.first.flatMap(UIImage.init(data:))
+            let rawAspect = firstImage.map { $0.size.width / max($0.size.height, 1) } ?? (4.0 / 3.0)
+            let aspect = max(0.6, min(rawAspect, 1.7))
+
             TabView {
                 ForEach(Array(circle.coverImages.enumerated()), id: \.offset) { _, data in
                     if let img = UIImage(data: data) {
                         Image(uiImage: img)
                             .resizable()
-                            .scaledToFill()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.white.opacity(0.4))
                     }
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: circle.coverImages.count > 1 ? .always : .never))
             .indexViewStyle(.page(backgroundDisplayMode: .interactive))
-            .frame(height: 200)
+            .aspectRatio(aspect, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
@@ -81,10 +92,7 @@ struct CircleDetailView: View {
         GlassCard(style: .strong, sheen: true) {
             VStack(spacing: 0) {
                 coverHero(circle)
-
-                Text(circle.emoji)
-                    .font(.system(size: 40))
-                    .padding(.bottom, 4)
+                    .padding(.bottom, 12)
 
                 Text(circle.name)
                     .font(.system(size: 20, weight: .bold, design: .rounded))
@@ -100,7 +108,7 @@ struct CircleDetailView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "person.2.fill")
                         .font(.system(size: 12, weight: .semibold))
-                    Text("\(circle.members) members")
+                    Text("\(circle.displayMemberCount) members")
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
                     Text("·")
                     Text("created \(CircleViewModel.timeAgo(circle.createdAt))")
@@ -133,6 +141,9 @@ struct CircleDetailView: View {
                     }
                     .buttonStyle(PinguPrimaryButtonStyle())
                 }
+
+                circleReactionRow(circle)
+                    .padding(.top, 12)
             }
             .frame(maxWidth: .infinity)
             .padding(24)
@@ -189,6 +200,47 @@ struct CircleDetailView: View {
         circleStore.addPost(circleID: circle.id, text: text)
         draft = ""
     }
+
+    /// Pair of pill buttons under the join/joined state — like (public counter) + bookmark
+    /// (per-viewer save). Tap toggles for the current user.
+    private func circleReactionRow(_ circle: CircleSpace) -> some View {
+        let uid = circleStore.currentUserID
+        let liked = circle.isLiked(by: uid)
+        let favorited = circle.isFavorited(by: uid)
+        return HStack(spacing: 10) {
+            Button {
+                circleStore.toggleLikeCircle(circle.id)
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: liked ? "heart.fill" : "heart")
+                        .font(.system(size: 13, weight: .bold))
+                    Text("\(circle.likeCount)")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                }
+                .foregroundStyle(liked ? Color(hex: 0xEC4899) : Pingu.slate)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .glass(.pill, cornerRadius: 999)
+            }
+            .buttonStyle(PressableButtonStyle())
+
+            Button {
+                circleStore.toggleFavoriteCircle(circle.id)
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: favorited ? "bookmark.fill" : "bookmark")
+                        .font(.system(size: 13, weight: .bold))
+                    Text(favorited ? "Saved" : "Save")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                }
+                .foregroundStyle(favorited ? Color(hex: 0xF59E0B) : Pingu.slate)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .glass(.pill, cornerRadius: 999)
+            }
+            .buttonStyle(PressableButtonStyle())
+        }
+    }
 }
 
 private struct CirclePostCard: View {
@@ -218,7 +270,7 @@ private struct CirclePostCard: View {
                     Text(CircleViewModel.timeAgo(post.createdAt))
                         .font(.system(size: 11, weight: .regular, design: .rounded))
                         .foregroundStyle(Pingu.muted)
-                    if post.isMine {
+                    if post.isAuthoredBy(uid: circleStore.currentUserID) {
                         ownPostMenu
                     }
                 }
@@ -289,7 +341,7 @@ private struct CirclePostCard: View {
                                     .font(.system(size: 10.5, weight: .regular, design: .rounded))
                                     .foregroundStyle(Pingu.muted)
                                 Spacer(minLength: 0)
-                                if r.isMine {
+                                if r.isAuthoredBy(uid: circleStore.currentUserID) {
                                     ownReplyMenu(r)
                                 }
                             }

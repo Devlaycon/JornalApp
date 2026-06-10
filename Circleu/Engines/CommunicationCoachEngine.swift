@@ -41,14 +41,20 @@ struct CommunicationCoachEngine {
     }
 
     /// Triggered by "Paste their reply".
-    /// Appends a "They replied" bubble and refreshes the room-reading + reply options
-    /// that drive the amber "Now what?" card. Does NOT change Suggested phrasing.
+    /// Appends a "They replied" bubble (with optional screenshot image) and refreshes
+    /// the room-reading + reply options that drive the amber "Now what?" card.
+    /// Does NOT change Suggested phrasing.
     func handleIncomingReply(
         _ session: TipsPracticeSession,
-        reply: String
+        reply: String,
+        imageData: Data? = nil
     ) -> TipsPracticeSession {
         let cleanReply = clean(reply)
-        guard !cleanReply.isEmpty else { return session }
+        guard !cleanReply.isEmpty || imageData != nil else { return session }
+
+        let effectiveReply = cleanReply.isEmpty && imageData != nil
+            ? "[Attached screenshot of their reply]"
+            : cleanReply
 
         let refreshed = coachOutput(
             message: session.originalMessage,
@@ -56,20 +62,26 @@ struct CommunicationCoachEngine {
             customScene: session.customScene,
             tone: session.tone,
             situation: session.situation,
-            latestReply: cleanReply
+            latestReply: effectiveReply,
+            hasReplyImage: imageData != nil
         )
 
         var updated = session
         updated.updatedAt = Date()
         updated.turns.append(
-            TipsPracticeTurn(role: .simulatedPerson, label: "They replied", text: cleanReply)
+            TipsPracticeTurn(
+                role: .simulatedPerson,
+                label: "They replied",
+                text: cleanReply,
+                imageData: imageData
+            )
         )
         // Only update the "now what" half of the output. Keep the existing
         // Suggested phrasing + whyItWorks so the top card doesn't flicker.
         var newOutput = updated.coachOutput
         newOutput.roomReading = refreshed.roomReading
         newOutput.replyOptions = refreshed.replyOptions
-        newOutput.simulatedReply = cleanReply
+        newOutput.simulatedReply = effectiveReply
         updated.coachOutput = newOutput
         return updated
     }
@@ -188,13 +200,14 @@ struct CommunicationCoachEngine {
         customScene: String?,
         tone: TipsPracticeTone,
         situation: String,
-        latestReply: String?
+        latestReply: String?,
+        hasReplyImage: Bool = false
     ) -> TipsCoachOutput {
         let sceneTitle = scene.displayTitle(customScene: customScene).lowercased()
         let toneLine = toneGuidance(for: tone)
         let basePhrasing = phrasing(message: message, scene: scene, tone: tone, situation: situation)
         let simulatedReply = simulatedReply(for: scene, tone: tone, latestReply: latestReply)
-        let roomReading = roomReading(for: scene, tone: tone, latestReply: latestReply)
+        let roomReading = roomReading(for: scene, tone: tone, latestReply: latestReply, hasReplyImage: hasReplyImage)
 
         return TipsCoachOutput(
             suggestedPhrasing: basePhrasing,
@@ -261,8 +274,16 @@ struct CommunicationCoachEngine {
     private func roomReading(
         for scene: TipsPracticeScene,
         tone: TipsPracticeTone,
-        latestReply: String?
+        latestReply: String?,
+        hasReplyImage: Bool = false
     ) -> String {
+        if hasReplyImage {
+            let preface = "I can see the screenshot you attached. "
+            if let latestReply, !latestReply.isEmpty {
+                return preface + "Reading both their words and the surrounding chat: reflect one sentence back so they feel heard, then answer with a specific next step. Stay grounded, not defensive."
+            }
+            return preface + "Based on the chat, name what they seem to be testing for, mirror it back in one line, then give a concrete next step so the conversation moves forward."
+        }
         if let latestReply, !latestReply.isEmpty {
             return "They gave you new information. Reflect one sentence back first, then answer with a specific next step. That keeps the conversation grounded instead of defensive."
         }
