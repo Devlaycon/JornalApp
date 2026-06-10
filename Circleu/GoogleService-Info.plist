@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>1012840714154-dansr1u33st0drcctq078gdc2m27ruhc.apps.googleusercontent.com</string>
+	<string>1012840714154-er1d7d8v83ju9g1opkt7amslb2b7jvji.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.1012840714154-dansr1u33st0drcctq078gdc2m27ruhc</string>
+	<string>com.googleusercontent.apps.1012840714154-er1d7d8v83ju9g1opkt7amslb2b7jvji</string>
 	<key>API_KEY</key>
 	<string>AIzaSyAVR6kqdjCGqXLLq9XTOkOALccltV2WxaU</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.Pingu.Circleu</string>
+	<string>edu.uts.tuannm3812.Circleu</string>
 	<key>PROJECT_ID</key>
 	<string>circleu-45651</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1012840714154:ios:2fe1c7b85d6c6ea97f25d3</string>
+	<string>1:1012840714154:ios:ac1a110efdb0c44e7f25d3</string>
 </dict>
 </plist>
