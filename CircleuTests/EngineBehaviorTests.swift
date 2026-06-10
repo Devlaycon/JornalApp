@@ -30,6 +30,15 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertEqual(quality.guidance, "Ready for AI reflection.")
     }
 
+    func testTranscriptQualityFlagsRoughLowSignalInputWithActionableGuidance() {
+        let transcript = "Hello hello hello hello hello hi hi hi hi shit shitty fuck fuck you"
+
+        let quality = TranscriptQuality.evaluate(transcript)
+
+        XCTAssertFalse(quality.isReady)
+        XCTAssertEqual(quality.guidance, "Try again with one real moment, one feeling, and words you would be comfortable saving.")
+    }
+
     func testLocalReflectionEngineRejectsEmptyTranscript() async {
         let engine = LocalReflectionEngine()
 
@@ -110,6 +119,19 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertEqual(result.suggestedQuest, "Try a one-minute check-in next time and name one feeling clearly.")
     }
 
+    func testLocalReflectionEngineCoachesRoughLowSignalInputWithoutRepeatingProfanity() async throws {
+        let result = try await analyze(
+            "Hello hello hello hello hello hi hi hi hi shit shitty fuck fuck you",
+            durationSeconds: 17
+        )
+
+        XCTAssertEqual(result.title, "Try that check-in again")
+        XCTAssertEqual(result.emotion, "Unclear")
+        XCTAssertFalse(result.expressionMoment.lowercased().contains("fuck"))
+        XCTAssertFalse(result.summary.lowercased().contains("fuck"))
+        XCTAssertEqual(result.suggestedQuest, "Record again with one real moment, one feeling, and one thing you want to understand.")
+    }
+
     func testAppleIntelligencePromptAsksForSpecificTranscriptAnchoredFeedback() {
         let prompt = ReflectionPromptContent.prompt(
             transcript: "I felt ignored in the team meeting, then I asked one clear question and felt calmer.",
@@ -123,7 +145,9 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertTrue(prompt.contains("summary should name what happened, what the user felt, and why it mattered"))
         XCTAssertTrue(prompt.contains("insight should name one pattern, tension, or need"))
         XCTAssertTrue(prompt.contains("quote should be original, plainspoken, and specific to this reflection"))
-        XCTAssertTrue(prompt.contains("expressionMoment should be a short phrase from the transcript"))
+        XCTAssertTrue(prompt.contains("If the transcript is mostly filler, repeated words, or rough language"))
+        XCTAssertTrue(prompt.contains("Do not repeat profanity"))
+        XCTAssertTrue(prompt.contains("expressionMoment should be a short clean phrase from the transcript"))
         XCTAssertTrue(prompt.contains("suggestedQuest should be one small concrete next action"))
         XCTAssertTrue(prompt.contains("I felt ignored in the team meeting"))
     }

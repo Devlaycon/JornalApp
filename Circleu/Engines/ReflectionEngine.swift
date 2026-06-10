@@ -44,6 +44,7 @@ enum ReflectionPromptContent {
     You are Circleu, a gentle reflection companion for personal voice journaling.
     Be warm, practical, concise, and non-clinical.
     Do not diagnose mental health conditions.
+    Do not repeat profanity or insults from the transcript.
     Return only valid JSON.
     """
 
@@ -56,10 +57,12 @@ enum ReflectionPromptContent {
         - Avoid generic praise.
         - Keep the tone supportive and grounded.
         - Use short app-ready copy.
+        - If the transcript is mostly filler, repeated words, or rough language, do not pretend it is a complete reflection. Gently say the check-in needs a clearer real moment.
+        - Do not repeat profanity, insults, slurs, or hostile phrases in any field.
         - summary should name what happened, what the user felt, and why it mattered.
         - insight should name one pattern, tension, or need.
         - quote should be original, plainspoken, and specific to this reflection.
-        - expressionMoment should be a short phrase from the transcript.
+        - expressionMoment should be a short clean phrase from the transcript. If the only memorable phrase contains profanity or filler, write a clean paraphrase instead.
         - suggestedQuest should be one small concrete next action.
         - confidenceScore must be between 0.0 and 1.0.
         - Return exactly this JSON shape with string values except confidenceScore:
@@ -86,8 +89,12 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
     let availabilityMessage: String? = "Apple Intelligence is not available, so Circleu is using a local test reflection."
 
     func analyze(transcript: String, durationSeconds: Int) async throws -> AIReflectionResult {
-        let cleanTranscript = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanTranscript = TranscriptQuality.cleanedTranscript(transcript)
         guard !cleanTranscript.isEmpty else { throw ReflectionEngineError.emptyTranscript }
+
+        if TranscriptQuality.isRoughLowSignal(cleanTranscript) {
+            return roughLowSignalReflection(durationSeconds: durationSeconds)
+        }
 
         let lowercased = cleanTranscript.lowercased()
         let profile = reflectionProfile(for: lowercased)
@@ -102,6 +109,19 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
             quote: profile.quote,
             confidenceScore: profile.score,
             suggestedQuest: suggestedQuest(for: lowercased, durationSeconds: durationSeconds)
+        )
+    }
+
+    private func roughLowSignalReflection(durationSeconds: Int) -> AIReflectionResult {
+        AIReflectionResult(
+            title: "Try that check-in again",
+            emotion: "Unclear",
+            summary: "This recording sounds more like a rough test or vent than a clear reflection moment.",
+            insight: "Strong words can point to real emotion, but Circleu needs one specific situation to give useful feedback.",
+            expressionMoment: "You may have been testing the recording or letting off steam.",
+            quote: "A clearer moment gives your reflection something kind to hold.",
+            confidenceScore: 0.32,
+            suggestedQuest: "Record again with one real moment, one feeling, and one thing you want to understand."
         )
     }
 
@@ -178,7 +198,11 @@ struct LocalReflectionEngine: ReflectionAnalyzing {
         let sentences = transcript
             .components(separatedBy: separators)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { $0.split(separator: " ").count >= 4 }
+            .filter {
+                $0.split(separator: " ").count >= 4
+                    && !TranscriptQuality.containsRoughLanguage($0)
+                    && !TranscriptQuality.isRoughLowSignal($0)
+            }
 
         guard let strongestSentence = sentences.max(by: { $0.count < $1.count }) else {
             return fallback
