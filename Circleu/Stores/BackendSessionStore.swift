@@ -35,7 +35,12 @@ final class BackendSessionStore: ObservableObject {
         authStore: AuthStore,
         profileStore: UserProfileStore
     ) async throws -> Account {
-        let account = try authStore.signUp(name: name, email: email, password: password)
+        let account: Account
+        do {
+            account = try authStore.signUp(name: name, email: email, password: password)
+        } catch AuthError.emailTaken {
+            account = try authStore.signIn(email: email, password: password)
+        }
         profileStore.updateDisplayName(account.displayName)
 
         do {
@@ -45,7 +50,13 @@ final class BackendSessionStore: ObservableObject {
             )
             lastAuthErrorMessage = nil
         } catch {
-            lastAuthErrorMessage = error.localizedDescription
+            do {
+                session = try await authenticator.signIn(email: account.email, password: password)
+                lastAuthErrorMessage = nil
+            } catch {
+                lastAuthErrorMessage = error.localizedDescription
+                throw error
+            }
         }
 
         return account
@@ -65,6 +76,7 @@ final class BackendSessionStore: ObservableObject {
             lastAuthErrorMessage = nil
         } catch {
             lastAuthErrorMessage = error.localizedDescription
+            throw error
         }
 
         return account

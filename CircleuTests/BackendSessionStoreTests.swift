@@ -28,11 +28,42 @@ final class BackendSessionStoreTests: XCTestCase {
         XCTAssertFalse(authenticator.signedUpProfile?.email.contains("password") ?? true)
     }
 
-    func testSignUpKeepsLocalSessionWhenFirebaseFails() async throws {
+    func testSignUpThrowsWhenFirebaseFailsSoOnboardingCanShowError() async throws {
         let authStore = AuthStore(userDefaults: makeDefaults())
         let profileStore = UserProfileStore(userDefaults: makeDefaults())
         let authenticator = FakeFirebaseAuthenticator()
         authenticator.signUpError = TestBackendError.failed
+        authenticator.signInError = TestBackendError.failed
+        let store = BackendSessionStore(
+            authenticator: authenticator,
+            syncer: NoOpReflectionSyncer(),
+            identityProvider: StubIdentityProvider(localUserID: "local-user-1", displayName: "Tuan")
+        )
+
+        do {
+            _ = try await store.signUp(
+                name: "Tuan",
+                email: "tuan@example.com",
+                password: "strong-password",
+                authStore: authStore,
+                profileStore: profileStore
+            )
+            XCTFail("Expected Firebase sign-up failure to throw.")
+        } catch {
+            XCTAssertEqual(error.localizedDescription, TestBackendError.failed.localizedDescription)
+        }
+
+        XCTAssertTrue(authStore.isSignedIn)
+        XCTAssertNil(store.backendUserID)
+        XCTAssertEqual(store.lastAuthErrorMessage, TestBackendError.failed.localizedDescription)
+    }
+
+    func testSignUpRetriesFirebaseWhenLocalAccountAlreadyExists() async throws {
+        let defaults = makeDefaults()
+        let authStore = AuthStore(userDefaults: defaults)
+        let profileStore = UserProfileStore(userDefaults: makeDefaults())
+        _ = try authStore.signUp(name: "Tuan", email: "tuan@example.com", password: "strong-password")
+        let authenticator = FakeFirebaseAuthenticator()
         let store = BackendSessionStore(
             authenticator: authenticator,
             syncer: NoOpReflectionSyncer(),
@@ -47,9 +78,31 @@ final class BackendSessionStoreTests: XCTestCase {
             profileStore: profileStore
         )
 
-        XCTAssertTrue(authStore.isSignedIn)
-        XCTAssertNil(store.backendUserID)
-        XCTAssertEqual(store.lastAuthErrorMessage, TestBackendError.failed.localizedDescription)
+        XCTAssertEqual(store.backendUserID, "firebase-user-1")
+        XCTAssertEqual(authenticator.signedUpProfile?.email, "tuan@example.com")
+    }
+
+    func testSignUpFallsBackToFirebaseSignInWhenRemoteAccountAlreadyExists() async throws {
+        let authStore = AuthStore(userDefaults: makeDefaults())
+        let profileStore = UserProfileStore(userDefaults: makeDefaults())
+        let authenticator = FakeFirebaseAuthenticator()
+        authenticator.signUpError = TestBackendError.remoteEmailExists
+        let store = BackendSessionStore(
+            authenticator: authenticator,
+            syncer: NoOpReflectionSyncer(),
+            identityProvider: StubIdentityProvider(localUserID: "local-user-1", displayName: "Tuan")
+        )
+
+        _ = try await store.signUp(
+            name: "Tuan",
+            email: "tuan@example.com",
+            password: "strong-password",
+            authStore: authStore,
+            profileStore: profileStore
+        )
+
+        XCTAssertEqual(store.backendUserID, "firebase-user-1")
+        XCTAssertEqual(authenticator.signedInEmail, "tuan@example.com")
     }
 
     func testUploadPrivateBackupUsesFirebaseUID() async throws {
@@ -181,8 +234,14 @@ private struct StubIdentityProvider: UserIdentityProviding {
 
 private enum TestBackendError: LocalizedError {
     case failed
+    case remoteEmailExists
 
     var errorDescription: String? {
-        "Firebase unavailable"
+        switch self {
+        case .failed:
+            "Firebase unavailable"
+        case .remoteEmailExists:
+            "The email address is already in use by another account."
+        }
     }
 }
