@@ -27,10 +27,10 @@ This checklist describes what must be true before a branch is considered shareab
 1. Run the app on a connected iPhone from Xcode.
 2. Open **Profile > QA tools**.
 3. Confirm Firebase status shows auth, sync, last attempt, upload, and restore fields.
-4. Tap **Force Upload** and confirm the upload success time changes.
-5. Tap **Force Restore** and confirm local data remains present after merge-only restore.
-6. Tap **Seed demo data**.
-7. Confirm Home, Journal, Tips, Circles, and Profile reflect the seeded local state.
+4. Tap **Seed demo data**.
+5. Confirm Home, Journal, Tips, Circles, and Profile reflect the seeded local state.
+6. Tap **Force Upload** and confirm the upload success time changes after seeded data exists.
+7. Tap **Force Restore** and confirm local seeded data remains present after merge-only restore.
 8. Start a new reflection and choose **Save & Open Tips**.
 9. Confirm the Tips tab opens with the new active tip.
 10. Complete, skip, and restart tips.
