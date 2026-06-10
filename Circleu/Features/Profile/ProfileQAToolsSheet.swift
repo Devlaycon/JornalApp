@@ -24,6 +24,7 @@ struct ProfileQAToolsSheet: View {
                         buildCard
                         dataCard
                         backendCard
+                        backendDiagnosticsCard
                         exportCard
                         actionsCard
                     }
@@ -154,6 +155,25 @@ struct ProfileQAToolsSheet: View {
             if let syncError = backendSessionStore.lastSyncErrorMessage {
                 ProfileDataRow(title: "Sync error", value: syncError)
             }
+        }
+        .padding(16)
+        .pinguGlass(cornerRadius: 22, tint: 0.22)
+    }
+
+    private var backendDiagnosticsCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("TestFlight backend diagnostics", systemImage: "stethoscope")
+                .font(PinguFont.cardTitle)
+                .foregroundStyle(PinguDesign.ink)
+
+            ProfileDataRow(title: "Operation", value: backendSessionStore.syncOperation.rawValue.capitalized)
+            ProfileDataRow(title: "Firebase path", value: backendSessionStore.backendUserID == nil ? "None" : "users/\(shortUID)")
+            ProfileDataRow(title: "Local payload", value: localPayloadSummary)
+            ProfileDataRow(title: "Last upload", value: formattedSyncTime(backendSessionStore.lastUploadResult))
+            ProfileDataRow(title: "Uploaded payload", value: uploadedDiagnosticsSummary)
+            ProfileDataRow(title: "Last restore", value: formattedSyncTime(backendSessionStore.lastRestoreResult))
+            ProfileDataRow(title: "Restored payload", value: restoredDiagnosticsSummary)
+            ProfileDataRow(title: "Last error source", value: lastErrorSourceSummary)
         }
         .padding(16)
         .pinguGlass(cornerRadius: 22, tint: 0.22)
@@ -347,6 +367,28 @@ struct ProfileQAToolsSheet: View {
         return "\(privateDocumentCount(for: result.downloadedCounts, includeFixedDocuments: false)) records"
     }
 
+    private var uploadedDiagnosticsSummary: String {
+        guard let result = backendSessionStore.lastUploadResult else { return "Not yet" }
+        return "\(privateDocumentCount(for: result.uploadedCounts, includeFixedDocuments: true)) docs"
+    }
+
+    private var restoredDiagnosticsSummary: String {
+        guard let result = backendSessionStore.lastRestoreResult else { return "Not yet" }
+        return "\(privateDocumentCount(for: result.downloadedCounts, includeFixedDocuments: false)) records"
+    }
+
+    private var localPayloadSummary: String {
+        let fixedPrivateDocs = backendSessionStore.backendUserID == nil ? 0 : 3
+        let total = fixedPrivateDocs
+            + journalStore.entries.count
+            + questStore.quests.count
+            + tipsPracticeStore.recentSessions.count
+            + rewardsStore.pointsLog.count
+            + rewardsStore.activity.count
+            + aiSessionStore.sessions.count
+        return "\(total) docs"
+    }
+
     private var failedScopesSummary: String {
         guard let result = backendSessionStore.lastSyncResult else { return "None" }
         guard !result.failedScopes.isEmpty else { return "None" }
@@ -356,6 +398,17 @@ struct ProfileQAToolsSheet: View {
     private var lastSyncTime: String {
         guard let syncedAt = backendSessionStore.lastSyncResult?.syncedAt else { return "Never" }
         return syncedAt.formatted(date: .omitted, time: .shortened)
+    }
+
+    private var lastErrorSourceSummary: String {
+        guard let message = backendSessionStore.lastSyncErrorMessage else { return "None" }
+        guard let operation = backendSessionStore.lastSyncErrorOperation else { return message }
+        return "\(operation.rawValue.capitalized): \(message)"
+    }
+
+    private func formattedSyncTime(_ result: BackendSyncResult?) -> String {
+        guard let result else { return "Never" }
+        return result.syncedAt.formatted(date: .abbreviated, time: .shortened)
     }
 
     private func privateDocumentCount(

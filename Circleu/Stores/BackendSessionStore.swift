@@ -12,7 +12,10 @@ final class BackendSessionStore: ObservableObject {
     @Published private(set) var session: FirebaseAuthSession?
     @Published private(set) var lastAuthErrorMessage: String?
     @Published private(set) var lastSyncResult: BackendSyncResult?
+    @Published private(set) var lastUploadResult: BackendSyncResult?
+    @Published private(set) var lastRestoreResult: BackendSyncResult?
     @Published private(set) var lastSyncErrorMessage: String?
+    @Published private(set) var lastSyncErrorOperation: BackendSyncOperation?
     @Published private(set) var syncOperation: BackendSyncOperation = .idle
 
     private let authenticator: FirebaseAuthenticating
@@ -170,10 +173,14 @@ final class BackendSessionStore: ObservableObject {
         defer { syncOperation = .idle }
 
         do {
-            lastSyncResult = try await syncer.sync(snapshot)
+            let result = try await syncer.sync(snapshot)
+            lastUploadResult = result
+            lastSyncResult = result
             lastSyncErrorMessage = nil
+            lastSyncErrorOperation = nil
         } catch {
             lastSyncErrorMessage = error.localizedDescription
+            lastSyncErrorOperation = .uploading
         }
     }
 
@@ -204,10 +211,14 @@ final class BackendSessionStore: ObservableObject {
             )
             aiSessionStore.mergeRestoredSessions(snapshot.aiSessions)
 
-            lastSyncResult = BackendSyncResult(downloadedCounts: snapshot.counts)
+            let result = BackendSyncResult(downloadedCounts: snapshot.counts)
+            lastRestoreResult = result
+            lastSyncResult = result
             lastSyncErrorMessage = nil
+            lastSyncErrorOperation = nil
         } catch {
             lastSyncErrorMessage = error.localizedDescription
+            lastSyncErrorOperation = .restoring
         }
     }
 
