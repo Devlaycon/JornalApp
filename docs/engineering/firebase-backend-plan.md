@@ -131,6 +131,8 @@ Current development Firebase project:
 - Auth boundary: `Circleu/Services/FirebaseAuthService.swift`
 - Upload-only Firestore sync boundary: `Circleu/Services/FirebaseFirestoreSyncService.swift`
 - App backend session coordinator: `Circleu/Stores/BackendSessionStore.swift`
+- Firestore rules: `firestore.rules`
+- Firebase CLI config: `firebase.json`
 
 This setup connects the SDK/config, adds a tested Firebase Auth service boundary, adds a tested upload-only Firestore sync boundary for private journal entries, quests, and AI reflection sessions, and wires onboarding through a backend session coordinator.
 
@@ -147,6 +149,27 @@ users/{uid}/...
 ```
 
 Shared circle rules come later and must check membership before allowing reads or writes.
+
+Current `firestore.rules` policy:
+
+- authenticated users can read/write only `users/{theirFirebaseUID}` and its private subcollections,
+- all `circles/{circleID}` documents and nested shared circle data are denied,
+- every other document path is denied by default.
+
+Deploy from the repo root after logging in with Firebase CLI:
+
+```bash
+firebase use circleu-45651
+firebase deploy --only firestore:rules
+```
+
+After deploy, verify in Firebase Console:
+
+1. Open Firestore Database > Rules and confirm the latest rules match `firestore.rules`.
+2. Create/sign in from the app.
+3. Save one reflection.
+4. Confirm Firestore has `users/{uid}/journalEntries/{entryID}` for that signed-in UID.
+5. Confirm there are no writes under `circles/`.
 
 ## Next Coding Slice
 
