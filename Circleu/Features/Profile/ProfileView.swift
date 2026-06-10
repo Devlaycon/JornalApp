@@ -70,13 +70,10 @@ struct ProfileView: View {
                     informationButton
                         .padding(.top, 24)
 
-                    qaToolsButton
-                        .padding(.top, 24)
-
-                    logoutButton
+                    syncStatus
                         .padding(.top, 16)
 
-                    resetButton
+                    logoutButton
                         .padding(.top, 16)
                 }
                 .padding(.horizontal, 20)
@@ -402,24 +399,41 @@ struct ProfileView: View {
             .glass(.pill, cornerRadius: 16)
         }
         .buttonStyle(PressableButtonStyle())
+        #if DEBUG
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 1.2)
+                .onEnded { _ in
+                    showQATools = true
+                }
+        )
+        #endif
     }
 
-    private var qaToolsButton: some View {
-        Button {
-            showQATools = true
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "wrench.and.screwdriver.fill")
-                    .font(.system(size: 15, weight: .bold))
-                Text("QA tools")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+    private var syncStatus: some View {
+        HStack(spacing: 10) {
+            Image(systemName: syncStatusIcon)
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(syncStatusColor)
+                .frame(width: 28, height: 28)
+                .background(syncStatusColor.opacity(0.12))
+                .clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(syncStatusTitle)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(Pingu.ink)
+
+                Text(syncStatusSubtitle)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundStyle(Pingu.muted)
+                    .lineLimit(2)
             }
-            .foregroundStyle(Pingu.accent)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .glass(.pill, cornerRadius: 16)
+
+            Spacer(minLength: 0)
         }
-        .buttonStyle(PressableButtonStyle())
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .glass(.regular, cornerRadius: 18)
     }
 
     private var logoutButton: some View {
@@ -443,20 +457,38 @@ struct ProfileView: View {
         .buttonStyle(PressableButtonStyle())
     }
 
-    private var resetButton: some View {
-        Button {
-            rewardsStore.resetToSeed()
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "arrow.counterclockwise")
-                    .font(.system(size: 13, weight: .bold))
-                Text("Reset demo data")
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-            }
-            .foregroundStyle(Pingu.muted)
-            .frame(maxWidth: .infinity)
+    private var syncStatusIcon: String {
+        if backendSessionStore.isSyncing { return "arrow.triangle.2.circlepath" }
+        if backendSessionStore.lastSyncErrorMessage != nil { return "exclamationmark.triangle.fill" }
+        return backendSessionStore.backendUserID == nil ? "iphone" : "checkmark.icloud.fill"
+    }
+
+    private var syncStatusColor: Color {
+        if backendSessionStore.isSyncing { return Pingu.accent }
+        if backendSessionStore.lastSyncErrorMessage != nil { return Pingu.amber }
+        return backendSessionStore.backendUserID == nil ? Pingu.muted : Pingu.green
+    }
+
+    private var syncStatusTitle: String {
+        if backendSessionStore.isSyncing { return "Syncing" }
+        if backendSessionStore.lastSyncErrorMessage != nil { return "Sync needs attention" }
+        return backendSessionStore.backendUserID == nil ? "Saved on this iPhone" : "Synced"
+    }
+
+    private var syncStatusSubtitle: String {
+        if backendSessionStore.lastSyncErrorMessage != nil {
+            return "Your local data is still available."
         }
-        .buttonStyle(PressableButtonStyle())
+
+        guard backendSessionStore.backendUserID != nil else {
+            return "Sign in to keep your reflections available across devices."
+        }
+
+        guard let syncedAt = backendSessionStore.lastSyncResult?.syncedAt else {
+            return "Your reflections will back up automatically."
+        }
+
+        return "Last updated \(syncedAt.formatted(date: .omitted, time: .shortened))."
     }
 
     // MARK: - Streak
