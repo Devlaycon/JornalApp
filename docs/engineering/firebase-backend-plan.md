@@ -129,8 +129,11 @@ Current development Firebase project:
 - Package lockfile path: `Circleu.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
 - App initialization: `FirebaseApp.configure()` in `Circleu/App/CircleuApp.swift`
 - Auth boundary: `Circleu/Services/FirebaseAuthService.swift`
+- Upload-only Firestore sync boundary: `Circleu/Services/FirebaseFirestoreSyncService.swift`
 
-This setup connects the SDK/config and adds a tested Firebase Auth service boundary. The app UI still uses local `AuthStore`; Firebase sign-in is not yet wired into onboarding. Firestore reads/writes are not implemented yet.
+This setup connects the SDK/config, adds a tested Firebase Auth service boundary, and adds a tested upload-only Firestore sync boundary for private journal entries, quests, and AI reflection sessions.
+
+The app UI still uses local `AuthStore`; Firebase sign-in is not yet wired into onboarding. Firestore sync is not yet called from app flows. Shared circles are intentionally not uploaded until membership and security rules are implemented.
 
 ## Security Rules Direction
 
@@ -156,6 +159,7 @@ Then add auth and mapping:
 ```text
 FirebaseAuthService
 BackendSyncSnapshot -> [FirebaseDocumentPayload]
+FirebaseUploadOnlySyncer
 ```
 
 Keep Firebase Auth behind `FirebaseAuthenticating` and Firestore behind a sync protocol so tests can run without real network calls.
