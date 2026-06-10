@@ -40,7 +40,7 @@ This checklist describes what must be true before a branch is considered shareab
 Firebase is the active backend path for the current beta:
 
 - Firebase Authentication handles account identity during onboarding.
-- Cloud Firestore stores upload-only private backups under `users/{uid}`.
+- Cloud Firestore stores and restores private backups under `users/{uid}`.
 - Profile > QA tools shows Firebase sign-in and sync status.
 - Shared circles remain local-only until membership rules and security rules are designed.
 
@@ -51,5 +51,6 @@ Before demoing backend work, create a fresh account, save one reflection, then v
 3. `users/{uid}/profile/main`,
 4. `users/{uid}/journalEntries/{entryID}`,
 5. `users/{uid}/rewardState/main`.
+6. After clearing local data and signing in again, private data restores from `users/{uid}`.
 
 See [backend-roadmap.md](../engineering/backend-roadmap.md) and [firebase-backend-plan.md](../engineering/firebase-backend-plan.md).

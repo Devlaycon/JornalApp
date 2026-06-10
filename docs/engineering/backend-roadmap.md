@@ -49,7 +49,7 @@ Use `BackendSyncSnapshot` as the local data source and [firebase-backend-plan.md
 - point entries,
 - activity events.
 
-Start with upload-only private user backup. Add shared circles and two-way sync only after security rules and conflict rules are defined.
+Private user backup now supports upload and merge-only restore for profile, journal, quests, tips practice, rewards, activity, points, and AI reflection sessions. Add shared circles only after membership rules, moderation rules, and security rules are defined.
 
 ### 3. Analytics
 

@@ -104,4 +104,4 @@ Use Simulator for SwiftUI previews and unit checks. Use a connected iPhone for m
 
 ## Backend Note
 
-Firebase is enabled for beta backend testing. After signing up or signing in, open Profile > QA tools and confirm Firebase status shows a UID. Save a reflection, then confirm Firestore has private user documents under `users/{uid}`. Shared circles are still local-only and should not write under the top-level `circles/` collection.
+Firebase is enabled for beta backend testing. After signing up or signing in, open Profile > QA tools and confirm Firebase status shows a UID. Save a reflection, then confirm Firestore has private user documents under `users/{uid}`. Clear local app data or reinstall, sign in with the same account, and confirm private profile/journal/reward/tips data restores. Shared circles are still local-only and should not write under the top-level `circles/` collection.
