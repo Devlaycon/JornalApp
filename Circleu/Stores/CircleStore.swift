@@ -24,11 +24,19 @@ final class CircleStore: ObservableObject {
 
     // MARK: - Circles
 
-    func createCircle(name: String, intention: String, emoji: String = "🌱") {
+    func createCircle(name: String, intention: String, emoji: String = "🌱", coverImages: [Data] = []) {
         let cleanName = sanitized(name, fallback: "Reflection Space")
         let cleanIntention = sanitized(intention, fallback: "A gentle space")
         circles.insert(
-            CircleSpace(name: cleanName, intention: cleanIntention, emoji: emoji, members: 1, joined: true),
+            CircleSpace(
+                name: cleanName,
+                intention: cleanIntention,
+                emoji: emoji,
+                members: 1,
+                joined: true,
+                isOwnedByMe: true,
+                coverImages: coverImages
+            ),
             at: 0
         )
         saveCircles()
@@ -41,7 +49,20 @@ final class CircleStore: ObservableObject {
         saveCircles()
     }
 
+    /// Update is only permitted on circles the user owns.
+    func updateCircle(_ id: UUID, name: String, intention: String, emoji: String? = nil, coverImages: [Data]? = nil) {
+        guard let index = circles.firstIndex(where: { $0.id == id }),
+              circles[index].isOwnedByMe else { return }
+        circles[index].name = sanitized(name, fallback: circles[index].name)
+        circles[index].intention = sanitized(intention, fallback: circles[index].intention)
+        if let emoji, !emoji.isEmpty { circles[index].emoji = emoji }
+        if let coverImages { circles[index].coverImages = coverImages }
+        saveCircles()
+    }
+
+    /// Delete is only permitted on circles the user owns.
     func deleteCircle(_ circle: CircleSpace) {
+        guard let owned = circles.first(where: { $0.id == circle.id })?.isOwnedByMe, owned else { return }
         circles.removeAll { $0.id == circle.id }
         posts.removeAll { $0.circleID == circle.id }
         saveCircles()
@@ -80,7 +101,32 @@ final class CircleStore: ObservableObject {
     }
 
     func deletePost(_ post: CirclePost) {
+        guard let owned = posts.first(where: { $0.id == post.id })?.isMine, owned else { return }
         posts.removeAll { $0.id == post.id }
+        savePosts()
+    }
+
+    func updatePost(_ id: UUID, text: String) {
+        guard let index = posts.firstIndex(where: { $0.id == id }), posts[index].isMine else { return }
+        let clean = sanitized(text, fallback: posts[index].text)
+        posts[index].text = clean
+        savePosts()
+    }
+
+    func updateReply(postID: UUID, replyID: UUID, text: String) {
+        guard let pIndex = posts.firstIndex(where: { $0.id == postID }),
+              let rIndex = posts[pIndex].replies.firstIndex(where: { $0.id == replyID }),
+              posts[pIndex].replies[rIndex].isMine else { return }
+        let clean = sanitized(text, fallback: posts[pIndex].replies[rIndex].text)
+        posts[pIndex].replies[rIndex].text = clean
+        savePosts()
+    }
+
+    func deleteReply(postID: UUID, replyID: UUID) {
+        guard let pIndex = posts.firstIndex(where: { $0.id == postID }),
+              let reply = posts[pIndex].replies.first(where: { $0.id == replyID }),
+              reply.isMine else { return }
+        posts[pIndex].replies.removeAll { $0.id == replyID }
         savePosts()
     }
 

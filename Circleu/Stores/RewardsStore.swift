@@ -52,7 +52,7 @@ final class RewardsStore: ObservableObject {
     }
 
     func claimDailyLogin() {
-        awardPoints(questID: "daily_login", label: "Daily check-in", points: 5, icon: "☀️")
+        awardPoints(questID: "daily_login", label: "Daily check-in", points: 2, icon: "☀️")
     }
 
     func pushActivity(type: ActivityType, title: String, keyword: String, refID: UUID? = nil) {
@@ -121,12 +121,12 @@ final class RewardsStore: ObservableObject {
 
     private func seedStarter(referenceDate: Date = Date()) {
         let day: TimeInterval = 86_400
-        points = 140
+        points = 35
         questAwards = [:]
         pointsLog = [
-            PointEntry(label: "Daily reflection", points: 30, icon: "📓", createdAt: referenceDate.addingTimeInterval(-day)),
-            PointEntry(label: "Communication tip", points: 20, icon: "💬", createdAt: referenceDate.addingTimeInterval(-day * 2)),
-            PointEntry(label: "Joined a circle", points: 15, icon: "🫂", createdAt: referenceDate.addingTimeInterval(-day * 5))
+            PointEntry(label: "Daily reflection", points: 8, icon: "📓", createdAt: referenceDate.addingTimeInterval(-day)),
+            PointEntry(label: "Communication tip", points: 5, icon: "💬", createdAt: referenceDate.addingTimeInterval(-day * 2)),
+            PointEntry(label: "Joined a circle", points: 4, icon: "🫂", createdAt: referenceDate.addingTimeInterval(-day * 5))
         ]
         activity = [
             ActivityEvent(type: .reflect, title: "Holding my ground at work", keyword: "Brave · boundary", createdAt: referenceDate.addingTimeInterval(-day)),

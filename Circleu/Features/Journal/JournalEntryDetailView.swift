@@ -5,6 +5,7 @@ struct JournalEntryDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var journalStore: ReflectionJournalStore
     @StateObject private var viewModel = JournalEntryDetailViewModel()
+    @State private var showShareSheet = false
 
     private var currentEntry: JournalReflectionEntry {
         viewModel.currentEntry(fallback: entry, journalStore: journalStore)
@@ -27,6 +28,7 @@ struct JournalEntryDetailView: View {
                         insightCard
                         quoteCard
                         transcriptCard
+                        shareToCircleButton
                     }
                     .padding(.horizontal, 24)
                     .padding(.top, 8)
@@ -36,6 +38,33 @@ struct JournalEntryDetailView: View {
         }
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showShareSheet) {
+            JournalCircleShareSheet(entry: currentEntry)
+        }
+    }
+
+    private var shareToCircleButton: some View {
+        Button {
+            showShareSheet = true
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "person.2.wave.2.fill")
+                    .font(.system(size: 16, weight: .bold))
+                Text("Share to a circle")
+                    .font(.system(size: 14.5, weight: .bold, design: .rounded))
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity)
+            .background(GlassPrimaryFill(cornerRadius: 20))
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .shadow(color: Pingu.accent.opacity(0.25), radius: 12, y: 6)
+        }
+        .buttonStyle(PressableButtonStyle())
     }
 
     // 1. Emotion + title + summary

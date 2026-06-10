@@ -62,7 +62,9 @@ enum ProgressEngine {
     }
 
     static func xp(entryCount: Int, completedQuestCount: Int, streak: Int) -> Int {
-        entryCount * 30 + completedQuestCount * 20 + streak * 10
+        // Mirrors the daily-quest values shown in Profile:
+        // reflect=8, tips=5, daily login (≈streak) =2
+        entryCount * 8 + completedQuestCount * 5 + streak * 2
     }
 
     private static func mostCommonEmotion(from entries: [JournalReflectionEntry]) -> String {

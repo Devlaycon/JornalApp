@@ -229,10 +229,19 @@ final class TipsPracticeViewModel: ObservableObject {
         inputHint = nil
     }
 
+    var canSubmitReplyMode: Bool {
+        !clean(replyInput).isEmpty || replyImageData != nil
+    }
+
+    var canSubmitContextMode: Bool {
+        !clean(extraContextInput).isEmpty
+    }
+
+    /// "Paste their reply" → triggers the "Now what?" analysis.
     func submitReply() {
-        guard var session = activeSession else { return }
-        guard canSendReply else {
-            inputHint = "Add their reply or a bit more context."
+        guard let session = activeSession else { return }
+        guard canSubmitReplyMode else {
+            inputHint = "Paste what they said (or attach a screenshot)."
             return
         }
 
@@ -242,17 +251,42 @@ final class TipsPracticeViewModel: ObservableObject {
         let reply = clean(replyInput).isEmpty && replyImageData != nil
             ? "They replied in the attached chat screenshot."
             : clean(replyInput)
-        session = engine.continueSession(session, withReply: reply, extraContext: extraContextInput)
-        activeSession = session
-        store?.updateCurrentSession(session)
+
+        let updated = engine.handleIncomingReply(session, reply: reply)
+        activeSession = updated
+        store?.updateCurrentSession(updated)
         replyInput = ""
-        extraContextInput = ""
         replyImageData = nil
+        inputHint = nil
+    }
+
+    /// "Add context" → triggers a refreshed Suggested phrasing.
+    func submitContext() {
+        guard let session = activeSession else { return }
+        guard canSubmitContextMode else {
+            inputHint = "Add a sentence of context so I can restyle the phrasing."
+            return
+        }
+
+        speechRecognizer.stop()
+        activeSpeechTarget = nil
+
+        let updated = engine.handleExtraContext(session, context: extraContextInput)
+        activeSession = updated
+        store?.updateCurrentSession(updated)
+        extraContextInput = ""
         inputHint = nil
     }
 
     func useReplyOption(_ option: TipsCoachReplyOption) {
         replyInput = option.text
+    }
+
+    func trySofter() {
+        guard let session = activeSession else { return }
+        let updated = engine.rephraseSofter(session)
+        activeSession = updated
+        store?.updateCurrentSession(updated)
     }
 
     private func applyTranscript(_ transcript: String, to target: TipsPracticeInputTarget) {

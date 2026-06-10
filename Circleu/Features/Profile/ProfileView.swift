@@ -431,9 +431,9 @@ private struct DailyQuest: Identifiable {
     let go: Destination?
 
     static let all: [DailyQuest] = [
-        DailyQuest(id: "daily_login", label: "Daily check-in", desc: "Open Circleu today", points: 5, emoji: "☀️", go: nil),
-        DailyQuest(id: "daily_reflect", label: "Reflect once", desc: "Record a reflection", points: 30, emoji: "📓", go: .record),
-        DailyQuest(id: "daily_tips", label: "Practise a conversation", desc: "Finish a communication tip", points: 20, emoji: "💬", go: .tips)
+        DailyQuest(id: "daily_login", label: "Daily check-in", desc: "Open Circleu today", points: 2, emoji: "☀️", go: nil),
+        DailyQuest(id: "daily_reflect", label: "Reflect once", desc: "Record a reflection", points: 8, emoji: "📓", go: .record),
+        DailyQuest(id: "daily_tips", label: "Practise a conversation", desc: "Finish a communication tip", points: 5, emoji: "💬", go: .tips)
     ]
 }
 

@@ -13,6 +13,7 @@ struct RootView: View {
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var rewardsStore: RewardsStore
 
+    @AppStorage("showWelcomeHints") private var showWelcomeHints = false
     @State private var hidesTabBar = false
     @State private var selectedTab: PinguTab = {
         switch ProcessInfo.processInfo.environment["START_TAB"] {
@@ -58,10 +59,25 @@ struct RootView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .id(selectedTab)
+            .transition(.asymmetric(
+                insertion: .opacity.combined(with: .offset(y: 20)),
+                removal: .opacity
+            ))
+            .animation(.spring(response: 0.5, dampingFraction: 0.82), value: selectedTab)
 
             if !hidesTabBar {
                 PinguBottomTabBar(selection: $selectedTab)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+
+            if showWelcomeHints {
+                WelcomeHintsOverlay(onDismiss: {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.86)) {
+                        showWelcomeHints = false
+                    }
+                })
+                .zIndex(10)
             }
         }
         .onPreferenceChange(TabBarHiddenKey.self) { hidesTabBar = $0 }
@@ -70,7 +86,7 @@ struct RootView: View {
         }
         .onChange(of: journalStore.entries.count) { oldCount, newCount in
             guard newCount > oldCount, let entry = journalStore.entries.first else { return }
-            rewardsStore.awardPoints(questID: "daily_reflect", label: "Daily reflection", points: 30, icon: "📓")
+            rewardsStore.awardPoints(questID: "daily_reflect", label: "Daily reflection", points: 8, icon: "📓")
             rewardsStore.pushActivity(
                 type: .reflect,
                 title: entry.displayTitle,
@@ -80,7 +96,7 @@ struct RootView: View {
         }
         .onChange(of: tipsPracticeStore.recentSessions.count) { oldCount, newCount in
             guard newCount > oldCount, let session = tipsPracticeStore.recentSessions.first else { return }
-            rewardsStore.awardPoints(questID: "daily_tips", label: "Communication tip", points: 20, icon: "💬")
+            rewardsStore.awardPoints(questID: "daily_tips", label: "Communication tip", points: 5, icon: "💬")
             rewardsStore.pushActivity(
                 type: .tips,
                 title: session.sceneTitle,

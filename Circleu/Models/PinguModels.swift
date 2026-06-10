@@ -42,6 +42,10 @@ struct CircleSpace: Identifiable, Codable, Equatable, Hashable {
     var members: Int
     var joined: Bool
     var createdAt: Date
+    /// Only true for circles this user created locally. Drives edit/delete permission.
+    var isOwnedByMe: Bool = false
+    /// Optional cover photos (JPEG-encoded Data). First image is the primary cover.
+    var coverImages: [Data] = []
 
     init(
         id: UUID = UUID(),
@@ -50,7 +54,9 @@ struct CircleSpace: Identifiable, Codable, Equatable, Hashable {
         emoji: String = "🌱",
         members: Int = 1,
         joined: Bool = true,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        isOwnedByMe: Bool = false,
+        coverImages: [Data] = []
     ) {
         self.id = id
         self.name = name
@@ -59,6 +65,8 @@ struct CircleSpace: Identifiable, Codable, Equatable, Hashable {
         self.members = members
         self.joined = joined
         self.createdAt = createdAt
+        self.isOwnedByMe = isOwnedByMe
+        self.coverImages = coverImages
     }
 }
 
@@ -85,6 +93,9 @@ struct PostReply: Identifiable, Codable, Equatable {
         self.likes = likes
         self.liked = liked
     }
+
+    /// Local user is "You" — only their own replies are editable/deletable.
+    var isMine: Bool { who == "You" }
 }
 
 struct CirclePost: Identifiable, Codable, Equatable {
@@ -119,6 +130,9 @@ struct CirclePost: Identifiable, Codable, Equatable {
         self.replies = replies
         self.sourceEntryID = sourceEntryID
     }
+
+    /// Local user is "You" — only their own posts are editable/deletable.
+    var isMine: Bool { who == "You" }
 }
 
 /// A single points reward, shown in the Profile rewards log.

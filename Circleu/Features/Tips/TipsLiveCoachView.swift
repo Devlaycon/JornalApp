@@ -43,6 +43,11 @@ struct TipsLiveCoachView: View {
                             .padding(.top, 8)
 
                         let firstReplyIndex = session.turns.firstIndex { $0.role == .simulatedPerson }
+                        // Pin the "Now what?" card to the latest "They replied" turn so any
+                        // later turns (Extra context, refreshed Suggested phrasing) appear
+                        // BELOW it in chronological order.
+                        let lastReplyIndex = session.turns.lastIndex { $0.role == .simulatedPerson }
+
                         ForEach(Array(session.turns.enumerated()), id: \.element.id) { index, turn in
                             if index == firstReplyIndex {
                                 dividerPill
@@ -52,10 +57,11 @@ struct TipsLiveCoachView: View {
                             } else if turn.role == .coach && turn.label == "Suggested phrasing" {
                                 suggestedPhrasingCard(text: turn.text, why: session.coachOutput.whyItWorks)
                             }
-                            // other coach turns absorbed into nowWhatCard below
-                        }
 
-                        nowWhatCard(session)
+                            if index == lastReplyIndex {
+                                nowWhatCard(session)
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, PinguDesign.screenSidePadding)
@@ -172,15 +178,20 @@ struct TipsLiveCoachView: View {
                     }
                     .buttonStyle(PressableButtonStyle())
 
-                    Text("↻ Try softer")
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundStyle(PinguDesign.ink)
-                        .padding(.horizontal, 12)
-                        .frame(height: 30)
-                        .background(.ultraThinMaterial)
-                        .overlay { Capsule().fill(.white.opacity(0.28)) }
-                        .overlay { Capsule().strokeBorder(.white.opacity(0.55), lineWidth: 1) }
-                        .clipShape(Capsule())
+                    Button {
+                        viewModel.trySofter()
+                    } label: {
+                        Label("Try softer", systemImage: "arrow.triangle.2.circlepath")
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundStyle(PinguDesign.ink)
+                            .padding(.horizontal, 12)
+                            .frame(height: 30)
+                            .background(.ultraThinMaterial)
+                            .overlay { Capsule().fill(.white.opacity(0.28)) }
+                            .overlay { Capsule().strokeBorder(.white.opacity(0.55), lineWidth: 1) }
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(PressableButtonStyle())
                 }
             }
             .padding(14)
@@ -343,21 +354,29 @@ struct TipsLiveCoachView: View {
                         .clipShape(Capsule())
                 }
 
+                let canSend = composerMode == .reply
+                    ? viewModel.canSubmitReplyMode
+                    : viewModel.canSubmitContextMode
+
                 Button {
-                    viewModel.submitReply()
+                    if composerMode == .reply {
+                        viewModel.submitReply()
+                    } else {
+                        viewModel.submitContext()
+                    }
                 } label: {
                     Image(systemName: "arrow.up")
                         .font(.system(size: 17, weight: .bold))
                         .foregroundStyle(.white)
                         .frame(width: 40, height: 40)
                         .background(
-                            viewModel.canSendReply
+                            canSend
                                 ? AnyView(GlassPrimaryFill(cornerRadius: 999))
                                 : AnyView(Color(hex: 0xCBD5E1))
                         )
                         .clipShape(Circle())
                 }
-                .disabled(!viewModel.canSendReply)
+                .disabled(!canSend)
             }
             .padding(.horizontal, PinguDesign.screenSidePadding)
             .padding(.bottom, 24)

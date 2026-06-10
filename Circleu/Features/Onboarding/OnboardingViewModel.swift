@@ -28,6 +28,7 @@ final class OnboardingViewModel: ObservableObject {
         do {
             let account = try authStore.signUp(name: name, email: email, password: password)
             profileStore.updateDisplayName(account.displayName)
+            UserDefaults.standard.set(true, forKey: "showWelcomeHints")
             errorMessage = nil
             onContinue()
         } catch {

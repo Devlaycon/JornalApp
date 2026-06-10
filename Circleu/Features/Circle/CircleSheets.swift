@@ -53,9 +53,35 @@ struct CircleDetailView: View {
         .preference(key: TabBarHiddenKey.self, value: true)
     }
 
+    @ViewBuilder
+    private func coverHero(_ circle: CircleSpace) -> some View {
+        if !circle.coverImages.isEmpty {
+            TabView {
+                ForEach(Array(circle.coverImages.enumerated()), id: \.offset) { _, data in
+                    if let img = UIImage(data: data) {
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFill()
+                    }
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: circle.coverImages.count > 1 ? .always : .never))
+            .indexViewStyle(.page(backgroundDisplayMode: .interactive))
+            .frame(height: 200)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .strokeBorder(.white.opacity(0.5), lineWidth: 1)
+            }
+            .padding(.bottom, 12)
+        }
+    }
+
     private func headerCard(_ circle: CircleSpace) -> some View {
         GlassCard(style: .strong, sheen: true) {
             VStack(spacing: 0) {
+                coverHero(circle)
+
                 Text(circle.emoji)
                     .font(.system(size: 40))
                     .padding(.bottom, 4)
@@ -170,6 +196,12 @@ private struct CirclePostCard: View {
     @EnvironmentObject private var circleStore: CircleStore
     @State private var open = false
     @State private var reply = ""
+    @State private var editingPost = false
+    @State private var editPostText = ""
+    @State private var pendingDelete = false
+    @State private var editingReplyID: UUID?
+    @State private var editReplyText = ""
+    @State private var pendingDeleteReplyID: UUID?
 
     var body: some View {
         GlassCard(style: .regular, cornerRadius: 24) {
@@ -186,14 +218,22 @@ private struct CirclePostCard: View {
                     Text(CircleViewModel.timeAgo(post.createdAt))
                         .font(.system(size: 11, weight: .regular, design: .rounded))
                         .foregroundStyle(Pingu.muted)
+                    if post.isMine {
+                        ownPostMenu
+                    }
                 }
                 .padding(.bottom, 6)
 
-                Text(post.text)
-                    .font(.system(size: 13.5, weight: .regular, design: .rounded))
-                    .foregroundStyle(Pingu.body)
-                    .lineSpacing(3)
-                    .padding(.bottom, 10)
+                if editingPost {
+                    postEditor
+                        .padding(.bottom, 10)
+                } else {
+                    Text(post.text)
+                        .font(.system(size: 13.5, weight: .regular, design: .rounded))
+                        .foregroundStyle(Pingu.body)
+                        .lineSpacing(3)
+                        .padding(.bottom, 10)
+                }
 
                 HStack(spacing: 8) {
                     likeButton(
@@ -248,11 +288,20 @@ private struct CirclePostCard: View {
                                 Text(CircleViewModel.timeAgo(r.createdAt))
                                     .font(.system(size: 10.5, weight: .regular, design: .rounded))
                                     .foregroundStyle(Pingu.muted)
+                                Spacer(minLength: 0)
+                                if r.isMine {
+                                    ownReplyMenu(r)
+                                }
                             }
-                            Text(r.text)
-                                .font(.system(size: 12.5, weight: .regular, design: .rounded))
-                                .foregroundStyle(Pingu.body)
-                                .lineSpacing(2)
+
+                            if editingReplyID == r.id {
+                                replyEditor(replyID: r.id)
+                            } else {
+                                Text(r.text)
+                                    .font(.system(size: 12.5, weight: .regular, design: .rounded))
+                                    .foregroundStyle(Pingu.body)
+                                    .lineSpacing(2)
+                            }
 
                             Button {
                                 circleStore.toggleLikeReply(postID: post.id, replyID: r.id)
@@ -325,6 +374,162 @@ private struct CirclePostCard: View {
         circleStore.addReply(postID: post.id, text: text)
         reply = ""
         open = true
+    }
+
+    // MARK: - Own post menu / editor
+
+    private var ownPostMenu: some View {
+        Menu {
+            Button {
+                editPostText = post.text
+                editingPost = true
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            Button(role: .destructive) {
+                pendingDelete = true
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(Pingu.muted)
+                .frame(width: 24, height: 24)
+        }
+        .confirmationDialog(
+            "Delete this post?",
+            isPresented: $pendingDelete,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                circleStore.deletePost(post)
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+    }
+
+    private var postEditor: some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            TextField("Edit your share…", text: $editPostText, axis: .vertical)
+                .font(.system(size: 13.5, design: .rounded))
+                .foregroundStyle(Pingu.ink)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(.white.opacity(0.75))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(.white.opacity(0.7), lineWidth: 1)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+            HStack(spacing: 8) {
+                Button("Cancel") {
+                    editingPost = false
+                    editPostText = ""
+                }
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundStyle(Pingu.muted)
+
+                Button {
+                    let trimmed = editPostText.trimmed
+                    guard !trimmed.isEmpty else { return }
+                    circleStore.updatePost(post.id, text: trimmed)
+                    editingPost = false
+                    editPostText = ""
+                } label: {
+                    Text("Save")
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(GlassPrimaryFill(cornerRadius: 999))
+                        .clipShape(Capsule())
+                }
+                .disabled(editPostText.trimmed.isEmpty)
+            }
+        }
+    }
+
+    // MARK: - Reply menu / editor
+
+    private func ownReplyMenu(_ r: PostReply) -> some View {
+        Menu {
+            Button {
+                editReplyText = r.text
+                editingReplyID = r.id
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            Button(role: .destructive) {
+                pendingDeleteReplyID = r.id
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(Pingu.muted)
+                .frame(width: 20, height: 20)
+        }
+        .confirmationDialog(
+            "Delete this reply?",
+            isPresented: Binding(
+                get: { pendingDeleteReplyID == r.id },
+                set: { if !$0 { pendingDeleteReplyID = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                circleStore.deleteReply(postID: post.id, replyID: r.id)
+                pendingDeleteReplyID = nil
+            }
+            Button("Cancel", role: .cancel) {
+                pendingDeleteReplyID = nil
+            }
+        }
+    }
+
+    private func replyEditor(replyID: UUID) -> some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            TextField("Edit your reply…", text: $editReplyText, axis: .vertical)
+                .font(.system(size: 12.5, design: .rounded))
+                .foregroundStyle(Pingu.ink)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .background(.white.opacity(0.75))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(.white.opacity(0.7), lineWidth: 1)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+            HStack(spacing: 8) {
+                Button("Cancel") {
+                    editingReplyID = nil
+                    editReplyText = ""
+                }
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundStyle(Pingu.muted)
+
+                Button {
+                    let trimmed = editReplyText.trimmed
+                    guard !trimmed.isEmpty else { return }
+                    circleStore.updateReply(postID: post.id, replyID: replyID, text: trimmed)
+                    editingReplyID = nil
+                    editReplyText = ""
+                } label: {
+                    Text("Save")
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(GlassPrimaryFill(cornerRadius: 999))
+                        .clipShape(Capsule())
+                }
+                .disabled(editReplyText.trimmed.isEmpty)
+            }
+        }
     }
 }
 

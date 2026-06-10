@@ -20,11 +20,12 @@ struct CommunicationCoachEngine {
             latestReply: nil
         )
 
+        // Initial turns only: user message + suggested phrasing.
+        // "They replied" and "Now what" turns are appended later in continueSession,
+        // once the user pastes the real reply.
         let turns = [
             TipsPracticeTurn(role: .user, label: "You said", text: cleanMessage),
-            TipsPracticeTurn(role: .coach, label: "Suggested phrasing", text: output.suggestedPhrasing),
-            TipsPracticeTurn(role: .simulatedPerson, label: "They replied", text: output.simulatedReply),
-            TipsPracticeTurn(role: .coach, label: "Now what?", text: output.roomReading)
+            TipsPracticeTurn(role: .coach, label: "Suggested phrasing", text: output.suggestedPhrasing)
         ]
 
         return TipsPracticeSession(
@@ -39,36 +40,146 @@ struct CommunicationCoachEngine {
         )
     }
 
-    func continueSession(
+    /// Triggered by "Paste their reply".
+    /// Appends a "They replied" bubble and refreshes the room-reading + reply options
+    /// that drive the amber "Now what?" card. Does NOT change Suggested phrasing.
+    func handleIncomingReply(
         _ session: TipsPracticeSession,
-        withReply reply: String,
-        extraContext: String
+        reply: String
     ) -> TipsPracticeSession {
         let cleanReply = clean(reply)
-        let cleanContext = clean(extraContext)
-        let combinedSituation = [session.situation, cleanContext]
-            .filter { !$0.isEmpty }
-            .joined(separator: " ")
-        let output = coachOutput(
+        guard !cleanReply.isEmpty else { return session }
+
+        let refreshed = coachOutput(
             message: session.originalMessage,
             scene: session.scene,
             customScene: session.customScene,
             tone: session.tone,
-            situation: combinedSituation,
+            situation: session.situation,
             latestReply: cleanReply
         )
 
         var updated = session
         updated.updatedAt = Date()
-        if !cleanReply.isEmpty {
-            updated.turns.append(TipsPracticeTurn(role: .simulatedPerson, label: "They replied", text: cleanReply))
-        }
-        if !cleanContext.isEmpty {
-            updated.turns.append(TipsPracticeTurn(role: .user, label: "Extra context", text: cleanContext))
-        }
-        updated.turns.append(TipsPracticeTurn(role: .coach, label: "Coach feedback", text: output.roomReading))
-        updated.coachOutput = output
+        updated.turns.append(
+            TipsPracticeTurn(role: .simulatedPerson, label: "They replied", text: cleanReply)
+        )
+        // Only update the "now what" half of the output. Keep the existing
+        // Suggested phrasing + whyItWorks so the top card doesn't flicker.
+        var newOutput = updated.coachOutput
+        newOutput.roomReading = refreshed.roomReading
+        newOutput.replyOptions = refreshed.replyOptions
+        newOutput.simulatedReply = cleanReply
+        updated.coachOutput = newOutput
         return updated
+    }
+
+    /// Triggered by "Add context".
+    /// Folds the new context into the session and regenerates the Suggested phrasing
+    /// (treated as the user's own message, restyled by tone + scene + context).
+    /// Does NOT generate a "Now what?" — that only happens after a real reply.
+    func handleExtraContext(
+        _ session: TipsPracticeSession,
+        context: String
+    ) -> TipsPracticeSession {
+        let cleanContext = clean(context)
+        guard !cleanContext.isEmpty else { return session }
+
+        let combinedSituation = [session.situation, cleanContext]
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+
+        let refreshed = coachOutput(
+            message: session.originalMessage,
+            scene: session.scene,
+            customScene: session.customScene,
+            tone: session.tone,
+            situation: combinedSituation,
+            latestReply: nil
+        )
+
+        var updated = session
+        updated.updatedAt = Date()
+        updated.situation = combinedSituation
+        // Show what the user added, then drop in a freshly styled phrasing card.
+        updated.turns.append(
+            TipsPracticeTurn(role: .user, label: "Extra context", text: cleanContext)
+        )
+        updated.turns.append(
+            TipsPracticeTurn(role: .coach, label: "Suggested phrasing", text: refreshed.suggestedPhrasing)
+        )
+        // Update the global Suggested-phrasing fields; leave room-reading +
+        // reply options untouched (they should only refresh from a real reply).
+        var newOutput = updated.coachOutput
+        newOutput.suggestedPhrasing = refreshed.suggestedPhrasing
+        newOutput.whyItWorks = refreshed.whyItWorks
+        updated.coachOutput = newOutput
+        return updated
+    }
+
+    /// Rotates the suggested-phrasing line through softer variants.
+    /// Pure templates — swap this body to call a real LLM later.
+    func rephraseSofter(_ session: TipsPracticeSession) -> TipsPracticeSession {
+        let variants = softerVariants(
+            scene: session.scene,
+            tone: session.tone,
+            message: session.originalMessage
+        )
+        guard !variants.isEmpty else { return session }
+
+        let current = session.coachOutput.suggestedPhrasing
+        let next = variants.first(where: { $0 != current }) ?? variants[0]
+
+        var updated = session
+        var output = updated.coachOutput
+        output.suggestedPhrasing = next
+        output.whyItWorks = "This version softens the opening, keeps your point clear, and gives the other person an easy way back into the conversation."
+        updated.coachOutput = output
+
+        if let idx = updated.turns.firstIndex(where: { $0.role == .coach && $0.label == "Suggested phrasing" }) {
+            updated.turns[idx] = TipsPracticeTurn(
+                role: .coach,
+                label: "Suggested phrasing",
+                text: next
+            )
+        }
+        updated.updatedAt = Date()
+        return updated
+    }
+
+    private func softerVariants(scene: TipsPracticeScene, tone: TipsPracticeTone, message: String) -> [String] {
+        switch scene {
+        case .workplace:
+            return [
+                "I really want to help here. Honestly, my plate is full this week — could we look together at what to keep and what to move?",
+                "Thanks for trusting me with this. I can take a small piece, but I would need to adjust one of my current deadlines to do it well. Which feels most important?",
+                "I appreciate you thinking of me. Right now I am stretched thin — would it work if I helped scope this and we revisit early next week?"
+            ]
+        case .family:
+            return [
+                "I love you and I am not trying to push back. I just want to share what I am feeling so we can understand each other.",
+                "Can we slow down for a second? I want to say this gently — none of this is meant as criticism, I just want us to feel close again.",
+                "I am saying this because I care, not because I am upset. Could we talk through what each of us needs?"
+            ]
+        case .friendship:
+            return [
+                "I really value our friendship, so I want to share this kindly: it kind of stayed on my mind, and I would rather talk about it than let it sit.",
+                "I am not upset with you — I just want to be honest because you matter to me. Could we talk about what happened?",
+                "Hey, no pressure, but something has been on my mind. Is it okay if I share it so we can move past it together?"
+            ]
+        case .romantic:
+            return [
+                "I love you and I am bringing this up gently, not as a complaint. I just want us to understand each other better.",
+                "Can we pause for a moment? I want to share what I am feeling without it sounding like blame.",
+                "I care about us, so I want to say this softly: when that happened, I felt a little disconnected. Can we talk about it?"
+            ]
+        case .custom:
+            return [
+                "I want to share this gently, not as criticism. My main hope is that we can land on one clear next step together.",
+                "Can I share something with you in a soft way? I want to make sure it lands as care, not as a complaint.",
+                "I am bringing this up kindly. Could we talk it through and decide one small next step?"
+            ]
+        }
     }
 
     private func coachOutput(
