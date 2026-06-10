@@ -153,7 +153,9 @@ Shared circle rules come later and must check membership before allowing reads o
 Current `firestore.rules` policy:
 
 - authenticated users can read/write only `users/{theirFirebaseUID}` and its private subcollections,
+- allowed private subcollections are only `profile`, `journalEntries`, `aiReflectionSessions`, `quests`, `tipsPracticeSessions`, `rewardState`, `pointEntries`, and `activityEvents`,
 - all `circles/{circleID}` documents and nested shared circle data are denied,
+- unknown user subcollections are denied by default,
 - every other document path is denied by default.
 
 Deploy from the repo root after logging in with Firebase CLI:

@@ -13,7 +13,35 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, create, update, delete: if isOwner(uid);
 
-      match /{privateDocument=**} {
+      match /profile/{profileID} {
+        allow read, create, update, delete: if isOwner(uid) && profileID == "main";
+      }
+
+      match /journalEntries/{entryID} {
+        allow read, create, update, delete: if isOwner(uid);
+      }
+
+      match /aiReflectionSessions/{sessionID} {
+        allow read, create, update, delete: if isOwner(uid);
+      }
+
+      match /quests/{questID} {
+        allow read, create, update, delete: if isOwner(uid);
+      }
+
+      match /tipsPracticeSessions/{sessionID} {
+        allow read, create, update, delete: if isOwner(uid);
+      }
+
+      match /rewardState/{rewardStateID} {
+        allow read, create, update, delete: if isOwner(uid) && rewardStateID == "main";
+      }
+
+      match /pointEntries/{pointEntryID} {
+        allow read, create, update, delete: if isOwner(uid);
+      }
+
+      match /activityEvents/{activityEventID} {
         allow read, create, update, delete: if isOwner(uid);
       }
     }
