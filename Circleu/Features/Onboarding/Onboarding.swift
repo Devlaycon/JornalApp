@@ -3,6 +3,7 @@ import SwiftUI
 struct PinguOnboardingView: View {
     @EnvironmentObject private var profileStore: UserProfileStore
     @EnvironmentObject private var authStore: AuthStore
+    @EnvironmentObject private var backendSessionStore: BackendSessionStore
     let onContinue: () -> Void
     @StateObject private var viewModel = OnboardingViewModel()
 
@@ -161,11 +162,23 @@ struct PinguOnboardingView: View {
                     errorBanner
 
                     Button {
-                        viewModel.signUp(authStore: authStore, profileStore: profileStore, onContinue: onContinue)
+                        Task {
+                            await viewModel.signUp(
+                                authStore: authStore,
+                                profileStore: profileStore,
+                                backendSessionStore: backendSessionStore,
+                                onContinue: onContinue
+                            )
+                        }
                     } label: {
                         HStack(spacing: 8) {
-                            Text("Create Account")
-                            Image(systemName: "chevron.right").font(.system(size: 16, weight: .bold))
+                            if viewModel.isSubmitting {
+                                ProgressView()
+                                    .tint(.white)
+                            } else {
+                                Text("Create Account")
+                                Image(systemName: "chevron.right").font(.system(size: 16, weight: .bold))
+                            }
                         }
                     }
                     .buttonStyle(OnbPrimaryButtonStyle(enabled: viewModel.canSubmitSignup))
@@ -218,14 +231,27 @@ struct PinguOnboardingView: View {
                     errorBanner
 
                     Button {
-                        viewModel.signIn(authStore: authStore, profileStore: profileStore, onContinue: onContinue)
+                        Task {
+                            await viewModel.signIn(
+                                authStore: authStore,
+                                profileStore: profileStore,
+                                backendSessionStore: backendSessionStore,
+                                onContinue: onContinue
+                            )
+                        }
                     } label: {
                         HStack(spacing: 8) {
-                            Text("Sign In")
-                            Image(systemName: "chevron.right").font(.system(size: 16, weight: .bold))
+                            if viewModel.isSubmitting {
+                                ProgressView()
+                                    .tint(.white)
+                            } else {
+                                Text("Sign In")
+                                Image(systemName: "chevron.right").font(.system(size: 16, weight: .bold))
+                            }
                         }
                     }
                     .buttonStyle(OnbPrimaryButtonStyle())
+                    .disabled(viewModel.isSubmitting)
                     .padding(.top, 12)
                 }
                 .padding(.horizontal, 32)
@@ -358,4 +384,5 @@ private struct OnbPrimaryButtonStyle: ButtonStyle {
     PinguOnboardingView {}
         .environmentObject(UserProfileStore())
         .environmentObject(AuthStore())
+        .environmentObject(BackendSessionStore(authenticator: NoOpFirebaseAuthenticator(), syncer: NoOpReflectionSyncer()))
 }

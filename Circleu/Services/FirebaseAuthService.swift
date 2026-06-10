@@ -76,6 +76,30 @@ struct FirebaseAuthService: FirebaseAuthenticating {
     }
 }
 
+struct NoOpFirebaseAuthenticator: FirebaseAuthenticating {
+    var currentSession: FirebaseAuthSession? { nil }
+
+    func signUp(profile: FirebaseAuthProfile, password: String) async throws -> FirebaseAuthSession {
+        FirebaseAuthSession(
+            uid: profile.localUserID,
+            email: profile.email,
+            displayName: profile.displayName,
+            localUserID: profile.localUserID
+        )
+    }
+
+    func signIn(email: String, password: String) async throws -> FirebaseAuthSession {
+        FirebaseAuthSession(
+            uid: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+            email: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+            displayName: "Friend",
+            localUserID: nil
+        )
+    }
+
+    func signOut() throws {}
+}
+
 struct LiveFirebaseAuthClient: FirebaseAuthClient {
     var currentUser: FirebaseAuthSession? {
         Auth.auth().currentUser.map(Self.session(from:))

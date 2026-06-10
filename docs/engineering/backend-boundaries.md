@@ -51,6 +51,12 @@ View -> ViewModel -> Store / Engine / Service -> Model
 - External AI: add provider implementations behind the reflection/model-provider boundary.
 - Model evaluation: sync AI session attempts without exposing unnecessary raw content.
 
+## Apple Intelligence Status
+
+`ReflectionEngineFactory` uses `AppleIntelligenceReflectionEngine` only when the `FoundationModels` framework can be imported and the runtime is iOS 26 or newer. If Apple Intelligence is unavailable, disabled, still preparing its model, or returns unreadable JSON, Circleu falls back to `LocalReflectionEngine`.
+
+Apple Intelligence must be fully validated on an eligible iOS 26 device or runtime where `SystemLanguageModel.default.availability` is `.available`. The local fallback path is covered by automated tests and keeps reflection saving working when Apple Intelligence is not available.
+
 ## Privacy Rules
 
 Treat transcripts, journal entries, private notes, tags, circle posts, practice messages, and AI attempts as sensitive data.

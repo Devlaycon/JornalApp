@@ -14,9 +14,10 @@ final class OnboardingViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
     @Published var errorMessage: String?
+    @Published private(set) var isSubmitting = false
 
     var canSubmitSignup: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !isSubmitting && !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     func go(to stage: Stage) {
@@ -24,10 +25,24 @@ final class OnboardingViewModel: ObservableObject {
         self.stage = stage
     }
 
-    func signUp(authStore: AuthStore, profileStore: UserProfileStore, onContinue: () -> Void) {
+    func signUp(
+        authStore: AuthStore,
+        profileStore: UserProfileStore,
+        backendSessionStore: BackendSessionStore,
+        onContinue: () -> Void
+    ) async {
+        guard !isSubmitting else { return }
+        isSubmitting = true
+        defer { isSubmitting = false }
+
         do {
-            let account = try authStore.signUp(name: name, email: email, password: password)
-            profileStore.updateDisplayName(account.displayName)
+            _ = try await backendSessionStore.signUp(
+                name: name,
+                email: email,
+                password: password,
+                authStore: authStore,
+                profileStore: profileStore
+            )
             UserDefaults.standard.set(true, forKey: "showWelcomeHints")
             errorMessage = nil
             onContinue()
@@ -36,10 +51,23 @@ final class OnboardingViewModel: ObservableObject {
         }
     }
 
-    func signIn(authStore: AuthStore, profileStore: UserProfileStore, onContinue: () -> Void) {
+    func signIn(
+        authStore: AuthStore,
+        profileStore: UserProfileStore,
+        backendSessionStore: BackendSessionStore,
+        onContinue: () -> Void
+    ) async {
+        guard !isSubmitting else { return }
+        isSubmitting = true
+        defer { isSubmitting = false }
+
         do {
-            let account = try authStore.signIn(email: email, password: password)
-            profileStore.updateDisplayName(account.displayName)
+            _ = try await backendSessionStore.signIn(
+                email: email,
+                password: password,
+                authStore: authStore,
+                profileStore: profileStore
+            )
             errorMessage = nil
             onContinue()
         } catch {

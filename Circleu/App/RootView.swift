@@ -9,9 +9,12 @@ struct TabBarHiddenKey: PreferenceKey {
 
 struct RootView: View {
     @EnvironmentObject private var journalStore: ReflectionJournalStore
+    @EnvironmentObject private var questStore: QuestStore
     @EnvironmentObject private var tipsPracticeStore: TipsPracticeStore
     @EnvironmentObject private var circleStore: CircleStore
+    @EnvironmentObject private var aiSessionStore: AIReflectionSessionStore
     @EnvironmentObject private var rewardsStore: RewardsStore
+    @EnvironmentObject private var backendSessionStore: BackendSessionStore
 
     @AppStorage("showWelcomeHints") private var showWelcomeHints = false
     @State private var hidesTabBar = false
@@ -93,6 +96,16 @@ struct RootView: View {
                 keyword: "\(entry.displayEmotion) · reflection",
                 refID: entry.id
             )
+            uploadPrivateBackup()
+        }
+        .onChange(of: journalStore.entries) { _, _ in
+            uploadPrivateBackup()
+        }
+        .onChange(of: questStore.quests) { _, _ in
+            uploadPrivateBackup()
+        }
+        .onChange(of: aiSessionStore.sessions) { _, _ in
+            uploadPrivateBackup()
         }
         .onChange(of: tipsPracticeStore.recentSessions.count) { oldCount, newCount in
             guard newCount > oldCount, let session = tipsPracticeStore.recentSessions.first else { return }
@@ -139,6 +152,17 @@ struct RootView: View {
             }
         }
     }
+
+    private func uploadPrivateBackup() {
+        Task {
+            await backendSessionStore.uploadPrivateBackup(
+                journalStore: journalStore,
+                questStore: questStore,
+                circleStore: circleStore,
+                aiSessionStore: aiSessionStore
+            )
+        }
+    }
 }
 
 #Preview {
@@ -150,4 +174,5 @@ struct RootView: View {
         .environmentObject(UserProfileStore())
         .environmentObject(AIReflectionSessionStore())
         .environmentObject(RewardsStore())
+        .environmentObject(BackendSessionStore(authenticator: NoOpFirebaseAuthenticator(), syncer: NoOpReflectionSyncer()))
 }
