@@ -3,26 +3,35 @@ import XCTest
 
 @MainActor
 final class ViewModelBehaviorTests: XCTestCase {
-    func testCircleCreateRequiresNameAndIntention() {
-        let viewModel = CircleCreateViewModel()
+    func testAuthStoreRequiresValidEmailAndStrongPassword() {
+        let store = AuthStore(userDefaults: makeDefaults())
 
-        XCTAssertFalse(viewModel.canSave)
+        XCTAssertThrowsError(try store.signUp(name: "Tuan", email: "not-email", password: "longenough")) { error in
+            XCTAssertEqual(error as? AuthError, .invalidEmail)
+        }
 
-        viewModel.name = "  Study group  "
-        XCTAssertFalse(viewModel.canSave)
-
-        viewModel.intention = "  Practice honest check-ins  "
-        XCTAssertTrue(viewModel.canSave)
+        XCTAssertThrowsError(try store.signUp(name: "Tuan", email: "tuan@example.com", password: "12345678")) { error in
+            XCTAssertEqual(error as? AuthError, .weakPassword)
+        }
     }
 
-    func testCircleDetailRequiresTitleAndBodyBeforeSavingNote() {
-        let viewModel = CircleDetailViewModel()
+    func testAuthStoreSignsUpSignsInAndLogsOutLocalAccount() throws {
+        let defaults = makeDefaults()
+        let store = AuthStore(userDefaults: defaults)
 
-        viewModel.noteTitle = "Weekly check-in"
-        XCTAssertFalse(viewModel.canSaveNote)
+        let account = try store.signUp(name: "  Tuan  ", email: " TUAN@example.com ", password: "strong-pass")
 
-        viewModel.noteBody = "  Share one honest win and one stuck point.  "
-        XCTAssertTrue(viewModel.canSaveNote)
+        XCTAssertTrue(store.isSignedIn)
+        XCTAssertEqual(account.email, "tuan@example.com")
+        XCTAssertEqual(account.displayName, "Tuan")
+        XCTAssertNotEqual(account.passwordHash, "strong-pass")
+
+        store.logout()
+        XCTAssertFalse(store.isSignedIn)
+
+        let signedIn = try store.signIn(email: "tuan@example.com", password: "strong-pass")
+        XCTAssertEqual(signedIn.id, account.id)
+        XCTAssertTrue(store.isSignedIn)
     }
 
     func testJournalSearchFindsEntryContentAcrossEditableAndGeneratedFields() {
@@ -88,5 +97,12 @@ final class ViewModelBehaviorTests: XCTestCase {
 
         viewModel.toneValue = 0.9
         XCTAssertEqual(viewModel.tone, .firm)
+    }
+
+    private func makeDefaults() -> UserDefaults {
+        let suiteName = "circleu.viewmodel.tests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        return defaults
     }
 }

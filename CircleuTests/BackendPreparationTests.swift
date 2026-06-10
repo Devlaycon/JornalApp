@@ -33,7 +33,7 @@ final class BackendPreparationTests: XCTestCase {
         let entry = makeEntry()
         let quest = Quest(title: "Try this next", detail: entry.result.suggestedQuest, sourceEntryID: entry.id)
         let circle = CircleSpace(name: "Support", intention: "Private notes")
-        let post = CirclePost(circleID: circle.id, title: entry.displayTitle, body: entry.displaySummary, sourceEntryID: entry.id)
+        let post = CirclePost(circleID: circle.id, text: entry.displaySummary, sourceEntryID: entry.id)
         let session = AIReflectionSession(
             entryID: entry.id,
             engineName: entry.engineName,
