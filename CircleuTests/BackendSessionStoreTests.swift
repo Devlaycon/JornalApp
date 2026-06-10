@@ -105,6 +105,56 @@ final class BackendSessionStoreTests: XCTestCase {
         XCTAssertEqual(authenticator.signedInEmail, "tuan@example.com")
     }
 
+    func testSignInRestoresLocalAccountWhenOnlyFirebaseAccountExists() async throws {
+        let authStore = AuthStore(userDefaults: makeDefaults())
+        let profileStore = UserProfileStore(userDefaults: makeDefaults())
+        let authenticator = FakeFirebaseAuthenticator()
+        let store = BackendSessionStore(
+            authenticator: authenticator,
+            syncer: NoOpReflectionSyncer(),
+            identityProvider: StubIdentityProvider(localUserID: "local-user-1", displayName: "Tuan")
+        )
+
+        let account = try await store.signIn(
+            email: "tuan@example.com",
+            password: "strong-password",
+            authStore: authStore,
+            profileStore: profileStore
+        )
+
+        XCTAssertEqual(account.email, "tuan@example.com")
+        XCTAssertEqual(account.displayName, "Tuan")
+        XCTAssertEqual(authStore.accounts.map(\.email), ["tuan@example.com"])
+        XCTAssertEqual(authStore.currentEmail, "tuan@example.com")
+        XCTAssertEqual(profileStore.displayName, "Tuan")
+        XCTAssertEqual(store.backendUserID, "firebase-user-1")
+        XCTAssertEqual(authenticator.signedInEmail, "tuan@example.com")
+    }
+
+    func testSignInDoesNotCreateLocalAccountWhenRemoteSignInFails() async {
+        let authStore = AuthStore(userDefaults: makeDefaults())
+        let profileStore = UserProfileStore(userDefaults: makeDefaults())
+        let authenticator = FakeFirebaseAuthenticator()
+        authenticator.signInError = TestBackendError.failed
+        let store = BackendSessionStore(authenticator: authenticator, syncer: NoOpReflectionSyncer())
+
+        do {
+            _ = try await store.signIn(
+                email: "tuan@example.com",
+                password: "strong-password",
+                authStore: authStore,
+                profileStore: profileStore
+            )
+            XCTFail("Expected Firebase sign-in failure to throw.")
+        } catch {
+            XCTAssertEqual(error.localizedDescription, TestBackendError.failed.localizedDescription)
+        }
+
+        XCTAssertTrue(authStore.accounts.isEmpty)
+        XCTAssertNil(authStore.currentEmail)
+        XCTAssertNil(store.backendUserID)
+    }
+
     func testUploadPrivateBackupUsesFirebaseUID() async throws {
         let journalStore = ReflectionJournalStore(userDefaults: makeDefaults())
         let questStore = QuestStore(userDefaults: makeDefaults())

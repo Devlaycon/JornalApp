@@ -71,15 +71,22 @@ final class BackendSessionStore: ObservableObject {
         authStore: AuthStore,
         profileStore: UserProfileStore
     ) async throws -> Account {
-        let account = try authStore.signIn(email: email, password: password)
+        let account: Account
+        do {
+            account = try authStore.signIn(email: email, password: password)
+        } catch AuthError.noAccount {
+            let restoredSession = try await signInWithFirebase(email: email, password: password)
+            account = try authStore.signUp(
+                name: restoredDisplayName(from: restoredSession, email: email),
+                email: email,
+                password: password
+            )
+        }
+
         profileStore.updateDisplayName(account.displayName)
 
-        do {
-            session = try await authenticator.signIn(email: email, password: password)
-            lastAuthErrorMessage = nil
-        } catch {
-            lastAuthErrorMessage = error.localizedDescription
-            throw error
+        if session?.email != account.email {
+            _ = try await signInWithFirebase(email: email, password: password)
         }
 
         return account
@@ -188,5 +195,28 @@ final class BackendSessionStore: ObservableObject {
         } catch {
             lastSyncErrorMessage = error.localizedDescription
         }
+    }
+
+    private func signInWithFirebase(email: String, password: String) async throws -> FirebaseAuthSession {
+        do {
+            let firebaseSession = try await authenticator.signIn(email: email, password: password)
+            session = firebaseSession
+            lastAuthErrorMessage = nil
+            return firebaseSession
+        } catch {
+            lastAuthErrorMessage = error.localizedDescription
+            throw error
+        }
+    }
+
+    private func fallbackDisplayName(from email: String) -> String {
+        let cleanEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        let prefix = cleanEmail.split(separator: "@").first.map(String.init) ?? ""
+        return prefix.isEmpty ? "Friend" : prefix
+    }
+
+    private func restoredDisplayName(from session: FirebaseAuthSession, email: String) -> String {
+        let displayName = session.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return displayName.isEmpty ? fallbackDisplayName(from: email) : displayName
     }
 }
