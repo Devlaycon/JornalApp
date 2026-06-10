@@ -58,10 +58,10 @@ final class EngineBehaviorTests: XCTestCase {
 
         let result = try await engine.analyze(transcript: transcript, durationSeconds: 90)
 
-        XCTAssertEqual(result.title, "You are carrying a lot")
-        XCTAssertEqual(result.emotion, "Resilient")
+        XCTAssertEqual(result.title, "Make the load smaller")
+        XCTAssertEqual(result.emotion, "Overloaded")
         XCTAssertTrue(result.summary.contains("stressed"))
-        XCTAssertEqual(result.suggestedQuest, "Choose one task you can make smaller before the day ends.")
+        XCTAssertEqual(result.suggestedQuest, "Choose the smallest useful task and leave the rest for the next pass.")
         XCTAssertGreaterThan(result.confidenceScore, 0)
         XCTAssertLessThanOrEqual(result.confidenceScore, 1)
     }
@@ -145,6 +145,35 @@ final class EngineBehaviorTests: XCTestCase {
         XCTAssertFalse(result.expressionMoment.lowercased().contains("fuck"))
         XCTAssertFalse(result.quote.contains("Small honest words"))
         XCTAssertEqual(result.suggestedQuest, "Write one calm sentence that names the boundary without attacking the person.")
+    }
+
+    func testLocalReflectionEngineCoachesBoundaryConflictWithoutGenericPraise() async throws {
+        let result = try await analyze(
+            "I felt angry after my teammate interrupted me twice. I want to tell them I need space to finish my idea before they respond.",
+            durationSeconds: 80
+        )
+
+        XCTAssertEqual(result.title, "Name the boundary clearly")
+        XCTAssertEqual(result.emotion, "Protective")
+        XCTAssertTrue(result.summary.lowercased().contains("interrupted"))
+        XCTAssertTrue(result.insight.lowercased().contains("boundary"))
+        XCTAssertFalse(result.summary.contains("You gave shape to what was on your mind"))
+        XCTAssertEqual(result.suggestedQuest, "Write one sentence that names what happened and what you need next.")
+        XCTAssertConfidenceScoreIsValid(result)
+    }
+
+    func testLocalReflectionEngineAnchorsStressFeedbackToOverwhelm() async throws {
+        let result = try await analyze(
+            "I felt overwhelmed because the demo, Firebase setup, and team messages all arrived at once, and I did not know what to finish first.",
+            durationSeconds: 75
+        )
+
+        XCTAssertEqual(result.title, "Make the load smaller")
+        XCTAssertEqual(result.emotion, "Overloaded")
+        XCTAssertTrue(result.summary.lowercased().contains("overwhelmed"))
+        XCTAssertTrue(result.insight.lowercased().contains("too many"))
+        XCTAssertEqual(result.suggestedQuest, "Choose the smallest useful task and leave the rest for the next pass.")
+        XCTAssertConfidenceScoreIsValid(result)
     }
 
     func testAppleIntelligencePromptAsksForSpecificTranscriptAnchoredFeedback() {
