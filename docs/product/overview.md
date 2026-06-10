@@ -49,8 +49,8 @@ See [project-structure.md](../engineering/project-structure.md) for folder owner
 The immediate priority is a reliable local-first beta. Backend work should grow in small slices after the local loop is stable:
 
 1. identity,
-2. CloudKit-backed sync,
+2. Firebase-backed sync,
 3. privacy-safe analytics,
 4. optional external AI providers.
 
-CloudKit is the preferred Apple-first database direction. See [cloudkit-data-model.md](../engineering/cloudkit-data-model.md).
+Firebase is the current backend direction because the team does not have paid Apple Developer Program access for CloudKit. See [firebase-backend-plan.md](../engineering/firebase-backend-plan.md). CloudKit remains documented as an Apple-first reference in [cloudkit-data-model.md](../engineering/cloudkit-data-model.md).

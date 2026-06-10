@@ -27,7 +27,7 @@ Shared reusable SwiftUI pieces live in `Circleu/Components/` only after more tha
 
 The beta stores reflections, tips, profile data, AI session history, and circles locally. Backend work must enter through service protocols and payload mapping, not directly from SwiftUI views or feature ViewModels.
 
-CloudKit is the preferred Apple-first database direction, but local mode remains the source of truth until sync is explicitly enabled.
+Firebase is the current backend direction, but local mode remains the source of truth until sync is explicitly enabled. CloudKit remains documented as a future Apple-first alternative.
 
 ## Testing Boundary
 

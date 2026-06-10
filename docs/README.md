@@ -11,10 +11,11 @@ This folder holds the current project knowledge the team should follow while bui
 5. [Domain models](engineering/domain-models.md)
 6. [Backend boundaries](engineering/backend-boundaries.md)
 7. [Backend roadmap](engineering/backend-roadmap.md)
-8. [CloudKit data model](engineering/cloudkit-data-model.md)
-9. [Phone test checklist](qa/phone-test-checklist.md)
-10. [Git workflow](process/git-workflow.md)
-11. [Team standards](process/team-standards.md)
+8. [Firebase backend plan](engineering/firebase-backend-plan.md)
+9. [CloudKit data model](engineering/cloudkit-data-model.md)
+10. [Phone test checklist](qa/phone-test-checklist.md)
+11. [Git workflow](process/git-workflow.md)
+12. [Team standards](process/team-standards.md)
 
 ## Folder Map
 

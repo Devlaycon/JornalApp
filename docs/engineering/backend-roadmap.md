@@ -14,7 +14,7 @@ The beta already works locally:
 - AI reflection session history,
 - QA seed, reset, and export tools.
 
-Backend-ready boundaries are documented in [backend-boundaries.md](backend-boundaries.md). CloudKit schema direction is documented in [cloudkit-data-model.md](cloudkit-data-model.md).
+Backend-ready boundaries are documented in [backend-boundaries.md](backend-boundaries.md). Firebase is the current backend target and is documented in [firebase-backend-plan.md](firebase-backend-plan.md). CloudKit remains an Apple-first reference in [cloudkit-data-model.md](cloudkit-data-model.md).
 
 ## Build Order
 
@@ -30,13 +30,13 @@ Add:
 - migration from `LocalUserIdentityProvider.localUserID`,
 - sign-out behavior that does not accidentally destroy local data.
 
-Local journaling must keep working if sign-in or iCloud availability fails. Do not upload local password hashes to CloudKit.
+Local journaling must keep working if sign-in or Firebase availability fails. Do not upload local password hashes to Firebase.
 
-### 2. CloudKit Sync
+### 2. Firebase Sync
 
-Goal: sync the local-first data model across Apple devices.
+Goal: sync the local-first data model across devices.
 
-Use `BackendSyncSnapshot` as the local data source and [cloudkit-data-model.md](cloudkit-data-model.md) as the record schema. Start by mapping local models into CloudKit-ready payloads:
+Use `BackendSyncSnapshot` as the local data source and [firebase-backend-plan.md](firebase-backend-plan.md) as the Firestore schema. Start by mapping local models into Firebase-ready payloads:
 
 - journal entries,
 - quests,
@@ -49,7 +49,7 @@ Use `BackendSyncSnapshot` as the local data source and [cloudkit-data-model.md](
 - point entries,
 - activity events.
 
-Start with upload-only private backup. Add two-way sync only after conflict rules are defined.
+Start with upload-only private user backup. Add shared circles and two-way sync only after security rules and conflict rules are defined.
 
 ### 3. Analytics
 
@@ -95,15 +95,15 @@ Even after backend support exists:
 
 Recommended backend sequence:
 
-1. `docs: update CloudKit guide for current models`
-2. `test: update CloudKit schema coverage`
-3. `refactor: align CloudKit schema constants`
-4. `test: cover CloudKit snapshot mapping`
-5. `feat: map local snapshots to CloudKit payloads`
-6. `test: cover identity provider behavior`
-7. `refactor: add backend identity provider`
+1. `docs: add Firebase backend plan`
+2. `test: cover Firebase schema foundation`
+3. `feat: add Firebase schema foundation`
+4. `test: cover Firebase snapshot mapping`
+5. `feat: map local snapshots to Firebase payloads`
+6. `test: cover Firebase auth boundary`
+7. `feat: add Firebase auth service boundary`
 8. `test: cover upload-only sync fallback`
-9. `feat: add upload-only CloudKit backup sync`
+9. `feat: add upload-only Firestore backup sync`
 10. `test: cover privacy-safe analytics events`
 11. `feat: add analytics tracker`
 12. `test: cover external reflection provider fallback`
