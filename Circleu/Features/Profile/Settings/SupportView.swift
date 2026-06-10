@@ -9,8 +9,8 @@ struct SupportView: View {
             VStack(spacing: 16) {
 
                 FAQCard(
-                    question: "What is Circleu?",
-                    answer: "Circleu is a reflection companion designed to help people build social confidence through reflection, growth, and connection."
+                    question: "What is CircleU?",
+                    answer: "CircleU is a reflection companion designed to help people build social confidence through reflection, growth, and connection."
                 )
 
                 FAQCard(
@@ -24,8 +24,8 @@ struct SupportView: View {
                 )
 
                 FAQCard(
-                    question: "Does Circleu provide therapy?",
-                    answer: "No. Circleu supports self-reflection and personal growth, but it does not replace professional mental health services."
+                    question: "Does CircleU provide therapy?",
+                    answer: "No. CircleU supports self-reflection and personal growth, but it does not replace professional mental health services."
                 )
 
                 FAQCard(
@@ -35,7 +35,7 @@ struct SupportView: View {
 
                 FAQCard(
                     question: "Can I choose what to share?",
-                    answer: "Yes. You remain in control of what you choose to save, keep private, or share with the Circleu community."
+                    answer: "Yes. You remain in control of what you choose to save, keep private, or share with the CircleU community."
                 )
 
                 contactCard
@@ -87,7 +87,7 @@ struct SupportView: View {
             .font(.headline)
 
             Text(
-                "Your feedback helps Circleu grow. We welcome ideas about features, usability, accessibility, and community experiences."
+                "Your feedback helps CircleU grow. We welcome ideas about features, usability, accessibility, and community experiences."
             )
             .foregroundStyle(.secondary)
         }

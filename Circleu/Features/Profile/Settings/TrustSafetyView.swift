@@ -30,19 +30,19 @@ struct TrustSafetyView: View {
                     PolicyCard(
                         icon: "person.2.fill",
                         title: "Community Guidelines",
-                        subtitle: "How we keep Circleu safe and supportive."
+                        subtitle: "How we keep it safe and supportive."
                     )
                 }
 
                 NavigationLink {
                     PolicyDetailView(
-                        title: "How Circleu Uses AI",
+                        title: "How CircleU Uses AI",
                         content: aiPolicy
                     )
                 } label: {
                     PolicyCard(
                         icon: "sparkles",
-                        title: "How Circleu Uses AI",
+                        title: "How CircleU Uses AI",
                         subtitle: "Understanding AI-generated insights."
                     )
                 }
@@ -106,4 +106,8 @@ struct PolicyCard: View {
             )
         )
     }
+}
+
+#Preview{
+    TrustSafetyView()
 }

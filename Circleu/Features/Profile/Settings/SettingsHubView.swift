@@ -25,7 +25,7 @@ struct SettingsHubView: View {
                 )
 
                 SettingsCard(
-                    title: "About Circleu",
+                    title: "About CircleU",
                     icon: "info.circle.fill",
                     destination: AnyView(
                         AboutView()

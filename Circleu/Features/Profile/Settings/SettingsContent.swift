@@ -1,7 +1,7 @@
 import Foundation
 
 let privacyPolicy = """
-At Circleu, your privacy matters.
+At CircleU, your privacy matters.
 
 Voice reflections, journal entries, and personal insights are designed to support your individual reflection experience. We aim to be transparent about how information is used and to give users control over their own content.
 
@@ -18,19 +18,19 @@ The information you create may be used to:
 
 • Generate reflection insights
 • Personalise suggestions and growth experiences
-• Support your overall Circleu experience
+• Support your overall CircleU experience
 
 YOUR CONTROL
 
 You remain in control of what you create and share.
 
-You may choose what information to save, edit, or share within the Circleu community.
+You may choose what information to save, edit, or share within the CircleU community.
 
 Last Updated: June 2026
 """
 
 let communityGuidelines = """
-Circleu is built around reflection, growth, and connection.
+CircleU is built around reflection, growth, and connection.
 
 To help maintain a positive environment, we ask all users to follow these principles.
 
@@ -48,7 +48,7 @@ Avoid sharing sensitive personal information about yourself or others.
 
 CREATE A SAFE SPACE
 
-Harassment, bullying, discrimination, or harmful behaviour are not welcome in the Circleu community.
+Harassment, bullying, discrimination, or harmful behaviour are not welcome in the CircleU community.
 
 Together, we can create a space where everyone feels comfortable learning, reflecting, and growing.
 
@@ -56,15 +56,15 @@ Last Updated: June 2026
 """
 
 let aiPolicy = """
-Circleu uses AI to support reflection, self-awareness, and personal growth.
+CircleU uses AI to support reflection, self-awareness, and personal growth.
 
 When you record a reflection, AI may help identify emotions, themes, and insights from your experience.
 
-Based on these reflections, Circleu may also suggest prompts, tips, or small actions to support your growth journey.
+Based on these reflections, CircleU may also suggest prompts, tips, or small actions to support your growth journey.
 
 AI is designed to be a supportive companion, not an authority.
 
-Circleu's AI does not provide medical advice, mental health diagnoses, or professional counselling.
+CircleU's AI does not provide medical advice, mental health diagnoses, or professional counselling.
 
 AI-generated insights should be viewed as supportive guidance rather than professional recommendations.
 
@@ -78,9 +78,9 @@ Last Updated: June 2026
 """
 
 let safetyPolicy = """
-Circleu is designed to encourage reflection, confidence, and personal growth.
+CircleU is designed to encourage reflection, confidence, and personal growth.
 
-While reflection can be a valuable tool for self-awareness, Circleu is not a substitute for professional mental health care.
+While reflection can be a valuable tool for self-awareness, CircleU is not a substitute for professional mental health care.
 
 SEEK SUPPORT WHEN NEEDED
 
@@ -94,7 +94,7 @@ Reflection is not about being perfect — it is about learning, understanding, a
 
 YOUR WELLBEING COMES FIRST
 
-Take breaks when needed and engage with Circleu in a way that feels healthy and supportive for you.
+Take breaks when needed and engage with CircleU in a way that feels healthy and supportive for you.
 
 Your wellbeing will always be more important than maintaining a streak or completing an activity.
 
@@ -104,7 +104,7 @@ Last Updated: June 2026
 let helpFAQ = """
 WHAT IS CIRCLEU?
 
-Circleu is a reflection companion designed to help people build social confidence through reflection, growth, and connection.
+CircleU is a reflection companion designed to help people build social confidence through reflection, growth, and connection.
 
 WHY USE VOICE REFLECTION?
 
@@ -116,7 +116,7 @@ Your reflections are intended to support your personal growth experience. You re
 
 DOES CIRCLEU PROVIDE THERAPY?
 
-No. Circleu supports self-reflection and personal growth, but it does not replace professional mental health services.
+No. CircleU supports self-reflection and personal growth, but it does not replace professional mental health services.
 
 HOW DOES AI HELP?
 
@@ -124,27 +124,27 @@ AI helps identify themes, emotions, and opportunities for growth within reflecti
 
 CAN I CHOOSE WHAT TO SHARE?
 
-Yes. You remain in control of what you choose to save, keep private, or share with the Circleu community.
+Yes. You remain in control of what you choose to save, keep private, or share with the CircleU community.
 """
 
 let sendFeedback = """
-Your feedback helps Circleu grow.
+Your feedback helps CircleU grow.
 
 We welcome suggestions about features, usability, accessibility, community experiences, and overall product improvements.
 
 Every idea, observation, and experience helps us create a better reflection experience for future users.
 
-Thank you for helping us improve Circleu.
+Thank you for helping us improve CircleU.
 """
 
-let aboutCircleu = """
+let CircleU = """
 ABOUT CIRCLEU
 
-Circleu is a reflection companion designed to help people build social confidence through voice reflection, personalised insights, and supportive community experiences.
+CircleU is a reflection companion designed to help people build social confidence through voice reflection, personalised insights, and supportive community experiences.
 
 We believe growth begins with understanding ourselves.
 
-By encouraging reflection, small actions, and meaningful connections, Circleu helps users turn everyday experiences into opportunities for learning and personal growth.
+By encouraging reflection, small actions, and meaningful connections, CircleU helps users turn everyday experiences into opportunities for learning and personal growth.
 
 OUR MISSION
 
@@ -184,7 +184,7 @@ Reflect. Grow. Connect.
 let acknowledgements = """
 APPLE FOUNDATION PROGRAM
 
-Circleu was developed as part of the Apple Foundation Program, where we explored design, technology, and innovation through collaborative learning.
+CircleU was developed as part of the Apple Foundation Program, where we explored design, technology, and innovation through collaborative learning.
 
 UNIVERSITY OF TECHNOLOGY SYDNEY
 
@@ -196,7 +196,7 @@ Special thanks to our mentors, facilitators, and instructors for their guidance,
 
 USER FEEDBACK
 
-We are grateful to everyone who participated in testing, interviews, and feedback sessions. Your insights helped shape the Circleu experience.
+We are grateful to everyone who participated in testing, interviews, and feedback sessions. Your insights helped shape the CircleU experience.
 
 TECHNOLOGY & TOOLS
 
@@ -206,7 +206,7 @@ TECHNOLOGY & TOOLS
 
 THE CIRCLEU TEAM
 
-We would like to thank every member of the Circleu team for their contributions across design, development, research, testing, and storytelling.
+We would like to thank every member of the CircleU team for their contributions across design, development, research, testing, and storytelling.
 
 This project would not have been possible without our shared effort and collaboration.
 """
@@ -214,7 +214,7 @@ This project would not have been possible without our shared effort and collabor
 let versionInfo = """
 Version 1.0.0
 
-Circleu
+CircleU
 
 Developed as part of the Apple Foundation Program
 
