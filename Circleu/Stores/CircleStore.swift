@@ -15,7 +15,7 @@ final class CircleStore: ObservableObject {
     /// The Firebase UID of the currently authed user, set by `configureBackend(...)`.
     private(set) var currentUserID: String?
     /// The display name of the currently authed user.
-    private(set) var currentUserName: String = "Friend"
+    private(set) var currentUserName: String = "You"
 
     private let circlesKey = "circleu.circles.v2"
     private let postsKey = "circleu.circlePosts.v2"
@@ -30,10 +30,10 @@ final class CircleStore: ObservableObject {
     init(
         userDefaults: UserDefaults = .standard,
         seedStarterSpaces: Bool = true,
-        firebase: FirebaseCircleService = FirebaseCircleService()
+        firebase: FirebaseCircleService? = nil
     ) {
         self.userDefaults = userDefaults
-        self.firebase = firebase
+        self.firebase = firebase ?? FirebaseCircleService()
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
         load()
@@ -55,7 +55,7 @@ final class CircleStore: ObservableObject {
     /// Tear down Firebase-backed sync. Called when the user signs out.
     func teardownBackend() {
         currentUserID = nil
-        currentUserName = "Friend"
+        currentUserName = "You"
         firebase.stopAll()
         isObservingFirebase = false
         observedPostCircleIDs.removeAll()

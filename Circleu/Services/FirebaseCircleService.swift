@@ -14,6 +14,7 @@ import Foundation
 ///     - likedBy: [String]         // UIDs that liked this post
 ///     - sourceEntryID?
 ///     - replies: [ { id, who, authorUserID, text, createdAt, likedBy } ]
+@MainActor
 final class FirebaseCircleService {
     private let db: Firestore
     private var circlesListener: ListenerRegistration?
@@ -134,7 +135,7 @@ final class FirebaseCircleService {
 // MARK: - Codec: CircleSpace
 
 extension CircleSpace {
-    var firestoreData: [String: Any] {
+    nonisolated var firestoreData: [String: Any] {
         var data: [String: Any] = [
             "id": id.uuidString,
             "name": name,
@@ -151,7 +152,7 @@ extension CircleSpace {
     }
 
     /// Decode a Firestore document back into a CircleSpace. Returns nil if the id is missing.
-    init?(firestoreData data: [String: Any]) {
+    nonisolated init?(firestoreData data: [String: Any]) {
         guard
             let idString = data["id"] as? String,
             let id = UUID(uuidString: idString)
@@ -192,7 +193,7 @@ extension CircleSpace {
 // MARK: - Codec: CirclePost / PostReply
 
 extension CirclePost {
-    var firestoreData: [String: Any] {
+    nonisolated var firestoreData: [String: Any] {
         var data: [String: Any] = [
             "id": id.uuidString,
             "circleID": circleID.uuidString,
@@ -209,7 +210,7 @@ extension CirclePost {
         return data
     }
 
-    init?(firestoreData data: [String: Any]) {
+    nonisolated init?(firestoreData data: [String: Any]) {
         guard
             let idString = data["id"] as? String,
             let id = UUID(uuidString: idString),
@@ -245,7 +246,7 @@ extension CirclePost {
 }
 
 extension PostReply {
-    var firestoreData: [String: Any] {
+    nonisolated var firestoreData: [String: Any] {
         [
             "id": id.uuidString,
             "who": who,
@@ -256,7 +257,7 @@ extension PostReply {
         ]
     }
 
-    init?(firestoreData data: [String: Any]) {
+    nonisolated init?(firestoreData data: [String: Any]) {
         guard
             let idString = data["id"] as? String,
             let id = UUID(uuidString: idString)
