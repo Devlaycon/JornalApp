@@ -24,16 +24,17 @@ final class BackendSessionStore: ObservableObject {
     private let identityProvider: UserIdentityProviding
 
     init(
-        authenticator: FirebaseAuthenticating = FirebaseAuthService(),
-        syncer: ReflectionSyncing = FirebaseUploadOnlySyncer(),
-        restorer: ReflectionBackupRestoring = FirebaseUploadOnlySyncer(),
-        identityProvider: UserIdentityProviding = LocalUserIdentityProvider()
+        authenticator: FirebaseAuthenticating? = nil,
+        syncer: ReflectionSyncing? = nil,
+        restorer: ReflectionBackupRestoring? = nil,
+        identityProvider: UserIdentityProviding? = nil
     ) {
-        self.authenticator = authenticator
-        self.syncer = syncer
-        self.restorer = restorer
-        self.identityProvider = identityProvider
-        session = authenticator.currentSession
+        let liveSyncer = FirebaseRuntime.makeSyncer()
+        self.authenticator = authenticator ?? FirebaseRuntime.makeAuthenticator()
+        self.syncer = syncer ?? liveSyncer
+        self.restorer = restorer ?? liveSyncer
+        self.identityProvider = identityProvider ?? LocalUserIdentityProvider()
+        session = self.authenticator.currentSession
     }
 
     var backendUserID: String? {

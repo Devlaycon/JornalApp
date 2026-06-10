@@ -123,7 +123,7 @@ Do not commit production Firebase credentials or service account keys. If the te
 Current development Firebase project:
 
 - Firebase project ID: `circleu-45651`
-- iOS bundle ID: `com.Pingu.Circleu`
+- iOS bundle ID: `edu.uts.tuannm3812.Circleu`
 - Config file path: `Circleu/GoogleService-Info.plist`
 - Swift Package products linked to the app target: `FirebaseCore`, `FirebaseAuth`, `FirebaseFirestore`
 - Package lockfile path: `Circleu.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
