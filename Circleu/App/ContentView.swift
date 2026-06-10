@@ -9,6 +9,7 @@ struct ContentView: View {
     @StateObject private var tipsPracticeStore = TipsPracticeStore()
     @StateObject private var aiSessionStore = AIReflectionSessionStore()
     @StateObject private var rewardsStore = RewardsStore()
+    @StateObject private var authStore = AuthStore()
 
     var body: some View {
         Group {
@@ -30,6 +31,7 @@ struct ContentView: View {
         .environmentObject(tipsPracticeStore)
         .environmentObject(aiSessionStore)
         .environmentObject(rewardsStore)
+        .environmentObject(authStore)
     }
 }
 

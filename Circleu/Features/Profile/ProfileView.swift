@@ -10,6 +10,7 @@ struct ProfileView: View {
     @EnvironmentObject private var profileStore: UserProfileStore
     @EnvironmentObject private var circleStore: CircleStore
     @EnvironmentObject private var rewardsStore: RewardsStore
+    @EnvironmentObject private var authStore: AuthStore
 
     @State private var filter: ActivityFilter = .all
 
@@ -365,6 +366,7 @@ struct ProfileView: View {
 
     private var logoutButton: some View {
         Button {
+            authStore.logout()
             withAnimation(.spring(response: 0.5, dampingFraction: 0.86)) {
                 hasCompletedOnboarding = false
             }
@@ -625,4 +627,5 @@ struct ProfileActionButtonStyle: ButtonStyle {
         .environmentObject(UserProfileStore())
         .environmentObject(CircleStore())
         .environmentObject(RewardsStore())
+        .environmentObject(AuthStore())
 }
