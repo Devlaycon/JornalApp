@@ -70,18 +70,41 @@ Completed quests contribute to XP and progress.
 
 `CircleSpace` is a private local support space on the user's phone.
 
-In the current beta, circles are not live multi-user groups. They organize support notes and privacy-safe reflection shares until shared CloudKit circles are intentionally added.
+It stores name, intention, emoji, member count, joined state, and creation time.
+
+In the current beta, circles are local social-feed style spaces. They organize support notes and privacy-safe reflection shares until shared CloudKit circles are intentionally added.
 
 ## Circle Post
 
 `CirclePost` is one note saved inside a circle.
 
-It can be:
+It stores author label, text, likes, liked state, replies, creation time, and an optional source journal entry ID.
+
+It can represent:
 
 - a support note written by the user,
 - a privacy-safe share from a saved reflection.
 
 Circle cards derive post count and latest activity from posts.
+
+## Circle Post Reply
+
+`PostReply` is one reply inside a circle post.
+
+It stores author label, text, creation time, likes, and liked state. In future CloudKit work, replies should map to separate records instead of staying embedded inside `CirclePost`.
+
+## Rewards And Activity
+
+`RewardsStore` owns profile reward data.
+
+It stores:
+
+- total points,
+- daily quest award state,
+- recent point entries,
+- profile activity events.
+
+`PointEntry` records one points award. `ActivityEvent` records one profile timeline event, such as reflection, tips practice, community selection, or community join.
 
 ## Tips Practice Session
 
@@ -105,6 +128,7 @@ Stores persist local data:
 - `CircleStore`: private circle spaces and posts.
 - `QuestStore`: active, completed, and skipped quests.
 - `TipsPracticeStore`: recent tips practice sessions.
+- `RewardsStore`: profile points, reward log, daily award state, and activity timeline.
 
 Engines calculate or generate results:
 

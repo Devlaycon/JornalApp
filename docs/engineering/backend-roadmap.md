@@ -9,6 +9,7 @@ The beta already works locally:
 - reflection journal entries,
 - tips and quest state,
 - circle spaces and private posts,
+- reward points and profile activity,
 - profile name and preferences,
 - AI reflection session history,
 - QA seed, reset, and export tools.
@@ -40,8 +41,12 @@ Use `BackendSyncSnapshot` as the local data source and [cloudkit-data-model.md](
 - quests,
 - circles,
 - circle posts,
+- circle post replies,
 - AI sessions,
 - tips practice sessions.
+- reward state,
+- point entries,
+- activity events.
 
 Start with upload-only private backup. Add two-way sync only after conflict rules are defined.
 
@@ -89,16 +94,19 @@ Even after backend support exists:
 
 Recommended backend sequence:
 
-1. `test: cover CloudKit snapshot mapping`
-2. `feat: map local snapshots to CloudKit payloads`
-3. `test: cover identity provider behavior`
-4. `refactor: add backend identity provider`
-5. `test: cover upload-only sync fallback`
-6. `feat: add upload-only CloudKit backup sync`
-7. `test: cover privacy-safe analytics events`
-8. `feat: add analytics tracker`
-9. `test: cover external reflection provider fallback`
-10. `feat: add external reflection provider boundary`
+1. `docs: update CloudKit guide for current models`
+2. `test: update CloudKit schema coverage`
+3. `refactor: align CloudKit schema constants`
+4. `test: cover CloudKit snapshot mapping`
+5. `feat: map local snapshots to CloudKit payloads`
+6. `test: cover identity provider behavior`
+7. `refactor: add backend identity provider`
+8. `test: cover upload-only sync fallback`
+9. `feat: add upload-only CloudKit backup sync`
+10. `test: cover privacy-safe analytics events`
+11. `feat: add analytics tracker`
+12. `test: cover external reflection provider fallback`
+13. `feat: add external reflection provider boundary`
 
 Each slice must keep local mode working and include tests for failure fallback.
 
