@@ -1,57 +1,69 @@
 # Circleu
 
-Circleu is a local-first iOS reflection app for voice journaling, AI-assisted insight, and small daily tip actions.
+Circleu is an iOS reflection and journaling app that helps people turn short voice or typed check-ins into useful insight. Users can record a reflection, review AI-assisted feedback, save a private journal entry, practice one communication tip, and share selected support notes with a circle.
 
-The current beta focuses on one complete real-user loop:
+The current beta is built for real-device testing through TestFlight with Firebase Authentication and Firestore backup/sync.
 
 ```text
-Onboarding -> Home -> Record or Type -> AI Reflection -> Journal -> Tips -> Progress -> Circle/Profile
+Onboarding -> Home -> Record or Type -> AI Reflection -> Journal -> Tips -> Circle/Profile
 ```
 
-Users can record or type a reflection, review an AI-generated summary, save it to a private journal, start a suggested tip action, and optionally share a privacy-safe version into a private circle on the same device.
+## App Store Preview
 
-## Design Reference
+App Store/TestFlight-ready screenshots live in [docs/product/snapshots/app-store](docs/product/snapshots/app-store). Raw simulator screenshots are kept in [docs/product/snapshots](docs/product/snapshots).
 
-- [TEAM 6 PINGU Figma design](https://www.figma.com/design/zLxqQQD19rjIf65Zqs2aeE/TEAM-6-PINGU?node-id=0-1&m=dev&t=MEb8WYBaU5VVG022-1)
+| Reflect | Insight | Journal |
+| --- | --- | --- |
+| ![Circleu App Store screenshot: reflect in your own voice](docs/product/snapshots/app-store/01-reflect-in-your-own-voice.png) | ![Circleu App Store screenshot: turn check-ins into insight](docs/product/snapshots/app-store/02-turn-check-ins-into-insight.png) | ![Circleu App Store screenshot: save your private journal](docs/product/snapshots/app-store/03-save-your-private-journal.png) |
 
-## Current Capabilities
+| Tips | Circles |
+| --- | --- |
+| ![Circleu App Store screenshot: practice one small next step](docs/product/snapshots/app-store/04-practice-one-small-step.png) | ![Circleu App Store screenshot: share support with circles](docs/product/snapshots/app-store/05-share-support-with-circles.png) |
+
+## Current Beta
+
+- TestFlight-ready iOS app.
+- Firebase email/password sign-in.
+- Firestore backup for profiles, journal entries, AI reflection sessions, tips practice, rewards, activity, and circles.
+- Public circle data through Firestore-backed circles, posts, replies, likes, and bookmarks.
+- Local persistence remains available so the app can keep working during normal beta testing and development.
+
+## Core Features
 
 - Voice recording with microphone permission handling.
-- Speech recognition with typed fallback when recording or transcription is not available.
-- AI reflection generation through a `ReflectionAnalyzing` abstraction.
-- Apple Intelligence support through Foundation Models when available.
-- Local test reflection engine fallback for simulator and unsupported devices.
-- Saved reflection journal with editable title, emotion, notes, and tags.
+- Speech recognition with typed fallback.
+- AI reflection generation through a `ReflectionAnalyzing` boundary.
+- Apple Intelligence support when available, with local fallback behavior for simulator and unsupported devices.
+- Rough-language and low-signal reflection handling in the local engine.
+- Saved journal entries with editable title, emotion, notes, and tags.
 - Tips workflow for active, completed, skipped, and restarted actions.
-- Private local circles for support notes and selected reflection shares.
-- Profile progress based on local reflection and tip state.
-- QA tools for deterministic demo data, local reset, and exportable test summaries.
+- Circle sharing for selected reflection insights and support posts.
+- Profile progress, Firebase status, QA tools, demo seeding, force upload, and restore controls.
 
 ## Tech Stack
 
 - SwiftUI
 - Xcode project: `Circleu.xcodeproj`
-- Local-first app state with `ObservableObject` stores
-- Swift `Codable` models for persistence-friendly data
+- Firebase Authentication
+- Cloud Firestore
 - AVFoundation for recording
 - Speech framework for transcription
 - Foundation Models / Apple Intelligence when available
-
-No backend is required for the current beta. The app is structured so cloud identity, sync, analytics, and external model providers can be added later without rewriting the core user flow.
+- `ObservableObject` stores with `Codable` persistence-friendly models
 
 ## Project Structure
 
 ```text
 Circleu/
   App/                 App entry, dependency injection, root navigation
-  Assets.xcassets/     Colors and image assets
+  Assets.xcassets/     Colors, app icon, mascot, and image assets
   Components/          Shared reusable SwiftUI components and button styles
   Design/              Design tokens such as colors, spacing, and layout constants
-  Engines/             Pure business or AI logic
+  Engines/             Pure business and AI/reflection logic
   Features/            User-facing screens grouped by product workflow
   Models/              Codable domain models and value types
-  Services/            Device/system integrations
-  Stores/              ObservableObject state and local persistence
+  Services/            Device, Firebase, and backend integration boundaries
+  Stores/              ObservableObject app state and local persistence
 ```
 
 See [docs/engineering/project-structure.md](docs/engineering/project-structure.md) for folder ownership rules.
@@ -60,7 +72,7 @@ See [docs/engineering/project-structure.md](docs/engineering/project-structure.m
 
 1. Open `Circleu.xcodeproj` in Xcode.
 2. Select the `Circleu` scheme.
-3. Choose an iPhone simulator, such as iPhone 17 Pro.
+3. Select an iPhone simulator, such as iPhone 17 Pro.
 4. Build and run.
 
 Command-line simulator build:
@@ -69,25 +81,41 @@ Command-line simulator build:
 xcodebuild build -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
+## Firebase Setup
+
+Firebase is required for the live beta backend. The app expects a valid `GoogleService-Info.plist` for the current bundle identifier.
+
+For the shared TestFlight app, the bundle identifier is:
+
+```text
+edu.uts.tuannm3812.Circleu
+```
+
+If Firebase cannot be configured, the app falls back to no-op backend services and local state for development, but TestFlight data will not sync to Firestore until the Firebase config matches the app bundle ID.
+
 ## Test
 
-The shared `Circleu` scheme includes the `CircleuTests` unit test target for ViewModel behavior checks.
+Run the shared unit test target:
 
 ```bash
 xcodebuild test -project Circleu.xcodeproj -scheme Circleu -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
-## Run On iPhone
+Before a TestFlight upload, run a device or archive build from Xcode and complete the phone checklist:
 
-1. Open the `Circleu` target in Xcode.
-2. Go to **Signing & Capabilities**.
-3. Enable **Automatically manage signing**.
-4. Select your Apple development team.
-5. If needed, use a unique bundle identifier for your local device build.
-6. Connect and unlock your iPhone.
-7. Select the iPhone in Xcode and press Run.
+- [docs/qa/phone-test-checklist.md](docs/qa/phone-test-checklist.md)
+- [docs/product/testflight-description.md](docs/product/testflight-description.md)
 
-For the full device checklist, see [docs/qa/phone-test-checklist.md](docs/qa/phone-test-checklist.md).
+## TestFlight Status
+
+Circleu has been uploaded to Apple for TestFlight processing. Use App Store Connect to add beta app information, assign testers, and submit the build for internal or external testing.
+
+Test account:
+
+```text
+Email: test.circleu@gmail.com
+Password: CircleuTest123!
+```
 
 ## Git Workflow
 
@@ -110,19 +138,18 @@ refactor: split profile qa tools
 docs: update phone test checklist
 ```
 
-See [docs/process/git-workflow.md](docs/process/git-workflow.md) and [docs/process/team-standards.md](docs/process/team-standards.md) for the team commit and push rules.
+See [docs/process/git-workflow.md](docs/process/git-workflow.md) and [docs/process/team-standards.md](docs/process/team-standards.md) for commit and push rules.
 
 ## Key Docs
 
 - [Docs index](docs/README.md)
 - [Product overview](docs/product/overview.md)
 - [App flow](docs/product/app-flow.md)
+- [TestFlight description](docs/product/testflight-description.md)
 - [Domain models](docs/engineering/domain-models.md)
 - [Architecture](docs/engineering/architecture.md)
 - [Backend boundaries](docs/engineering/backend-boundaries.md)
-- [Backend roadmap](docs/engineering/backend-roadmap.md)
 - [Firebase backend plan](docs/engineering/firebase-backend-plan.md)
-- [CloudKit data model](docs/engineering/cloudkit-data-model.md)
 - [Project structure](docs/engineering/project-structure.md)
 - [Phone test checklist](docs/qa/phone-test-checklist.md)
 - [Release readiness](docs/product/release-readiness.md)
@@ -130,4 +157,4 @@ See [docs/process/git-workflow.md](docs/process/git-workflow.md) and [docs/proce
 
 ## Product Direction
 
-Circleu is being built as a real, testable beta rather than a static Figma copy. The immediate priority is a reliable local-first reflection experience on a real iPhone. Backend work should come later when the product needs account login, cloud sync, shared devices, analytics, or external AI model providers.
+Circleu is being built as a real beta, not just a static prototype. The immediate focus is stable TestFlight testing, reliable Firebase-backed data flow, clearer AI reflection behavior, and a polished loop from reflection to journal, tips, and circles.
