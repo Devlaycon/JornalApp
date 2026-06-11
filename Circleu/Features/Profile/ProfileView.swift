@@ -41,6 +41,20 @@ struct ProfileView: View {
                         .slideUp(0.06)
                         .padding(.bottom, 20)
 
+                    questsHeader
+                        .slideUp(0.1)
+                        .padding(.bottom, 12)
+                    questsSection
+                        .slideUp(0.14)
+                        .padding(.bottom, 24)
+
+                    rewardsHeader
+                        .slideUp(0.16)
+                        .padding(.bottom, 12)
+                    rewardsSection
+                        .slideUp(0.18)
+                        .padding(.bottom, 24)
+
                     historyHeader
                         .slideUp(0.12)
                         .padding(.bottom, 12)
@@ -159,7 +173,7 @@ struct ProfileView: View {
                 )
             }
 
-            Text("Quests refresh every day — points level you up and keep your streak alive.")
+            Text("Quests refresh every day — small steps that keep your streak alive.")
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(Pingu.muted)
                 .multilineTextAlignment(.center)
@@ -183,9 +197,6 @@ struct ProfileView: View {
                     .foregroundStyle(Pingu.ink)
             }
             Spacer()
-            Text("\(xp) pts total")
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundStyle(Pingu.muted)
         }
     }
 
@@ -211,10 +222,6 @@ struct ProfileView: View {
                         }
 
                         Spacer()
-
-                        Text("+\(entry.points)")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundStyle(Pingu.green)
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 10)
@@ -597,20 +604,11 @@ private struct QuestRow: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
-                    Text(quest.label)
-                        .font(.system(size: 13.5, weight: .bold, design: .rounded))
-                        .foregroundStyle(done ? Pingu.muted : Pingu.ink)
-                        .strikethrough(done, color: Pingu.muted)
-                        .lineLimit(2)
-                    HStack(spacing: 2) {
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 9))
-                        Text("\(quest.points)")
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                    }
-                    .foregroundStyle(Pingu.amber)
-                }
+                Text(quest.label)
+                    .font(.system(size: 13.5, weight: .bold, design: .rounded))
+                    .foregroundStyle(done ? Pingu.muted : Pingu.ink)
+                    .strikethrough(done, color: Pingu.muted)
+                    .lineLimit(2)
                 Text(quest.desc)
                     .font(.system(size: 11, weight: .regular, design: .rounded))
                     .foregroundStyle(Pingu.slate)
