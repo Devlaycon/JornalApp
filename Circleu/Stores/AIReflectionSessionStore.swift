@@ -7,15 +7,39 @@ final class AIReflectionSessionStore: ObservableObject {
 
     @Published private(set) var sessions: [AIReflectionSession] = []
 
-    private let storageKey = "circleu.aiReflectionSessions.v1"
+    private let baseStorageKey = "circleu.aiReflectionSessions.v1"
     private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+
+    /// Firebase UID of the currently signed-in user. AI session transcripts can include
+    /// raw spoken content, so we never want one account's sessions visible to another
+    /// account on the same device.
+    private var currentUserID: String?
+
+    private var storageKey: String {
+        guard let uid = currentUserID, !uid.isEmpty else { return baseStorageKey }
+        return "\(baseStorageKey).user.\(uid)"
+    }
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
+        load()
+    }
+
+    // MARK: - Backend wiring
+
+    func configureBackend(uid: String) {
+        guard !uid.isEmpty, currentUserID != uid else { return }
+        currentUserID = uid
+        load()
+    }
+
+    func teardownBackend() {
+        guard currentUserID != nil else { return }
+        currentUserID = nil
         load()
     }
 
@@ -274,13 +298,13 @@ final class AIReflectionSessionStore: ObservableObject {
             components.append(component)
         }
 
-        return orderedSessions(components.map(mergeComponent))
+        return orderedSessions(components.compactMap(mergeComponent))
     }
 
-    private func mergeComponent(_ component: [AIReflectionSession]) -> AIReflectionSession {
+    private func mergeComponent(_ component: [AIReflectionSession]) -> AIReflectionSession? {
         let sortedSessions = orderedSessions(component)
         guard let newestSession = sortedSessions.first else {
-            preconditionFailure("Cannot merge an empty AI session component.")
+            return nil
         }
 
         return sortedSessions.dropFirst().reduce(normalize(newestSession)) { mergedSession, session in

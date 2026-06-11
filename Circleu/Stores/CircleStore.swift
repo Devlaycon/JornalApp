@@ -27,9 +27,20 @@ final class CircleStore: ObservableObject {
     private var isObservingFirebase = false
     private var observedPostCircleIDs: Set<UUID> = []
 
+    /// Only seed local "starter" demo circles in DEBUG builds. Release builds rely on
+    /// the public `/circles` Firestore collection, so we don't want to scatter local-only
+    /// demo data through the UI on shipped users' devices.
+    private static var defaultSeedStarterSpaces: Bool {
+        #if DEBUG
+        return true
+        #else
+        return false
+        #endif
+    }
+
     init(
         userDefaults: UserDefaults = .standard,
-        seedStarterSpaces: Bool = true,
+        seedStarterSpaces: Bool = CircleStore.defaultSeedStarterSpaces,
         firebase: FirebaseCircleService? = nil
     ) {
         self.userDefaults = userDefaults

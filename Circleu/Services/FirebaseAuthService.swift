@@ -169,10 +169,11 @@ struct LiveFirebaseAuthClient: FirebaseAuthClient {
     }
 
     nonisolated private static func session(from user: User) -> FirebaseAuthSession {
-        FirebaseAuthSession(
+        let trimmedName = user.displayName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return FirebaseAuthSession(
             uid: user.uid,
             email: user.email,
-            displayName: user.displayName?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false ? user.displayName! : "Friend",
+            displayName: trimmedName.isEmpty ? "Friend" : trimmedName,
             localUserID: nil
         )
     }

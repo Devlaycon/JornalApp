@@ -1,5 +1,8 @@
 import FirebaseCore
 import Foundation
+import os
+
+private let firebaseLogger = Logger(subsystem: "com.Pingu.Circleu", category: "FirebaseRuntime")
 
 enum FirebaseRuntime {
     static var expectedBundleID: String {
@@ -18,14 +21,14 @@ enum FirebaseRuntime {
     static func configureIfAvailable() -> Bool {
         guard FirebaseApp.app() == nil else { return true }
         guard let options = FirebaseOptions.defaultOptions() else {
-            print("Firebase disabled: GoogleService-Info.plist is missing.")
+            firebaseLogger.warning("Firebase disabled: GoogleService-Info.plist is missing.")
             return false
         }
 
         let configuredBundleID = options.bundleID
         let appBundleID = expectedBundleID
         guard configuredBundleID == appBundleID else {
-            print("Firebase disabled: GoogleService-Info.plist bundle ID '\(configuredBundleID)' does not match app bundle ID '\(appBundleID)'.")
+            firebaseLogger.warning("Firebase disabled: plist bundle ID '\(configuredBundleID, privacy: .public)' does not match app bundle ID '\(appBundleID, privacy: .public)'.")
             return false
         }
 
