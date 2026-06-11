@@ -41,20 +41,6 @@ struct ProfileView: View {
                         .slideUp(0.06)
                         .padding(.bottom, 20)
 
-                    questsHeader
-                        .slideUp(0.1)
-                        .padding(.bottom, 12)
-                    questsSection
-                        .slideUp(0.14)
-                        .padding(.bottom, 24)
-
-                    rewardsHeader
-                        .slideUp(0.16)
-                        .padding(.bottom, 12)
-                    rewardsSection
-                        .slideUp(0.18)
-                        .padding(.bottom, 24)
-
                     historyHeader
                         .slideUp(0.12)
                         .padding(.bottom, 12)
@@ -101,7 +87,7 @@ struct ProfileView: View {
                 .padding(4)
 
             VStack(alignment: .leading, spacing: 0) {
-                Kicker("LEVEL \(level) · \(xp) XP")
+                Kicker("CONFIDENCE STAGE \(level)")
 
                 Text(profileStore.firstName.capitalized)
                     .font(.system(size: 24, weight: .bold, design: .rounded))
@@ -120,11 +106,6 @@ struct ProfileView: View {
                 }
                 .frame(height: 8)
                 .padding(.top, 8)
-
-                Text("\(100 - intoLevel) XP to level \(rewardsStore.nextLevel)")
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .foregroundStyle(Pingu.slate)
-                    .padding(.top, 5)
             }
         }
     }
